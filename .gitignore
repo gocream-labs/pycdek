@@ -1,0 +1,15 @@
+*.egg-info
+*.log
+*.py[cod]
+*.so
+.*
+db.*
+
+/bin
+/include
+/lib
+/logs
+/share
+
+/local_settings.py
+pip-selfcheck.json
