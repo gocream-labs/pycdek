@@ -286,11 +286,18 @@ class CDEKApiClient:
 
         return self.send(self.resourse_order, complete_data, method='post')
 
+    def get_order(self, uuid):
+        """
+        Get order info
 
-        _documentation:: https://confluence.cdek.ru/pages/viewpage.action?pageId=29923926
+        Args:
+            uuid (str): order cdek uuid
+
+        Returns:
+            dict: order info
         """
 
-        # assert order.get('type'), "Order should not contain field `type`"
+        return self.send(Path(self.resourse_order) / Path(uuid))
         # if self.contract_type == CONTRACT_TYPE_SHOP:
         # else:
         #     assert order.get('number'), "Contract type `Delivery` should not contain field `number`"
