@@ -10,17 +10,15 @@ import requests
 logger = logging.getLogger("pycdek")
 
 
-
-CONTRACT_TYPE_SHOP = 'shop'
-CONTRACT_TYPE_DELIVERY = 'delivery'
-
-
 class Client:
     """
     Client for cdek api
     """
     production_api_url = 'api.cdek.ru/v2/'
     development_api_url = 'api.edu.cdek.ru/v2/'
+
+    contract_type_shop = 'shop'
+    contract_type_delivery = 'delivery'
 
     def __init__(self, id, secret, is_shop, production=True):
         """
@@ -33,7 +31,7 @@ class Client:
 
         self.id = id
         self.secret = secret
-        self.contract_type = CONTRACT_TYPE_SHOP if is_shop else DEVELOPMENT_API_URL
+        self.contract_type = self.contract_type_shop if is_shop else self.contract_type_delivery
         self.api_url = api_url
 
     _token = None
