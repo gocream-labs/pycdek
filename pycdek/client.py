@@ -10,8 +10,6 @@ import requests
 logger = logging.getLogger("pycdek")
 
 
-PRODUCTION_API_URL = 'http://api.cdek.ru/v2/'
-DEVELOPMENT_API_URL = 'http://api.edu.cdek.ru/v2/'
 
 CONTRACT_TYPE_SHOP = 'shop'
 CONTRACT_TYPE_DELIVERY = 'delivery'
@@ -21,6 +19,8 @@ class Client:
     """
     Client for cdek api
     """
+    production_api_url = 'api.cdek.ru/v2/'
+    development_api_url = 'api.edu.cdek.ru/v2/'
 
     def __init__(self, id, secret, is_shop, production=True):
         """
@@ -77,8 +77,8 @@ class Client:
         make request url
         """
 
-        api = PRODUCTION_API_URL if self.production else DEVELOPMENT_API_URL
-        return f"{api}{resource}"
+        api = self.production_api_url if self.production else self.development_api_url
+        return f"http://{Path(api) / Path(resource)}"
 
     def get_headers(self):
         """
