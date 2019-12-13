@@ -10,7 +10,7 @@ import requests
 logger = logging.getLogger("pycdek")
 
 
-class Client:
+class CDEKApiClient:
     """
     Client for cdek api
     """

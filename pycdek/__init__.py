@@ -26,5 +26,7 @@ def get_version(raw_version):
 version = __VERSION__ = get_version((
     (1, 0, 0),
     ('a', 1),
-    ('dev', 4)
+    ('dev', 5)
 ))
+
+from .client import CDEKApiClient
