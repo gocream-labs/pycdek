@@ -1,11 +1,13 @@
-Python wrapper for CDEK API v2.0
-================================
+# PyCDEK 2
+
+## Python library for CDEK API v2.0
+
 
 API - [ru][api_url_ru] [en][api_url_en]
 
 
-TO DO:
-======
+## TO DO:
+
 * tests
 * unittests
 * test flask app
