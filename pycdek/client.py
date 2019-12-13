@@ -87,12 +87,33 @@ class CDEKApiClient:
             'Authorization': f'Bearer {self.token}'
         }
 
-    def send(self, resource, data):
+    def send(self, resource, data=None, method='get'):
         """
-        send request and add token to headers
+        Send request and add token to headers
+
+        Args:
+            resource (str|Path): resource path
+            data (dict, optional): dictionary of request data used in json. Default to None.
+
+        Returns:
+            dict: request returned data
         """
 
-        return requests.post(self.get_url(resource), headers=self.get_headers()).json()
+        kwargs = {
+            'headers': self.get_headers(),
+            'json': data,
+        }
+
+        if method == 'get':
+            response = requests.get(self.get_url(resource), **kwargs)
+
+        elif method == 'post':
+            response = requests.post(self.get_url(resource), **kwargs)
+
+        elif method == 'delete':
+            response = requests.delete(self.get_url(resource), **kwargs)
+
+        return response.json()
 
     def registrate_order(self, data, tariff_code=None, number=None, comment=None, shipment_point=None):
         """
