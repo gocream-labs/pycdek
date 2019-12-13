@@ -48,8 +48,8 @@ class CDEKApiClient:
         if not self._token or self._token_exp <= now:
             # token not getted or expired -> response
             response = self.authorization()
-            self._token = response.json()['access_token']
-            token_data = jwt.decode(response.json()['access_token'], verify=False)
+            self._token = response['access_token']
+            token_data = jwt.decode(response['access_token'], verify=False)
             self._token_exp = dt.datetime.fromtimestamp(token_data['exp'])
 
         return self._token
@@ -59,14 +59,14 @@ class CDEKApiClient:
         request jwt token for use in api requests
         """
 
-        response = requests.post(self.get_url('oauth/token?parameters'), {
+        response = requests.post(self.get_url('oauth/token'),{
             'grant_type': 'client_credentials',
             'client_id': self.id,
             'client_secret': self.secret,
         })
         json = response.json()
 
-        assert json['token_type'] != 'bearer', f"CDEK token type `{json['token_type']}` not support"
+        assert json['token_type'] == 'bearer', f"CDEK return token type `{json['token_type']}` that not supported."
 
         return json
 
