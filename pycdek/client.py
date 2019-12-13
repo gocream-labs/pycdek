@@ -32,7 +32,7 @@ class CDEKApiClient:
         self.id = id
         self.secret = secret
         self.contract_type = self.contract_type_shop if is_shop else self.contract_type_delivery
-        self.api_url = api_url
+        self.production = production
 
     _token = None
     _token_exp = None
