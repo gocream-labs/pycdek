@@ -24,6 +24,7 @@ class CDEKApiClient:
     contract_type_delivery = 'delivery'
 
     resourse_order = 'orders'
+    resourse_intakes = 'intakes'
 
     def __init__(self, id, secret, is_shop, production=True):
         """
@@ -298,8 +299,6 @@ class CDEKApiClient:
         """
 
         return self.send(Path(self.resourse_order) / Path(uuid))
-        # if self.contract_type == CONTRACT_TYPE_SHOP:
-        # else:
 
     def remove_order(self, uuid):
         """
@@ -314,4 +313,109 @@ class CDEKApiClient:
 
         return self.send(Path(self.resourse_order) / Path(uuid), method='delete')
 
-        return self.send('orders', complete_data)
+    def registrate_intakes(
+            self,
+            intake_date,
+            intake_time_from,
+            intake_time_to,
+            order_uuid=None,
+            lunch_time_from=None,
+            lunch_time_to=None,
+            name=None,
+            cdek_number=None,
+            weight=None,
+            length=None,
+            width=None,
+            height=None,
+            comment=None,
+            sender=None,
+            from_location=None,
+            need_call=None,
+        ):
+        """
+        Registrate intakes
+
+        Args:
+            intake_date (str): Дата ожидания курьера в формате (yyyy-MM-dd)
+            intake_time_from (time): Время начала ожидания курьера
+            intake_time_to (time): Время окончания ожидания курьера
+            order_uuid (str, optional): Идентификатор заказа в ИС СДЭК (UUID)
+            lunch_time_from (time, optional): Время начала обеда, должно входить в диапозон [intake_time_to;intake_time_to]
+            lunch_time_to (time, optional): Время окончания обеда, должно входить в диапозон [intake_time_to;intake_time_to]
+            name (str, optional):    Описание груза
+            cdek_number (int, optional): Номер заказа СДЭК
+            weight (int, optional):  Общий вес (в граммах)
+            length (int, optional):  Габариты упаковки. Длина (в сантиметрах)
+            width (int, optional):   Габариты упаковки. Ширина (в сантиметрах)
+            height (int, optional):  Габариты упаковки. Высота (в сантиметрах)
+            comment (str, optional): Комментарий к заявке для курьера
+            sender (dict, optional): Отправитель:
+                name (str): ФИО контактного лица
+                company (str, optional): Название компании отправителя
+                phones (list of dict, optional): Список телефонов:
+                    number (str): Номер телефона
+                    additional (str, optional): Дополнительная информация (доп. номер)
+            from_location (dict, optional): Адрес отправителя (забора):
+                country_code (str): Код страны в формате ISO_3166-1_alpha-2
+                address (str): Строка адреса
+                code (str, optional): Код локации (справочник СДЭК)
+                fias_guid (str, optional): Уникальный идентификатор ФИАС (UUID)
+                postal_code (str, optional): Почтовый индекс
+                longitude (float, optional): Долгота
+                latitude (float, optional): Широта
+                region (str, optional): Название региона
+                sub_region (str, optional): Название района региона
+                city (str, optional): Название города
+                kladr_code (str, optional): Код КЛАДР
+            need_call (bool, optional):  Необходим прозвон отправителя (по умолчанию - false)
+
+        Returns:
+            dict: Intakes dict
+        """
+
+        complete_data = clear_dict({
+            'intake_date': intake_date,
+            'intake_time_from': intake_time_from,
+            'intake_time_to': intake_time_to,
+            'order_uuid': order_uuid,
+            'lunch_time_from': lunch_time_from,
+            'lunch_time_to': lunch_time_to,
+            'name': name,
+            'cdek_number': cdek_number,
+            'weight': weight,
+            'length': length,
+            'width': width,
+            'height': height,
+            'comment': comment,
+            'sender': sender,
+            'from_location': from_location,
+            'need_call': need_call,
+        })
+
+        return self.send(self.resourse_intakes, complete_data, method='post')
+
+    def get_intakes(self, uuid):
+        """
+        Get intakes info
+
+        Args:
+            uuid (str): intakes cdek uuid
+
+        Returns:
+            dict: intakes info
+        """
+
+        return self.send(Path(self.resourse_intakes) / Path(uuid))
+
+    def remove_intakes(self, uuid):
+        """
+        Remove intakes
+
+        Args:
+            uuid (str): intakes cdek uuid
+
+        Returns:
+            dict: deleted intakes info
+        """
+
+        return self.send(Path(self.resourse_intakes) / Path(uuid), method='delete')
