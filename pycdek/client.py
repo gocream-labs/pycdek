@@ -300,12 +300,18 @@ class CDEKApiClient:
         return self.send(Path(self.resourse_order) / Path(uuid))
         # if self.contract_type == CONTRACT_TYPE_SHOP:
         # else:
-        #     assert order.get('number'), "Contract type `Delivery` should not contain field `number`"
 
-        # logger.info("registrate order in cdek")
+    def remove_order(self, uuid):
+        """
+        Remove order
 
-        complete_data = {
-            'type': 1 if self.contract_type == CONTRACT_TYPE_SHOP else 2,
-        }
+        Args:
+            uuid (str): order cdek uuid
+
+        Returns:
+            dict: deleted order info
+        """
+
+        return self.send(Path(self.resourse_order) / Path(uuid), method='delete')
 
         return self.send('orders', complete_data)
