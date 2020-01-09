@@ -28,5 +28,3 @@ version = __VERSION__ = get_version((
     ('b', 1),
     # ('dev', 13)
 ))
-
-from .client import CDEKApiClient
