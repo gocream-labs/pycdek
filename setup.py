@@ -12,8 +12,8 @@ long_description = '\n'.join([
 ])
 
 setup(
-    name = 'pycdek',
-    url = 'https://gitlab.com/gocream/pycdek.git',
+    name = 'PyCDEK 2',
+    url = 'https://gitlab.com/gocream/pycdek-2',
     version = __import__('pycdek').version,
     author = 'Gocream',
     author_email = 'dd@manin.space',
