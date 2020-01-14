@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from copy import deepcopy
 from pathlib import Path
 import datetime as dt
 import logging
@@ -25,6 +26,7 @@ class CDEKApiClient:
 
     resource_order = 'orders'
     resource_intakes = 'intakes'
+    resource_cities = 'location/cities'
 
     def __init__(self, id, secret, is_shop, production=True):
         """
@@ -418,4 +420,81 @@ class CDEKApiClient:
             dict: deleted intakes info
         """
 
-        return self.send(Path(self.resourse_intakes) / Path(uuid), method='delete')
+        return self.send(Path(self.resource_intakes) / Path(uuid), method='delete')
+
+    def get_cities(
+        self,
+        country_codes=None,
+        region_code=None,
+        kladr_region_code=None,
+        fias_region_guid=None,
+        kladr_code=None,
+        fias_guid=None,
+        postal_code=None,
+        code=None,
+        city=None,
+        page=0,
+        size=1000,
+        lang=None,
+        payment_limit=None
+    ):
+        """
+        Request regions
+
+        Args:
+            country_codes           Массив кодов стран в формате  ISO_3166-1_alpha-2    string(2) [ ]   нет
+            region_code             Код региона СДЭК    string(255) нет
+            kladr_region_code       Код КЛАДР региона   string(255) нет
+            fias_region_guid        Уникальный идентификатор ФИАС региона UUID    нет
+            kladr_code              Код КЛАДР населенного пункта    string(255) нет
+            fias_guid               Уникальный идентификатор ФИАС населенного пункта    UUID    нет
+            postal_code             Почтовый индекс string(255) нет
+            code                    Код населенного пункта СДЭК string(255) нет
+            city                    Название населенного пункта. Должно соответствовать полностью   string(255) нет
+            size                    Ограничение выборки результата. По умолчанию 1000   integer да, если указан page
+            page                    Номер страницы выборки результата. По умолчанию 0   integer нет
+            lang                    Локализация. По умолчанию "rus" string(3)   нет
+            payment_limit           Ограничение на сумму наложенного платежа:
+                -1 - ограничения нет;
+                 0 - наложенный платеж не принимается;
+                 положительное значение - сумма наложенного платежа не более данного значения.
+
+        Returns:
+            list: list of cities
+        """
+
+        complete_data = clear_dict({
+            'country_codes': country_codes,
+            'region_code': region_code,
+            'kladr_region_code': kladr_region_code,
+            'fias_region_guid': fias_region_guid,
+            'kladr_code': kladr_code,
+            'fias_guid': fias_guid,
+            'postal_code': postal_code,
+            'code': code,
+            'city': city,
+            'page': page,
+            'size': size,
+            'lang': lang,
+            'payment_limit': payment_limit,
+        })
+
+        return self.send(Path(self.resource_cities), complete_data)
+
+    def get_all_cities(
+        self,
+        **kwargs
+    ):
+        request_kwargs = deepcopy(kwargs)
+        request_kwargs['page'] = 0
+
+        while True:
+            cities = self.get_cities(**request_kwargs)
+
+            if len(cities) == 0:
+                break
+
+            for city in cities:
+                yield city
+
+            request_kwargs['page'] += 1
