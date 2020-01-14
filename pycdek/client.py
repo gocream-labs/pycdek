@@ -23,8 +23,8 @@ class CDEKApiClient:
     contract_type_shop = 'shop'
     contract_type_delivery = 'delivery'
 
-    resourse_order = 'orders'
-    resourse_intakes = 'intakes'
+    resource_order = 'orders'
+    resource_intakes = 'intakes'
 
     def __init__(self, id, secret, is_shop, production=True):
         """
@@ -285,7 +285,7 @@ class CDEKApiClient:
             'services': services,
         })
 
-        return self.send(self.resourse_order, complete_data, method='post')
+        return self.send(self.resource_order, complete_data, method='post')
 
     def get_order(self, uuid):
         """
@@ -298,7 +298,7 @@ class CDEKApiClient:
             dict: order info
         """
 
-        return self.send(Path(self.resourse_order) / Path(uuid))
+        return self.send(Path(self.resource_order) / Path(uuid))
 
     def remove_order(self, uuid):
         """
@@ -311,7 +311,7 @@ class CDEKApiClient:
             dict: deleted order info
         """
 
-        return self.send(Path(self.resourse_order) / Path(uuid), method='delete')
+        return self.send(Path(self.resource_order) / Path(uuid), method='delete')
 
     def registrate_intakes(
             self,
@@ -392,7 +392,7 @@ class CDEKApiClient:
             'need_call': need_call,
         })
 
-        return self.send(self.resourse_intakes, complete_data, method='post')
+        return self.send(self.resource_intakes, complete_data, method='post')
 
     def get_intakes(self, uuid):
         """
@@ -405,7 +405,7 @@ class CDEKApiClient:
             dict: intakes info
         """
 
-        return self.send(Path(self.resourse_intakes) / Path(uuid))
+        return self.send(Path(self.resource_intakes) / Path(uuid))
 
     def remove_intakes(self, uuid):
         """
