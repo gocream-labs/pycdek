@@ -83,6 +83,9 @@ class CDEKApiClient:
         make request url
         """
 
+        if str(resource).startswith('http'):
+            return resource
+
         api = self.production_api_url if self.production else self.development_api_url
         return f"http://{Path(api) / Path(resource)}"
 
