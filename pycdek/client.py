@@ -642,7 +642,7 @@ class CDEKApiClient:
         })
 
         if auth:
-            assert not (self.id and self.secret), "Has no provide auth information"
+            assert self.id and self.secret, "Has no provide auth information"
 
             today = dt.date.today().isoformat()
             if not 'dateExecute' in complete_data:
