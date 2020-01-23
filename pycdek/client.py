@@ -4,12 +4,13 @@ from copy import deepcopy
 from io import BytesIO
 from pathlib import Path
 import datetime as dt
+import json
 import logging
 
 import jwt
 import requests
 
-from pycdek.utils import clear_dict
+from pycdek.utils import clear_dict, get_secure
 
 
 logger = logging.getLogger("pycdek")
@@ -579,6 +580,7 @@ class CDEKApiClient:
         tariff_list=None,
         services=None,
         raise_errors=True,
+        auth=False,
     ):
         """
         goods (dict): Габаритные характеристики упаковки:
@@ -620,8 +622,6 @@ class CDEKApiClient:
         complete_data = clear_dict({
             'goods': goods,
             'version': version,
-            'authLogin': auth_login,
-            'secure': secure,
             'dateExecute': date_execute,
             'lang': lang,
             'senderCountryCode': sender_country_code,
@@ -641,10 +641,20 @@ class CDEKApiClient:
             'services': services,
         })
 
-        response = requests.post(
-            self.RESOURCE_CALCULATOR_URL,
-            json=complete_data,
-        )
+        if self.id and self.secret:
+            today = dt.date.today().isoformat()
+            if not 'dateExecute' in complete_data:
+                complete_data['dateExecute'] = today
+
+            complete_data['authLogin'] = self.id
+            complete_data['secure'] = get_secure(self.secret, today)
+
+        else:
+            raise auth, "Has no provide auth information"
+
+        response = self.send(self.RESOURCE_CALCULATOR_URL, json=complete_data)
+
         if raise_errors:
             response.raise_for_status()
+
         return response.json()
