@@ -27,6 +27,7 @@ class CDEKApiClient:
     RESOURCE_ORDER = 'orders'
     RESOURCE_INTAKES = 'intakes'
     RESOURCE_CITIES = 'location/cities'
+    RESOURCE_CALCULATOR_URL = 'http://api.cdek.ru/calculator/calculate_price_by_json.php'
 
     def __init__(self, id, secret, is_shop, production=True):
         """
@@ -503,3 +504,97 @@ class CDEKApiClient:
                 yield city
 
             request_kwargs['page'] += 1
+
+    def get_shipping_cost(
+        self,
+        goods,
+        version="1.0",
+        auth_login=None,
+        secure=None,
+        date_execute=None,
+        lang=None,
+        sender_country_code=None,
+        receiver_country_code=None,
+        sender_city_id=None,
+        sender_city=None,
+        sender_city_post_code=None,
+        receiver_city_id=None,
+        receiver_city_post_code=None,
+        receiver_city=None,
+        sender_longitude=None,
+        receiver_longitude=None,
+        sender_latitude=None,
+        receiver_latitude=None,
+        tariff_id=None,
+        tariff_list=None,
+        services=None,
+        raise_errors=True,
+    ):
+        """
+        goods (dict): Габаритные характеристики упаковки:
+            weight (float): Вес упаковки (в килограммах)
+            length (int): Длина упаковки (в сантиметрах)
+            width (int):  Ширина упаковки (в сантиметрах)
+            height (int): Высота упаковки (в сантиметрах)
+            volume (float): Объём упаковки (в м³)
+        version (str, optional): Версия используемого API - “1.0”
+        auth_login (str, optional):  Идентификатор ИМ (логин)
+        secure (str, optional): Ключ
+        date_execute (date, optional): Планируемая дата отправки заказа в формате “ГГГГ-ММ-ДД” date    нет
+        lang (str, optional): Локализация названий городов. По умолчанию "rus"
+        sender_country_code (str, optional): Код страны отправителя в формате ISO_3166-1_alpha-2 (см. “Общероссийский классификатор стран мира”). По умолчанию - ru.
+        receiver_country_code (str, optional): Код страны получателя в формате ISO_3166-1_alpha-2 (см. “Общероссийский классификатор стран мира”). По умолчанию - ru.
+        sender_city_id (int, optional): Код города отправителя из базы СДЭК (см. файл «City_XXX_YYYYMMDD.xls»)
+        sender_city (str, optional): Наименование города отправителя string  нет
+        sender_city_post_code (int, optional): Индекс города отправителя из базы СДЭК (см. файл «City_XXX_YYYYMMDD.xls»)
+        receiver_city_id (int, optional): Код города получателя из базы СДЭК (см. файл «City_XXX_YYYYMMDD.xls»)
+        receiver_city_post_code (int, optional): Индекс города получателя из базы СДЭК (см. файл «City_XXX_YYYYMMDD.xls»)
+        receiver_city (, optional): Наименование города получателя  string  нет
+        sender_longitude (float, optional): Долгота города отправителя
+        receiver_longitude (float, optional): Долгота города получателя
+        sender_latitude (float, optional): Широта города отправителя
+        receiver_latitude (float, optional): Широта города получателя
+        tariff_id (int, optional): Код выбранного тарифа (подробнее см. приложение 1)
+        tariff_list (list, optional): Список тарифов:
+            priority (int): Заданный приоритет
+            id (int): Код тарифа (подробнее см. приложение 1)
+            mode_id (int, optional): Режим доставки (подробнее см. приложение 1)
+        services (dict, optional): Список передаваемых дополнительных услуг (подробнее см. приложение 2):
+            id (int): Идентификатор номера дополнительной услуги
+            param (int, optional): Параметр дополнительной услуги, если необходимо
+        raise_errors (bool, optional): raise errors? (default: True)
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=15616129#id-Протоколобменаданными(v1.5)-4.14CalculatorКалькулятор
+        """
+
+        complete_data = clear_dict({
+            'goods': goods,
+            'version': version,
+            'authLogin': auth_login,
+            'secure': secure,
+            'dateExecute': date_execute,
+            'lang': lang,
+            'senderCountryCode': sender_country_code,
+            'receiverCountryCode': receiver_country_code,
+            'senderCityId': sender_city_id,
+            'senderCity': sender_city,
+            'senderCityPostCode': sender_city_post_code,
+            'receiverCityId': receiver_city_id,
+            'receiverCityPostCode': receiver_city_post_code,
+            'receiverCity': receiver_city,
+            'senderLongitude': sender_longitude,
+            'receiverLongitude': receiver_longitude,
+            'senderLatitude': sender_latitude,
+            'receiverLatitude': receiver_latitude,
+            'tariffId': tariff_id,
+            'tariffList': tariff_list,
+            'services': services,
+        })
+
+        response = requests.post(
+            self.RESOURCE_CALCULATOR_URL,
+            'json': complete_data,
+        )
+        if raise_errors:
+            response.raise_for_status()
+        return response.json()
