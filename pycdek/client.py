@@ -98,7 +98,7 @@ class CDEKApiClient:
             'Authorization': f'Bearer {self.token}'
         }
 
-    def send(self, resource, data=None, method='get'):
+    def send(self, resource, data=None, method='get', **kwargs):
         """
         Send request and add token to headers
 
@@ -110,21 +110,23 @@ class CDEKApiClient:
             dict: request returned data
         """
 
-        kwargs = {
+        request_kwargs = {
             'headers': self.get_headers(),
             'json': data,
         }
+        request_kwargs.update(kwargs)
 
         if method == 'get':
-            response = requests.get(self.get_url(resource), **kwargs)
+            response = requests.get(self.get_url(resource), **request_kwargs)
 
         elif method == 'post':
-            response = requests.post(self.get_url(resource), **kwargs)
+            response = requests.post(self.get_url(resource), **request_kwargs)
 
         elif method == 'delete':
-            response = requests.delete(self.get_url(resource), **kwargs)
+            response = requests.delete(self.get_url(resource), **request_kwargs)
 
-        return response.json()
+        response.raise_for_status()
+        return response
 
     def registrate_order(
             self,
@@ -290,7 +292,7 @@ class CDEKApiClient:
             'services': services,
         })
 
-        return self.send(self.RESOURCE_ORDER, complete_data, method='post')
+        return self.send(self.RESOURCE_ORDER, complete_data, method='post').json()
 
     def get_order(self, uuid):
         """
@@ -303,7 +305,7 @@ class CDEKApiClient:
             dict: order info
         """
 
-        return self.send(Path(self.RESOURCE_ORDER) / Path(uuid))
+        return self.send(Path(self.RESOURCE_ORDER) / Path(uuid)).json()
 
     def remove_order(self, uuid):
         """
@@ -397,7 +399,7 @@ class CDEKApiClient:
             'need_call': need_call,
         })
 
-        return self.send(self.RESOURCE_INTAKES, complete_data, method='post')
+        return self.send(self.RESOURCE_INTAKES, complete_data, method='post').json()
 
     def get_intakes(self, uuid):
         """
@@ -410,7 +412,7 @@ class CDEKApiClient:
             dict: intakes info
         """
 
-        return self.send(Path(self.RESOURCE_INTAKES) / Path(uuid))
+        return self.send(Path(self.RESOURCE_INTAKES) / Path(uuid)).json()
 
     def remove_intakes(self, uuid):
         """
@@ -423,7 +425,7 @@ class CDEKApiClient:
             dict: deleted intakes info
         """
 
-        return self.send(Path(self.RESOURCE_INTAKES) / Path(uuid), method='delete')
+        return self.send(Path(self.RESOURCE_INTAKES) / Path(uuid), method='delete').json()
 
     def get_cities(
         self,
@@ -482,7 +484,7 @@ class CDEKApiClient:
             'payment_limit': payment_limit,
         })
 
-        return self.send(Path(self.RESOURCE_CITIES), complete_data)
+        return self.send(Path(self.RESOURCE_CITIES), complete_data).json()
 
     def get_all_cities(
         self,
