@@ -209,14 +209,14 @@ class CDEKApiClient:
                         vat_rate (int, optional): Ставка НДС (значение - 0, 10, 18, 20 и т.п. , null - нет НДС)
                     cost (float): Объявленная стоимость товара (за единицу товара в указанной валюте, значение >=0). С данного значения рассчитывается страховка
                     weight (int): Вес (за единицу товара, в граммах)
-                    weight_gross (int, optional): Вес брутто:
-                        amount (int): Количество единиц товара (в штуках)
-                        name_i18n (str, optional): Наименование на иностранном языке
-                        brand (str, optional): Бренд на иностранном языке
-                        country_code (str, optional): Код страны в формате  ISO_3166-1_alpha-2
-                        material (str, optional): Код материала
-                        wifi_gsm (bool, optional): Содержит wifi/gsm
-                        url (str, optional): Ссылка на сайт интернет-магазина с описанием товара
+                    weight_gross (int, optional): Вес брутто
+                    amount (int): Количество единиц товара (в штуках)
+                    name_i18n (str, optional): Наименование на иностранном языке
+                    brand (str, optional): Бренд на иностранном языке
+                    country_code (str, optional): Код страны в формате  ISO_3166-1_alpha-2
+                    material (str, optional): Код материала
+                    wifi_gsm (bool, optional): Содержит wifi/gsm
+                    url (str, optional): Ссылка на сайт интернет-магазина с описанием товара
             number (str, optional): Номер заказа в ИС Клиента (если не передан, будет присвоен номер заказа в ИС СДЭК - uuid). Только для заказов "интернет-магазин".
             comment (str, optional): Комментарий к заказу.
             shipment_point (str, optional): Код ПВЗ СДЭК, на который будет производится забор отправления, либо самостоятельный привоз клиентом.
@@ -349,12 +349,12 @@ class CDEKApiClient:
             order_uuid (str, optional): Идентификатор заказа в ИС СДЭК (UUID)
             lunch_time_from (time, optional): Время начала обеда, должно входить в диапозон [intake_time_to;intake_time_to]
             lunch_time_to (time, optional): Время окончания обеда, должно входить в диапозон [intake_time_to;intake_time_to]
-            name (str, optional):    Описание груза
+            name (str, optional): Описание груза
             cdek_number (int, optional): Номер заказа СДЭК
-            weight (int, optional):  Общий вес (в граммах)
-            length (int, optional):  Габариты упаковки. Длина (в сантиметрах)
-            width (int, optional):   Габариты упаковки. Ширина (в сантиметрах)
-            height (int, optional):  Габариты упаковки. Высота (в сантиметрах)
+            weight (int, optional): Общий вес (в граммах)
+            length (int, optional): Габариты упаковки. Длина (в сантиметрах)
+            width (int, optional): Габариты упаковки. Ширина (в сантиметрах)
+            height (int, optional): Габариты упаковки. Высота (в сантиметрах)
             comment (str, optional): Комментарий к заявке для курьера
             sender (dict, optional): Отправитель:
                 name (str): ФИО контактного лица
@@ -374,7 +374,7 @@ class CDEKApiClient:
                 sub_region (str, optional): Название района региона
                 city (str, optional): Название города
                 kladr_code (str, optional): Код КЛАДР
-            need_call (bool, optional):  Необходим прозвон отправителя (по умолчанию - false)
+            need_call (bool, optional): Необходим прозвон отправителя (по умолчанию - false)
 
         Returns:
             dict: Intakes dict
