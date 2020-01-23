@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from copy import deepcopy
+from io import BytesIO
 from pathlib import Path
 import datetime as dt
 import logging
@@ -27,6 +28,7 @@ class CDEKApiClient:
     RESOURCE_ORDER = 'orders'
     RESOURCE_INTAKES = 'intakes'
     RESOURCE_CITIES = 'location/cities'
+    RESOURCE_INVOICE = 'print/orders'
     RESOURCE_CALCULATOR_URL = 'http://api.cdek.ru/calculator/calculate_price_by_json.php'
 
     def __init__(self, id, secret, is_shop, production=True):
@@ -505,6 +507,54 @@ class CDEKApiClient:
 
             request_kwargs['page'] += 1
 
+    def request_invoice(self, uuids, copy_count=2):
+        """
+        Request for the receipt of an order
+
+        Args:
+            uuids (str[]): cdek orders uuids
+            copy_count (integer, optional): count of invoice on page (default: 2)
+
+        Returns:
+            dict: requested invoice dict
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=36967276
+        """
+
+        complete_data = clear_dict({
+            'orders': [{'order_uuid': uuid} for uuid in uuids],
+            'copy_count': copy_count,
+        })
+
+        return self.send(self.RESOURCE_INVOICE, complete_data, method='post').json()
+
+    def get_invoice(self, uuid):
+        """
+        Get link to invoice
+
+        Args:
+            uuid (str): intakes cdek uuid
+
+        Returns:
+            dict: requested invoice dict
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=36967287
+        """
+
+        return self.send(Path(self.RESOURCE_INVOICE) / Path(uuid)).json()
+
+    def download(self, url):
+        # response = self.send(url)
+        # media = BytesIO()
+        # media.write(response.content)
+        # return media
+
+        r = self.send(url, stream=True)
+        if r.status_code == 200:
+            with open('test.pdf', 'wb') as f:
+                for chunk in r.iter_content(1024):
+                    f.write(chunk)
+
     def get_shipping_cost(
         self,
         goods,
@@ -593,7 +643,7 @@ class CDEKApiClient:
 
         response = requests.post(
             self.RESOURCE_CALCULATOR_URL,
-            'json': complete_data,
+            json=complete_data,
         )
         if raise_errors:
             response.raise_for_status()
