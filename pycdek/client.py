@@ -18,15 +18,15 @@ class CDEKApiClient:
     """
     Client for cdek api
     """
-    production_api_url = 'api.cdek.ru/v2/'
-    development_api_url = 'api.edu.cdek.ru/v2/'
+    PRODUCTION_API_URL = 'api.cdek.ru/v2/'
+    DEVELOPMENT_API_URL = 'api.edu.cdek.ru/v2/'
 
-    contract_type_shop = 'shop'
-    contract_type_delivery = 'delivery'
+    CONTRACT_TYPE_SHOP = 'shop'
+    CONTRACT_TYPE_DELIVERY = 'delivery'
 
-    resource_order = 'orders'
-    resource_intakes = 'intakes'
-    resource_cities = 'location/cities'
+    RESOURCE_ORDER = 'orders'
+    RESOURCE_INTAKES = 'intakes'
+    RESOURCE_CITIES = 'location/cities'
 
     def __init__(self, id, secret, is_shop, production=True):
         """
@@ -39,7 +39,7 @@ class CDEKApiClient:
 
         self.id = id
         self.secret = secret
-        self.contract_type = self.contract_type_shop if is_shop else self.contract_type_delivery
+        self.contract_type = self.CONTRACT_TYPE_SHOP if is_shop else self.CONTRACT_TYPE_DELIVERY
         self.production = production
 
     _token = None
@@ -86,7 +86,7 @@ class CDEKApiClient:
         if str(resource).startswith('http'):
             return resource
 
-        api = self.production_api_url if self.production else self.development_api_url
+        api = self.PRODUCTION_API_URL if self.production else self.DEVELOPMENT_API_URL
         return f"http://{Path(api) / Path(resource)}"
 
     def get_headers(self):
@@ -268,7 +268,7 @@ class CDEKApiClient:
         """
 
         complete_data = clear_dict({
-            'type': 1 if self.contract_type == self.contract_type_shop else 2,
+            'type': 1 if self.contract_type == self.CONTRACT_TYPE_SHOP else 2,
             'tariff_code': tariff_code,
             'recipient': recipient,
             'from_location': from_location,
@@ -290,7 +290,7 @@ class CDEKApiClient:
             'services': services,
         })
 
-        return self.send(self.resource_order, complete_data, method='post')
+        return self.send(self.RESOURCE_ORDER, complete_data, method='post')
 
     def get_order(self, uuid):
         """
@@ -303,7 +303,7 @@ class CDEKApiClient:
             dict: order info
         """
 
-        return self.send(Path(self.resource_order) / Path(uuid))
+        return self.send(Path(self.RESOURCE_ORDER) / Path(uuid))
 
     def remove_order(self, uuid):
         """
@@ -316,7 +316,7 @@ class CDEKApiClient:
             dict: deleted order info
         """
 
-        return self.send(Path(self.resource_order) / Path(uuid), method='delete')
+        return self.send(Path(self.RESOURCE_ORDER) / Path(uuid), method='delete')
 
     def registrate_intakes(
             self,
@@ -397,7 +397,7 @@ class CDEKApiClient:
             'need_call': need_call,
         })
 
-        return self.send(self.resource_intakes, complete_data, method='post')
+        return self.send(self.RESOURCE_INTAKES, complete_data, method='post')
 
     def get_intakes(self, uuid):
         """
@@ -410,7 +410,7 @@ class CDEKApiClient:
             dict: intakes info
         """
 
-        return self.send(Path(self.resource_intakes) / Path(uuid))
+        return self.send(Path(self.RESOURCE_INTAKES) / Path(uuid))
 
     def remove_intakes(self, uuid):
         """
@@ -423,7 +423,7 @@ class CDEKApiClient:
             dict: deleted intakes info
         """
 
-        return self.send(Path(self.resource_intakes) / Path(uuid), method='delete')
+        return self.send(Path(self.RESOURCE_INTAKES) / Path(uuid), method='delete')
 
     def get_cities(
         self,
@@ -482,7 +482,7 @@ class CDEKApiClient:
             'payment_limit': payment_limit,
         })
 
-        return self.send(Path(self.resource_cities), complete_data)
+        return self.send(Path(self.RESOURCE_CITIES), complete_data)
 
     def get_all_cities(
         self,
