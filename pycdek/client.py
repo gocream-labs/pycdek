@@ -3,6 +3,11 @@
 from copy import deepcopy
 from io import BytesIO
 from pathlib import Path
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Union
 import datetime as dt
 import json
 import logging
@@ -28,6 +33,7 @@ class CDEKApiClient:
 
     RESOURCE_ORDER = 'orders'
     RESOURCE_INTAKES = 'intakes'
+    RESOURCE_REGIONS = 'location/regions'
     RESOURCE_CITIES = 'location/cities'
     RESOURCE_INVOICE = 'print/orders'
     RESOURCE_CALCULATOR_URL = 'http://api.cdek.ru/calculator/calculate_price_by_json.php'
@@ -430,6 +436,65 @@ class CDEKApiClient:
         """
 
         return self.send(Path(self.RESOURCE_INTAKES) / Path(uuid), method='delete').json()
+
+    def get_regions(
+        self,
+        country_code: Optional[str] = None,
+        region_code: Optional[str] = None,
+        kladr_region_code: Optional[str] = None,
+        fias_region_guid: Optional[str] = None,
+        size: Optional[int] = 1000,
+        page: Optional[int] = 0,
+        lang: Optional[str] = None,
+    ) -> List:
+        """
+        Request regions
+
+        Args:
+            country_code            Массив кодов стран в формате  ISO_3166-1_alpha-2    string(2) [ ]   нет
+            region_code             Код региона СДЭК    string(255) нет
+            kladr_region_code       Код КЛАДР региона   string(255) нет
+            fias_region_guid        Уникальный идентификатор ФИАС региона   UUID    нет
+            size                    Ограничение выборки результата. По умолчанию 1000   integer да, если указан page
+            page                    Номер страницы выборки результата. По умолчанию 0   integer нет
+            lang                    Локализация. По умолчанию "rus" string(3)   нет
+
+        Returns:
+            list: list of regions
+
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=33829418
+        """
+
+        complete_data = clear_dict({
+            'country_code': country_code,
+            'region_code': region_code,
+            'kladr_region_code': kladr_region_code,
+            'fias_region_guid': fias_region_guid,
+            'size': size,
+            'page': page,
+            'lang': lang,
+        })
+
+        return self.send(Path(self.RESOURCE_REGIONS), complete_data).json()
+
+    def get_all_regions(
+        self,
+        **kwargs
+    ):
+        request_kwargs = deepcopy(kwargs)
+        request_kwargs['page'] = 0
+
+        while True:
+            regions = self.get_regions(**request_kwargs)
+
+            if len(regions) == 0:
+                break
+
+            for region in regions:
+                yield region
+
+            request_kwargs['page'] += 1
 
     def get_cities(
         self,
