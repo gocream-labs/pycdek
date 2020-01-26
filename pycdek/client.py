@@ -440,7 +440,7 @@ class CDEKApiClient:
 
     def get_regions(
         self,
-        country_code: Optional[str] = None,
+        country_codes: Optional[List[str]] = None,
         region_code: Optional[str] = None,
         kladr_region_code: Optional[str] = None,
         fias_region_guid: Optional[str] = None,
@@ -452,7 +452,7 @@ class CDEKApiClient:
         Request regions
 
         Args:
-            country_code            Массив кодов стран в формате  ISO_3166-1_alpha-2    string(2) [ ]   нет
+            country_codes           Массив кодов стран в формате  ISO_3166-1_alpha-2    string(2) [ ]   нет
             region_code             Код региона СДЭК    string(255) нет
             kladr_region_code       Код КЛАДР региона   string(255) нет
             fias_region_guid        Уникальный идентификатор ФИАС региона   UUID    нет
@@ -468,7 +468,7 @@ class CDEKApiClient:
         """
 
         complete_data = clear_dict({
-            'country_code': country_code,
+            'country_codes': country_codes,
             'region_code': region_code,
             'kladr_region_code': kladr_region_code,
             'fias_region_guid': fias_region_guid,
