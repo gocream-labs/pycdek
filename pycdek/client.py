@@ -84,7 +84,8 @@ class CDEKApiClient:
         })
         json = response.json()
 
-        assert json['token_type'] == 'bearer', f"CDEK return token type `{json['token_type']}` that not supported."
+        token_type = json['token_type']
+        assert token_type == 'bearer', f"CDEK return token type `{token_type}` that not supported."
 
         return json
 
