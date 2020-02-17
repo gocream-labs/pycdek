@@ -166,6 +166,7 @@ class CDEKApiClient:
             seller=None,
             services=None,
             raise_errors=True,
+            origin_response=False,
         ):
         """
         Registrate order
@@ -270,6 +271,7 @@ class CDEKApiClient:
                     * количество упаковок для услуги "Упаковка 1" (для всех типов заказа)
                     * объявленная стоимость заказа для услуги "Страхование" (только для заказов с типом "доставка")
             raise_errors (bool, optional): raise errors? (default: True)
+            origin_response (bool, optional): return original response or only entity? (default: False)
 
         Returns:
             dict: Order dict
@@ -309,26 +311,37 @@ class CDEKApiClient:
             'services': services,
         })
 
-        return self.send(
+        response = self.send(
             self.RESOURCE_ORDER,
             complete_data,
             method='post',
             raise_errors=raise_errors,
-        ).json()
+        )
 
-    def get_order(self, uuid, raise_errors=True):
+        if origin_response:
+            response = response.json()['entity']
+
+        return response
+
+    def get_order(self, uuid, raise_errors=True, origin_response=False):
         """
         Get order info
 
         Args:
             uuid (str): order cdek uuid
             raise_errors (bool, optional): raise errors? (default: True)
+            origin_response (bool, optional): return original response or only entity? (default: False)
 
         Returns:
             dict: order info
         """
 
-        return self.send(Path(self.RESOURCE_ORDER) / Path(uuid), raise_errors=raise_errors).json()
+        response = self.send(Path(self.RESOURCE_ORDER) / Path(uuid), raise_errors=raise_errors)
+
+        if origin_response:
+            response = response.json()['entity']
+
+        return response
 
     def remove_order(self, uuid, raise_errors=True):
         """
@@ -367,6 +380,7 @@ class CDEKApiClient:
             from_location=None,
             need_call=None,
             raise_errors=True,
+            origin_response=False,
         ):
         """
         Registrate intakes
@@ -405,6 +419,7 @@ class CDEKApiClient:
                 kladr_code (str, optional): Код КЛАДР
             need_call (bool, optional): Необходим прозвон отправителя (по умолчанию - false)
             raise_errors (bool, optional): raise errors? (default: True)
+            origin_response (bool, optional): return original response or only entity? (default: False)
 
         Returns:
             dict: Intakes dict
@@ -429,29 +444,40 @@ class CDEKApiClient:
             'need_call': need_call,
         })
 
-        return self.send(
+        response = self.send(
             self.RESOURCE_INTAKES,
             complete_data,
             method='post',
             raise_errors=raise_errors
-        ).json()
+        )
 
-    def get_intakes(self, uuid, raise_errors=True):
+        if origin_response:
+            response = response.json()['entity']
+
+        return response
+
+    def get_intakes(self, uuid, raise_errors=True, origin_response=False):
         """
         Get intakes info
 
         Args:
             uuid (str): intakes cdek uuid
             raise_errors (bool, optional): raise errors? (default: True)
+            origin_response (bool, optional): return original response or only entity? (default: False)
 
         Returns:
             dict: intakes info
         """
 
-        return self.send(
+        response = self.send(
             Path(self.RESOURCE_INTAKES) / Path(uuid),
             raise_errors=raise_errors
-        ).json()
+        )
+
+        if origin_response:
+            response = response.json()['entity']
+
+        return response
 
     def remove_intakes(self, uuid, raise_errors=True):
         """
@@ -469,7 +495,7 @@ class CDEKApiClient:
             Path(self.RESOURCE_INTAKES) / Path(uuid),
             method='delete',
             raise_errors=raise_errors
-        ).json()
+        )
 
     def get_regions(
         self,
@@ -481,6 +507,7 @@ class CDEKApiClient:
         page: Optional[int] = 0,
         lang: Optional[str] = None,
         raise_errors: Optional[bool] = True,
+        origin_response: Optional[bool] = False,
     ) -> List:
         """
         Request regions
@@ -493,7 +520,8 @@ class CDEKApiClient:
             size                    Ограничение выборки результата. По умолчанию 1000   integer да, если указан page
             page                    Номер страницы выборки результата. По умолчанию 0   integer нет
             lang                    Локализация. По умолчанию "rus" string(3)   нет
-            raise_errors (bool, optional): raise errors? (default: True)
+            raise_errors            raise errors? (default: True)
+            origin_response         return original response or only entity? (default: False)
 
         Returns:
             list: list of regions
@@ -512,15 +540,21 @@ class CDEKApiClient:
             'lang': lang,
         })
 
-        return self.send(
+        response = self.send(
             Path(self.RESOURCE_REGIONS),
             complete_data,
             raise_errors=raise_errors
-        ).json()
+        )
+
+        if origin_response:
+            response = response.json()
+
+        return response
 
     def get_all_regions(self, **kwargs):
         request_kwargs = deepcopy(kwargs)
         request_kwargs['page'] = 0
+        request_kwargs['origin_response'] = False
 
         while True:
             regions = self.get_regions(**request_kwargs)
@@ -549,6 +583,7 @@ class CDEKApiClient:
         lang=None,
         payment_limit=None,
         raise_errors=True,
+        origin_response=False,
     ):
         """
         Request regions
@@ -571,6 +606,7 @@ class CDEKApiClient:
                  0 - наложенный платеж не принимается;
                  положительное значение - сумма наложенного платежа не более данного значения.
             raise_errors (bool, optional): raise errors? (default: True)
+            origin_response (bool, optional): return original response or only entity? (default: False)
 
         Returns:
             list: list of cities
@@ -592,15 +628,21 @@ class CDEKApiClient:
             'payment_limit': payment_limit,
         })
 
-        return self.send(
+        response = self.send(
             Path(self.RESOURCE_CITIES),
             complete_data,
             raise_errors=raise_errors
-        ).json()
+        )
+
+        if origin_response:
+            response = response.json()
+
+        return response
 
     def get_all_cities(self, **kwargs):
         request_kwargs = deepcopy(kwargs)
         request_kwargs['page'] = 0
+        request_kwargs['origin_response'] = False
 
         while True:
             cities = self.get_cities(**request_kwargs)
@@ -613,7 +655,7 @@ class CDEKApiClient:
 
             request_kwargs['page'] += 1
 
-    def request_invoice(self, uuids, copy_count=2, raise_errors=True):
+    def request_invoice(self, uuids, copy_count=2, raise_errors=True, origin_response=False):
         """
         Request for the receipt of an order
 
@@ -621,6 +663,7 @@ class CDEKApiClient:
             uuids (str[]): cdek orders uuids
             copy_count (integer, optional): count of invoice on page (default: 2)
             raise_errors (bool, optional): raise errors? (default: True)
+            origin_response (bool, optional): return original response or only entity? (default: False)
 
         Returns:
             dict: requested invoice dict
@@ -633,20 +676,26 @@ class CDEKApiClient:
             'copy_count': copy_count,
         })
 
-        return self.send(
+        response = self.send(
             self.RESOURCE_INVOICE,
             complete_data,
             method='post',
             raise_errors=raise_errors
-        ).json()
+        )
 
-    def get_invoice(self, uuid, raise_errors=True):
+        if origin_response:
+            response = response.json()['entity']
+
+        return response
+
+    def get_invoice(self, uuid, raise_errors=True, origin_response=False):
         """
         Get link to invoice
 
         Args:
             uuid (str): intakes cdek uuid
             raise_errors (bool, optional): raise errors? (default: True)
+            origin_response (bool, optional): return original response or only entity? (default: False)
 
         Returns:
             dict: requested invoice dict
@@ -654,12 +703,17 @@ class CDEKApiClient:
         https://confluence.cdek.ru/pages/viewpage.action?pageId=36967287
         """
 
-        return self.send(
+        response = self.send(
             Path(self.RESOURCE_INVOICE) / Path(uuid),
             raise_errors=raise_errors
-        ).json()
+        )
 
-    def download(self, url, raise_errors=True):
+        if origin_response:
+            response = response.json()['entity']
+
+        return response
+
+    def download(self, url, raise_errors=True, origin_response=False):
         # response = self.send(url)
         # media = BytesIO()
         # media.write(response.content)
@@ -697,6 +751,7 @@ class CDEKApiClient:
         raise_errors=True,
         auth=False,
         raise_errors=True,
+        origin_response=False,
     ):
         """
         goods (dict): Габаритные характеристики упаковки:
@@ -731,6 +786,7 @@ class CDEKApiClient:
             id (int): Идентификатор номера дополнительной услуги
             param (int, optional): Параметр дополнительной услуги, если необходимо
         raise_errors (bool, optional): raise errors? (default: True)
+        origin_response (bool, optional): return original response or only entity? (default: False)
 
         https://confluence.cdek.ru/pages/viewpage.action?pageId=15616129#id-Протоколобменаданными(v1.5)-4.14CalculatorКалькулятор
         """
@@ -773,4 +829,7 @@ class CDEKApiClient:
         if raise_errors:
             response.raise_for_status()
 
-        return response.json()
+        if origin_response:
+            response = response.json()
+
+        return response
