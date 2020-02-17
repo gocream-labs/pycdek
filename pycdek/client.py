@@ -713,7 +713,7 @@ class CDEKApiClient:
 
         return response
 
-    def download(self, url, raise_errors=True, origin_response=False):
+    def download(self, url):
         # response = self.send(url)
         # media = BytesIO()
         # media.write(response.content)
@@ -748,7 +748,6 @@ class CDEKApiClient:
         tariff_id=None,
         tariff_list=None,
         services=None,
-        raise_errors=True,
         auth=False,
         raise_errors=True,
         origin_response=False,
