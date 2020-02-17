@@ -318,7 +318,7 @@ class CDEKApiClient:
             raise_errors=raise_errors,
         )
 
-        if origin_response:
+        if not origin_response:
             response = response.json()['entity']
 
         return response
@@ -338,7 +338,7 @@ class CDEKApiClient:
 
         response = self.send(Path(self.RESOURCE_ORDER) / Path(uuid), raise_errors=raise_errors)
 
-        if origin_response:
+        if not origin_response:
             response = response.json()['entity']
 
         return response
@@ -451,7 +451,7 @@ class CDEKApiClient:
             raise_errors=raise_errors
         )
 
-        if origin_response:
+        if not origin_response:
             response = response.json()['entity']
 
         return response
@@ -474,7 +474,7 @@ class CDEKApiClient:
             raise_errors=raise_errors
         )
 
-        if origin_response:
+        if not origin_response:
             response = response.json()['entity']
 
         return response
@@ -546,7 +546,7 @@ class CDEKApiClient:
             raise_errors=raise_errors
         )
 
-        if origin_response:
+        if not origin_response:
             response = response.json()
 
         return response
@@ -634,7 +634,7 @@ class CDEKApiClient:
             raise_errors=raise_errors
         )
 
-        if origin_response:
+        if not origin_response:
             response = response.json()
 
         return response
@@ -683,7 +683,7 @@ class CDEKApiClient:
             raise_errors=raise_errors
         )
 
-        if origin_response:
+        if not origin_response:
             response = response.json()['entity']
 
         return response
@@ -708,7 +708,7 @@ class CDEKApiClient:
             raise_errors=raise_errors
         )
 
-        if origin_response:
+        if not origin_response:
             response = response.json()['entity']
 
         return response
@@ -828,7 +828,7 @@ class CDEKApiClient:
         if raise_errors:
             response.raise_for_status()
 
-        if origin_response:
+        if not origin_response:
             response = response.json()
 
         return response
