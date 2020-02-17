@@ -109,13 +109,15 @@ class CDEKApiClient:
             'Authorization': f'Bearer {self.token}'
         }
 
-    def send(self, resource, data=None, method='get', **kwargs):
+    def send(self, resource, data=None, method='get', raise_errors=True, **kwargs):
         """
         Send request and add token to headers
 
         Args:
             resource (str|Path): resource path
             data (dict, optional): dictionary of request data used in json. Default to None.
+            method (str, optional): request method (default: get)
+            raise_errors (bool, optional): raise errors? (default: True)
 
         Returns:
             dict: request returned data
@@ -136,7 +138,9 @@ class CDEKApiClient:
         elif method == 'delete':
             response = requests.delete(self.get_url(resource), **request_kwargs)
 
-        response.raise_for_status()
+        if raise_errors:
+            response.raise_for_status()
+
         return response
 
     def registrate_order(
@@ -161,6 +165,7 @@ class CDEKApiClient:
             sender=None,
             seller=None,
             services=None,
+            raise_errors=True,
         ):
         """
         Registrate order
@@ -264,6 +269,7 @@ class CDEKApiClient:
                 parameter (int, optional): Параметр дополнительной услуги:
                     * количество упаковок для услуги "Упаковка 1" (для всех типов заказа)
                     * объявленная стоимость заказа для услуги "Страхование" (только для заказов с типом "доставка")
+            raise_errors (bool, optional): raise errors? (default: True)
 
         Returns:
             dict: Order dict
@@ -303,33 +309,44 @@ class CDEKApiClient:
             'services': services,
         })
 
-        return self.send(self.RESOURCE_ORDER, complete_data, method='post').json()
+        return self.send(
+            self.RESOURCE_ORDER,
+            complete_data,
+            method='post',
+            raise_errors=raise_errors,
+        ).json()
 
-    def get_order(self, uuid):
+    def get_order(self, uuid, raise_errors=True):
         """
         Get order info
 
         Args:
             uuid (str): order cdek uuid
+            raise_errors (bool, optional): raise errors? (default: True)
 
         Returns:
             dict: order info
         """
 
-        return self.send(Path(self.RESOURCE_ORDER) / Path(uuid)).json()
+        return self.send(Path(self.RESOURCE_ORDER) / Path(uuid), raise_errors=raise_errors).json()
 
-    def remove_order(self, uuid):
+    def remove_order(self, uuid, raise_errors=True):
         """
         Remove order
 
         Args:
             uuid (str): order cdek uuid
+            raise_errors (bool, optional): raise errors? (default: True)
 
         Returns:
             dict: deleted order info
         """
 
-        return self.send(Path(self.RESOURCE_ORDER) / Path(uuid), method='delete')
+        return self.send(
+            Path(self.RESOURCE_ORDER) / Path(uuid),
+            method='delete',
+            raise_errors=raise_errors
+        )
 
     def registrate_intakes(
             self,
@@ -349,6 +366,7 @@ class CDEKApiClient:
             sender=None,
             from_location=None,
             need_call=None,
+            raise_errors=True,
         ):
         """
         Registrate intakes
@@ -386,6 +404,7 @@ class CDEKApiClient:
                 city (str, optional): Название города
                 kladr_code (str, optional): Код КЛАДР
             need_call (bool, optional): Необходим прозвон отправителя (по умолчанию - false)
+            raise_errors (bool, optional): raise errors? (default: True)
 
         Returns:
             dict: Intakes dict
@@ -410,33 +429,47 @@ class CDEKApiClient:
             'need_call': need_call,
         })
 
-        return self.send(self.RESOURCE_INTAKES, complete_data, method='post').json()
+        return self.send(
+            self.RESOURCE_INTAKES,
+            complete_data,
+            method='post',
+            raise_errors=raise_errors
+        ).json()
 
-    def get_intakes(self, uuid):
+    def get_intakes(self, uuid, raise_errors=True):
         """
         Get intakes info
 
         Args:
             uuid (str): intakes cdek uuid
+            raise_errors (bool, optional): raise errors? (default: True)
 
         Returns:
             dict: intakes info
         """
 
-        return self.send(Path(self.RESOURCE_INTAKES) / Path(uuid)).json()
+        return self.send(
+            Path(self.RESOURCE_INTAKES) / Path(uuid),
+            raise_errors=raise_errors
+        ).json()
 
-    def remove_intakes(self, uuid):
+    def remove_intakes(self, uuid, raise_errors=True):
         """
         Remove intakes
 
         Args:
             uuid (str): intakes cdek uuid
+            raise_errors (bool, optional): raise errors? (default: True)
 
         Returns:
             dict: deleted intakes info
         """
 
-        return self.send(Path(self.RESOURCE_INTAKES) / Path(uuid), method='delete').json()
+        return self.send(
+            Path(self.RESOURCE_INTAKES) / Path(uuid),
+            method='delete',
+            raise_errors=raise_errors
+        ).json()
 
     def get_regions(
         self,
@@ -447,6 +480,7 @@ class CDEKApiClient:
         size: Optional[int] = 1000,
         page: Optional[int] = 0,
         lang: Optional[str] = None,
+        raise_errors: Optional[bool] = True,
     ) -> List:
         """
         Request regions
@@ -459,6 +493,7 @@ class CDEKApiClient:
             size                    Ограничение выборки результата. По умолчанию 1000   integer да, если указан page
             page                    Номер страницы выборки результата. По умолчанию 0   integer нет
             lang                    Локализация. По умолчанию "rus" string(3)   нет
+            raise_errors (bool, optional): raise errors? (default: True)
 
         Returns:
             list: list of regions
@@ -477,12 +512,13 @@ class CDEKApiClient:
             'lang': lang,
         })
 
-        return self.send(Path(self.RESOURCE_REGIONS), complete_data).json()
+        return self.send(
+            Path(self.RESOURCE_REGIONS),
+            complete_data,
+            raise_errors=raise_errors
+        ).json()
 
-    def get_all_regions(
-        self,
-        **kwargs
-    ):
+    def get_all_regions(self, **kwargs):
         request_kwargs = deepcopy(kwargs)
         request_kwargs['page'] = 0
 
@@ -511,7 +547,8 @@ class CDEKApiClient:
         page=0,
         size=1000,
         lang=None,
-        payment_limit=None
+        payment_limit=None,
+        raise_errors=True,
     ):
         """
         Request regions
@@ -533,6 +570,7 @@ class CDEKApiClient:
                 -1 - ограничения нет;
                  0 - наложенный платеж не принимается;
                  положительное значение - сумма наложенного платежа не более данного значения.
+            raise_errors (bool, optional): raise errors? (default: True)
 
         Returns:
             list: list of cities
@@ -554,12 +592,13 @@ class CDEKApiClient:
             'payment_limit': payment_limit,
         })
 
-        return self.send(Path(self.RESOURCE_CITIES), complete_data).json()
+        return self.send(
+            Path(self.RESOURCE_CITIES),
+            complete_data,
+            raise_errors=raise_errors
+        ).json()
 
-    def get_all_cities(
-        self,
-        **kwargs
-    ):
+    def get_all_cities(self, **kwargs):
         request_kwargs = deepcopy(kwargs)
         request_kwargs['page'] = 0
 
@@ -574,13 +613,14 @@ class CDEKApiClient:
 
             request_kwargs['page'] += 1
 
-    def request_invoice(self, uuids, copy_count=2):
+    def request_invoice(self, uuids, copy_count=2, raise_errors=True):
         """
         Request for the receipt of an order
 
         Args:
             uuids (str[]): cdek orders uuids
             copy_count (integer, optional): count of invoice on page (default: 2)
+            raise_errors (bool, optional): raise errors? (default: True)
 
         Returns:
             dict: requested invoice dict
@@ -593,14 +633,20 @@ class CDEKApiClient:
             'copy_count': copy_count,
         })
 
-        return self.send(self.RESOURCE_INVOICE, complete_data, method='post').json()
+        return self.send(
+            self.RESOURCE_INVOICE,
+            complete_data,
+            method='post',
+            raise_errors=raise_errors
+        ).json()
 
-    def get_invoice(self, uuid):
+    def get_invoice(self, uuid, raise_errors=True):
         """
         Get link to invoice
 
         Args:
             uuid (str): intakes cdek uuid
+            raise_errors (bool, optional): raise errors? (default: True)
 
         Returns:
             dict: requested invoice dict
@@ -608,9 +654,12 @@ class CDEKApiClient:
         https://confluence.cdek.ru/pages/viewpage.action?pageId=36967287
         """
 
-        return self.send(Path(self.RESOURCE_INVOICE) / Path(uuid)).json()
+        return self.send(
+            Path(self.RESOURCE_INVOICE) / Path(uuid),
+            raise_errors=raise_errors
+        ).json()
 
-    def download(self, url):
+    def download(self, url, raise_errors=True):
         # response = self.send(url)
         # media = BytesIO()
         # media.write(response.content)
@@ -647,6 +696,7 @@ class CDEKApiClient:
         services=None,
         raise_errors=True,
         auth=False,
+        raise_errors=True,
     ):
         """
         goods (dict): Габаритные характеристики упаковки:
