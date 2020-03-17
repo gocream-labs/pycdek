@@ -77,7 +77,7 @@ class CDEKApiClient:
         request jwt token for use in api requests
         """
 
-        response = requests.post(self.get_url('oauth/token'),{
+        response = requests.post(self.get_url('oauth/token'), params={
             'grant_type': 'client_credentials',
             'client_id': self.id,
             'client_secret': self.secret,
