@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import pprint
 from copy import deepcopy
 from io import BytesIO
 from pathlib import Path
@@ -21,6 +22,13 @@ from pycdek.utils import clear_dict, get_secure
 logger = logging.getLogger("pycdek")
 
 
+ENTITY_STATUS_ACCEPTED = 'ACCEPTED'
+ENTITY_STATUS_PROCESSING = 'PROCESSING'
+ENTITY_STATUS_INVALID = 'INVALID'
+ENTITY_STATUS_REMOVED = 'REMOVED'
+ENTITY_STATUS_READY = 'READY'
+
+
 class CDEKApiClient:
     """
     Client for cdek api
@@ -36,6 +44,7 @@ class CDEKApiClient:
     RESOURCE_REGIONS = 'location/regions'
     RESOURCE_CITIES = 'location/cities'
     RESOURCE_INVOICE = 'print/orders'
+    RESOURCE_BARCODE = 'print/barcodes'
     RESOURCE_CALCULATOR_URL = 'http://api.cdek.ru/calculator/calculate_price_by_json.php'
 
     def __init__(self, id, secret, is_shop, production=True):
@@ -83,7 +92,6 @@ class CDEKApiClient:
             'client_secret': self.secret,
         })
         json = response.json()
-
         token_type = json['token_type']
         assert token_type == 'bearer', f"CDEK return token type `{token_type}` that not supported."
 
@@ -688,6 +696,39 @@ class CDEKApiClient:
 
         return response
 
+    def request_barcode(self, uuids, copy_count=2, raise_errors=True, origin_response=False):
+        """
+        Request for the BARCODE of an order
+
+        Args:
+            uuids (str[]): cdek orders uuids
+            copy_count (integer, optional): count of invoice on page (default: 2)
+            raise_errors (bool, optional): raise errors? (default: True)
+            origin_response (bool, optional): return original response or only entity? (default: False)
+
+        Returns:
+            dict: requested invoice dict
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=36967276
+        """
+
+        complete_data = clear_dict({
+            'orders': [{'order_uuid': uuid} for uuid in uuids],
+            'copy_count': copy_count,
+        })
+
+        response = self.send(
+            self.RESOURCE_BARCODE,
+            complete_data,
+            method='post',
+            raise_errors=raise_errors
+        )
+
+        if not origin_response:
+            response = response.json()['entity']
+
+        return response
+
     def get_invoice(self, uuid, raise_errors=True, origin_response=False):
         """
         Get link to invoice
@@ -713,17 +754,42 @@ class CDEKApiClient:
 
         return response
 
-    def download(self, url):
-        # response = self.send(url)
-        # media = BytesIO()
-        # media.write(response.content)
-        # return media
+    def get_barcode(self, uuid, raise_errors=True, origin_response=False):
+        """
+        Get link to barcode
 
-        r = self.send(url, stream=True)
-        if r.status_code == 200:
-            with open('test.pdf', 'wb') as f:
-                for chunk in r.iter_content(1024):
-                    f.write(chunk)
+        Args:
+            uuid (str): intakes cdek uuid
+            raise_errors (bool, optional): raise errors? (default: True)
+            origin_response (bool, optional): return original response or only entity? (default: False)
+
+        Returns:
+            dict: requested barcode dict
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=36967287
+        """
+
+        response = self.send(
+            Path(self.RESOURCE_BARCODE) / Path(uuid),
+            raise_errors=raise_errors
+        )
+
+        if not origin_response:
+            response = response.json()['entity']
+
+        return response
+
+    def download(self, url, raise_errors=True, origin_response=False):
+        """
+        """
+        response = self.send(url, raise_errors=raise_errors)
+
+        if origin_response:
+            return response
+
+        file = BytesIO()
+        file.write(response.content)
+        return file
 
     def get_shipping_cost(
         self,
@@ -787,7 +853,7 @@ class CDEKApiClient:
         raise_errors (bool, optional): raise errors? (default: True)
         origin_response (bool, optional): return original response or only entity? (default: False)
 
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=15616129#id-Протоколобменаданными(v1.5)-4.14CalculatorКалькулятор
+
         """
 
         complete_data = clear_dict({
@@ -822,7 +888,7 @@ class CDEKApiClient:
             complete_data['authLogin'] = self.id
             complete_data['secure'] = get_secure(self.secret, today)
 
-
+        print(complete_data)
         response = self.send(self.RESOURCE_CALCULATOR_URL, json=complete_data)
 
         if raise_errors:
