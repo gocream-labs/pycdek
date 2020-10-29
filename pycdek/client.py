@@ -663,7 +663,13 @@ class CDEKApiClient:
 
             request_kwargs['page'] += 1
 
-    def request_invoice(self, uuids, copy_count=2, raise_errors=True, origin_response=False):
+    def request_invoice(
+        self,
+        uuids,
+        copy_count=2,
+        raise_errors=True,
+        origin_response=False
+        ):
         """
         Request for the receipt of an order
 
@@ -696,13 +702,21 @@ class CDEKApiClient:
 
         return response
 
-    def request_barcode(self, uuids, copy_count=2, raise_errors=True, origin_response=False):
+    def request_barcode(
+        self,
+        uuids,
+        copy_count=1,
+        format='A6',
+        raise_errors=True,
+        origin_response=False
+        ):
         """
         Request for the BARCODE of an order
 
         Args:
             uuids (str[]): cdek orders uuids
-            copy_count (integer, optional): count of invoice on page (default: 2)
+            copy_count (integer, optional): count of invoice on page (default: 1)
+            format (str): Print format. Can take values: A4, A5, A6 (default: 'A6')
             raise_errors (bool, optional): raise errors? (default: True)
             origin_response (bool, optional): return original response or only entity? (default: False)
 
@@ -715,6 +729,7 @@ class CDEKApiClient:
         complete_data = clear_dict({
             'orders': [{'order_uuid': uuid} for uuid in uuids],
             'copy_count': copy_count,
+            'format': format,
         })
 
         response = self.send(
@@ -729,7 +744,12 @@ class CDEKApiClient:
 
         return response
 
-    def get_invoice(self, uuid, raise_errors=True, origin_response=False):
+    def get_invoice(
+        self,
+        uuid,
+        raise_errors=True,
+        origin_response=False
+        ):
         """
         Get link to invoice
 
@@ -754,7 +774,12 @@ class CDEKApiClient:
 
         return response
 
-    def get_barcode(self, uuid, raise_errors=True, origin_response=False):
+    def get_barcode(
+        self,
+        uuid,
+        raise_errors=True,
+        origin_response=False
+        ):
         """
         Get link to barcode
 
@@ -779,8 +804,17 @@ class CDEKApiClient:
 
         return response
 
-    def download(self, url, raise_errors=True, origin_response=False):
+    def download(
+        self,
+        url,
+        raise_errors=True,
+        origin_response=False
+        ):
         """
+        Args:
+            url (str): cdek url
+            raise_errors (bool, optional): raise errors? (default: True)
+            origin_response (bool, optional): return original response or only entity? (default: False)
         """
         response = self.send(url, raise_errors=raise_errors)
 
