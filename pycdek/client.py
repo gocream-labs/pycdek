@@ -82,8 +82,10 @@ class CDEKApiClient:
             'client_id': self.id,
             'client_secret': self.secret,
         })
-        json = response.json()
 
+        assert response.status_code == 200, f"CDEK authorization error"
+
+        json = response.json()
         token_type = json['token_type']
         assert token_type == 'bearer', f"CDEK return token type `{token_type}` that not supported."
 
