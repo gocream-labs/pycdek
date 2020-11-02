@@ -45,6 +45,7 @@ class CDEKApiClient:
     RESOURCE_CITIES = 'location/cities'
     RESOURCE_INVOICE = 'print/orders'
     RESOURCE_BARCODE = 'print/barcodes'
+    RESOURCE_SUBSCRIPTION = 'webhooks'
     RESOURCE_CALCULATOR_URL = 'http://api.cdek.ru/calculator/calculate_price_by_json.php'
 
     def __init__(self, id, secret, is_shop, production=True):
@@ -930,5 +931,21 @@ class CDEKApiClient:
 
         if not origin_response:
             response = response.json()
+
+        return response
+
+    def subscribe(url, type='ORDER_STATUS', raise_errors=True):
+
+        complete_data = clear_dict({
+            'url': url,
+            'type': type,
+        })
+
+        response = self.send(
+            self.RESOURCE_SUBSCRIPTION,
+            complete_data,
+            method='post',
+            raise_errors=raise_errors
+            )
 
         return response
