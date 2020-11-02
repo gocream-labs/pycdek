@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import pprint
 from copy import deepcopy
 from io import BytesIO
 from pathlib import Path
@@ -43,7 +42,7 @@ class CDEKApiClient:
     RESOURCE_INTAKES = 'intakes'
     RESOURCE_REGIONS = 'location/regions'
     RESOURCE_CITIES = 'location/cities'
-    RESOURCE_INVOICE = 'print/orders'
+    RESOURCE_RECEIPT = 'print/orders'
     RESOURCE_BARCODE = 'print/barcodes'
     RESOURCE_SUBSCRIPTION = 'webhooks'
     RESOURCE_CALCULATOR_URL = 'http://api.cdek.ru/calculator/calculate_price_by_json.php'
@@ -664,21 +663,27 @@ class CDEKApiClient:
 
             request_kwargs['page'] += 1
 
-    def request_invoice(
+    def request_receipt(
         self,
-        uuids,
+        orders,
         copy_count=2,
+        tipe=None,
         raise_errors=True,
         origin_response=False
-        ):
+    ):
         """
         Request for the receipt of an order
 
         Args:
-            uuids (str[]): cdek orders uuids
-            copy_count (integer, optional): count of invoice on page (default: 2)
-            raise_errors (bool, optional): raise errors? (default: True)
-            origin_response (bool, optional): return original response or only entity? (default: False)
+            orders:                             Список заказов:
+                order_uuid      Идентификатор заказа в ИС СДЭК
+                cdek_number     Номер заказа СДЭК
+            copy_count:                         Число копий одной квитанции на листе. Рекомендовано указывать не менее 2, одна приклеивается на груз, вторая остается у отправителя (default: 2)
+            tipe                                Форма квитанции. Может принимать значения:
+                tpl_china - квитанция на китайском
+                tpl_armenia - квитанция на армянском
+            raise_errors (bool, optional):      raise errors? (default: True)
+            origin_response (bool, optional):   return original response or only entity? (default: False)
 
         Returns:
             dict: requested invoice dict
@@ -687,12 +692,13 @@ class CDEKApiClient:
         """
 
         complete_data = clear_dict({
-            'orders': [{'order_uuid': uuid} for uuid in uuids],
+            'orders': orders,
             'copy_count': copy_count,
+            'type': tipe,
         })
 
         response = self.send(
-            self.RESOURCE_INVOICE,
+            self.RESOURCE_RECEIPT,
             complete_data,
             method='post',
             raise_errors=raise_errors
@@ -705,32 +711,39 @@ class CDEKApiClient:
 
     def request_barcode(
         self,
-        uuids,
+        orders,
         copy_count=1,
-        format='A6',
+        frmt='A6',
+        lang=None,
         raise_errors=True,
         origin_response=False
-        ):
+    ):
         """
         Request for the BARCODE of an order
 
         Args:
-            uuids (str[]): cdek orders uuids
-            copy_count (integer, optional): count of invoice on page (default: 1)
-            format (str): Print format. Can take values: A4, A5, A6 (default: 'A6')
+            orders:                             Список заказов:
+                order_uuid      Идентификатор заказа в ИС СДЭК
+                cdek_number     Номер заказа СДЭК
+            copy_count                          Число копий. (default: 2)
+            frmt                              Формат печати. Может принимать значения: A4, A5, A6 (A - буква латинского алфавита). (По умолчанию A4)
+            lang                                Язык печатной формы. Возможные языки в кодировке ISO - 639-3:
+                Русский - RUS
+                Английский - ENG
             raise_errors (bool, optional): raise errors? (default: True)
             origin_response (bool, optional): return original response or only entity? (default: False)
 
         Returns:
             dict: requested invoice dict
 
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=36967276
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=36967295
         """
 
         complete_data = clear_dict({
-            'orders': [{'order_uuid': uuid} for uuid in uuids],
+            'orders': orders,
             'copy_count': copy_count,
-            'format': format,
+            'format': frmt,
+            'lang': lang,
         })
 
         response = self.send(
@@ -745,14 +758,14 @@ class CDEKApiClient:
 
         return response
 
-    def get_invoice(
+    def get_receipt(
         self,
         uuid,
         raise_errors=True,
         origin_response=False
-        ):
+    ):
         """
-        Get link to invoice
+        Get link to receipt
 
         Args:
             uuid (str): intakes cdek uuid
@@ -766,7 +779,7 @@ class CDEKApiClient:
         """
 
         response = self.send(
-            Path(self.RESOURCE_INVOICE) / Path(uuid),
+            Path(self.RESOURCE_RECEIPT) / Path(uuid),
             raise_errors=raise_errors
         )
 
@@ -780,7 +793,7 @@ class CDEKApiClient:
         uuid,
         raise_errors=True,
         origin_response=False
-        ):
+    ):
         """
         Get link to barcode
 
@@ -810,8 +823,10 @@ class CDEKApiClient:
         url,
         raise_errors=True,
         origin_response=False
-        ):
+    ):
         """
+        Download document
+
         Args:
             url (str): cdek url
             raise_errors (bool, optional): raise errors? (default: True)
@@ -888,7 +903,7 @@ class CDEKApiClient:
         raise_errors (bool, optional): raise errors? (default: True)
         origin_response (bool, optional): return original response or only entity? (default: False)
 
-
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=15616129#id-Протоколобменаданными(v1.5)-4.13CalculatorКалькулятор
         """
 
         complete_data = clear_dict({
@@ -923,7 +938,6 @@ class CDEKApiClient:
             complete_data['authLogin'] = self.id
             complete_data['secure'] = get_secure(self.secret, today)
 
-        print(complete_data)
         response = self.send(self.RESOURCE_CALCULATOR_URL, json=complete_data)
 
         if raise_errors:
