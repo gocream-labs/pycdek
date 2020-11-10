@@ -27,6 +27,8 @@ ENTITY_STATUS_INVALID = 'INVALID'
 ENTITY_STATUS_REMOVED = 'REMOVED'
 ENTITY_STATUS_READY = 'READY'
 
+SUBSCRIBE_TYPE_ORDER = 'ORDER_STATUS'  # событие по статусам
+SUBSCRIBE_TYPE_PRINT = 'PRINT_FORM'  # готовность печатной формы
 
 class CDEKApiClient:
     """
@@ -948,7 +950,7 @@ class CDEKApiClient:
 
         return response
 
-    def subscribe(url, type='ORDER_STATUS', raise_errors=True):
+    def subscribe(self, url, type, raise_errors=True, origin_response=False):
 
         complete_data = clear_dict({
             'url': url,
@@ -962,4 +964,68 @@ class CDEKApiClient:
             raise_errors=raise_errors
             )
 
+        # if not origin_response:
+        #     response = response.json()['entity']
+
         return response
+
+    def subscribe_info(self, raise_errors=True, origin_response=False):
+        """
+        information about all current subscriptions
+        """
+        response = self.send(
+            Path(self.RESOURCE_SUBSCRIPTION),
+            method='get',
+            raise_errors=raise_errors
+            )
+
+        return response
+
+    def subscribe_info_by_uuid(self, uuid, raise_errors=True, origin_response=False):
+        """
+        subscription information, where uuid is the subscription identifier
+        """
+        response = self.send(
+            Path(self.RESOURCE_SUBSCRIPTION) / Path(uuid),
+            method='get',
+            raise_errors=raise_errors
+            )
+
+        return response
+
+    def subscribe_delete(self, uuid, raise_errors=True, origin_response=False):
+        """
+        request to delete a subscription
+        """
+        response = self.send(
+                Path(self.RESOURCE_SUBSCRIPTION) / Path(uuid),
+                method='delete',
+                raise_errors=raise_errors
+                )
+
+        return response
+
+    ORDER_SHIPPING_STATUSES = {
+        '1':'Создан',
+        '2':'Удален',
+        '3':'Принят на склад отправителя',
+        '4':'Вручен',
+        '5':'Не вручен',
+        '6':'Выдан на отправку в г. отправителе',
+        '7':'Сдан перевозчику в г. отправителе',
+        '8':'Отправлен в г. получатель',
+        '9':'Встречен в г. получателе',
+        '10':'Принят на склад доставки',
+        '11':'Выдан на доставку',
+        '12':'Принят на склад до востребования',
+        '13':'Принят на склад транзита',
+        '16':'Возвращен на склад отправителя',
+        '17':'Возвращен на склад транзита',
+        '18':'Возвращен на склад доставки',
+        '19':'Выдан на отправку в г. транзите',
+        '20':'Сдан перевозчику в г. транзите',
+        '21':'Отправлен в г. транзит',
+        '22':'Встречен в г. транзите',
+        '27':'Отправлен в г. отправитель',
+        '28':'Встречен в г. отправителе',
+    }
