@@ -23,7 +23,7 @@ setup(
     include_package_data = True,
     zip_safe = False,
     install_requires = [
-        'requests==2.22.0',
+        'requests>=2.22.0,<3',
         'pyjwt==1.7.1',
     ],
     long_description = long_description,
