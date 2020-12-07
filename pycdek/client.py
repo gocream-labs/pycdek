@@ -12,6 +12,7 @@ import datetime as dt
 import json
 import logging
 
+from requests import Response
 import jwt
 import requests
 
@@ -44,6 +45,7 @@ class CDEKApiClient:
     RESOURCE_CITIES = 'location/cities'
     RESOURCE_RECEIPT = 'print/orders'
     RESOURCE_BARCODE = 'print/barcodes'
+    RESOURCE_DELIVERYPOINTS = 'deliverypoints'
     RESOURCE_CALCULATOR_URL = 'http://api.cdek.ru/calculator/calculate_price_by_json.php'
 
     def __init__(self, id, secret, is_shop, production=True):
@@ -908,6 +910,87 @@ class CDEKApiClient:
 
         if raise_errors:
             response.raise_for_status()
+
+        if not origin_response:
+            response = response.json()
+
+        return response
+
+    def get_deliverypoints(
+        self,
+
+        postal_code1: Optional[int] = None,
+        city_code1: Optional[int] = None,
+        tipe: Optional[str] = None,
+        country_code: Optional[str] = None,
+        region_code: Optional[int] = None,
+        have_cashless: Optional[bool] = None,
+        have_cash: Optional[bool] = None,
+        allowed_cod: Optional[bool] = None,
+        is_dressing_room: Optional[bool] = None,
+        weight_max: Optional[int] = None,
+        weight_min: Optional[int] = None,
+        lang: Optional[str] = None,
+        take_only: Optional[bool] = None,
+        is_handout: Optional[bool] = None,
+
+        raise_errors: bool = True,
+        origin_response: bool = False,
+    ) -> Union[List[Dict], Response]:
+        """
+        Request delivery points
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=36982648
+
+        Args:
+            postal_code1                Почтовый индекс города, для которого необходим список офисов        integer         нет
+            city_code1                  Код города по базе СДЭК             integer         нет
+            tipe                        Тип офиса, может принимать значения:
+                «PVZ» - для отображения только складов СДЭК;
+                «POSTAMAT» - для отображения постаматов СДЭК;
+                «ALL» - для отображения всех ПВЗ независимо от их типа.
+                При отсутствии параметра принимается значение по умолчанию «ALL».       string(8)       нет
+            country_code                Код страны в формате ISO_3166-1_alpha-2 (см. “Общероссийский классификатор стран мира”)     string (2)  нет
+            region_code                 Код региона по базе СДЭК    integer
+            have_cashless               Наличие терминала оплаты     boolean     нет
+            have_cash                   Есть прием наличных     boolean     нет
+            allowed_cod                 Разрешен наложенный платеж     boolean     нет
+            is_dressing_room            Наличие примерочной     boolean     нет
+            weight_max                  Максимальный вес в кг, который может принять офис (значения больше 0 - передаются офисы, которые принимают этот вес; 0 - офисы с нулевым весом не передаются; значение не указано - все офисы). integer нет
+            weight_min                  Минимальный вес в кг, который принимает офис (при переданном значении будут выводиться офисы с минимальным весом до указанного значения)    integer нет
+            lang                        Локализация офиса. По умолчанию "rus".  string(3)   нет
+            take_only                   Является ли офис только пунктом выдачи     boolean     нет
+            is_handout                  Является пунктом выдачи     boolean     нет
+
+            raise_errors (bool, optional): raise errors? (default: True)
+            origin_response (bool, optional): return original response or only entity? (default: False)
+
+        Returns:
+            list: list of delivery points
+        """
+
+        complete_data = clear_dict({
+            'postal_code1': postal_code1,
+            'city_code1': city_code1,
+            'type': tipe,
+            'country_code': country_code,
+            'region_code': region_code,
+            'have_cashless': have_cashless,
+            'have_cash': have_cash,
+            'allowed_cod': allowed_cod,
+            'is_dressing_room': is_dressing_room,
+            'weight_max': weight_max,
+            'weight_min': weight_min,
+            'lang': lang,
+            'take_only': take_only,
+            'is_handout': is_handout,
+        })
+
+        response = self.send(
+            Path(self.RESOURCE_DELIVERYPOINTS),
+            complete_data,
+            raise_errors=raise_errors
+        )
 
         if not origin_response:
             response = response.json()
