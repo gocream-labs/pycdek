@@ -98,7 +98,7 @@ class CDEKApiClient:
             return resource
 
         api = self.PRODUCTION_API_URL if self.production else self.DEVELOPMENT_API_URL
-        return f"http://{Path(api) / Path(resource)}"
+        return f"https://{Path(api) / Path(resource)}"
 
     def get_headers(self):
         """
@@ -821,7 +821,6 @@ class CDEKApiClient:
 
             complete_data['authLogin'] = self.id
             complete_data['secure'] = get_secure(self.secret, today)
-
 
         response = self.send(self.RESOURCE_CALCULATOR_URL, json=complete_data)
 
