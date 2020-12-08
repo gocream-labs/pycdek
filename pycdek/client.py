@@ -120,7 +120,7 @@ class CDEKApiClient:
             'Authorization': f'Bearer {self.token}'
         }
 
-    def send(self, resource, data=None, method='get', raise_errors=True, **kwargs):
+    def send(self, resource, method='get', data=None, params=None, raise_errors=True, **kwargs):
         """
         Send request and add token to headers
 
@@ -137,6 +137,7 @@ class CDEKApiClient:
         request_kwargs = {
             'headers': self.get_headers(),
             'json': data,
+            'params': params,
         }
         request_kwargs.update(kwargs)
 
@@ -181,6 +182,8 @@ class CDEKApiClient:
         ):
         """
         Registrate order
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=29923926
 
         Args:
             tariff_code (int): Код тарифа `tarrifs`_.
@@ -324,8 +327,8 @@ class CDEKApiClient:
 
         response = self.send(
             self.RESOURCE_ORDER,
-            complete_data,
             method='post',
+            data=complete_data,
             raise_errors=raise_errors,
         )
 
@@ -337,6 +340,8 @@ class CDEKApiClient:
     def get_order(self, uuid, raise_errors=True, origin_response=False):
         """
         Get order info
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=29923975
 
         Args:
             uuid (str): order cdek uuid
@@ -357,6 +362,8 @@ class CDEKApiClient:
     def remove_order(self, uuid, raise_errors=True):
         """
         Remove order
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=29924487
 
         Args:
             uuid (str): order cdek uuid
@@ -395,6 +402,8 @@ class CDEKApiClient:
         ):
         """
         Registrate intakes
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=29925274
 
         Args:
             intake_date (str): Дата ожидания курьера в формате (yyyy-MM-dd)
@@ -457,8 +466,8 @@ class CDEKApiClient:
 
         response = self.send(
             self.RESOURCE_INTAKES,
-            complete_data,
             method='post',
+            data=complete_data,
             raise_errors=raise_errors
         )
 
@@ -470,6 +479,8 @@ class CDEKApiClient:
     def get_intakes(self, uuid, raise_errors=True, origin_response=False):
         """
         Get intakes info
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=29948360
 
         Args:
             uuid (str): intakes cdek uuid
@@ -493,6 +504,8 @@ class CDEKApiClient:
     def remove_intakes(self, uuid, raise_errors=True):
         """
         Remove intakes
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=29948379
 
         Args:
             uuid (str): intakes cdek uuid
@@ -522,6 +535,8 @@ class CDEKApiClient:
     ) -> List:
         """
         Request regions
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=33829418
 
         Args:
             country_codes           Массив кодов стран в формате  ISO_3166-1_alpha-2    string(2) [ ]   нет
@@ -553,7 +568,7 @@ class CDEKApiClient:
 
         response = self.send(
             Path(self.RESOURCE_REGIONS),
-            complete_data,
+            params=complete_data,
             raise_errors=raise_errors
         )
 
@@ -599,6 +614,8 @@ class CDEKApiClient:
         """
         Request regions
 
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=33829437
+
         Args:
             country_codes           Массив кодов стран в формате  ISO_3166-1_alpha-2    string(2) [ ]   нет
             region_code             Код региона СДЭК    string(255) нет
@@ -641,7 +658,7 @@ class CDEKApiClient:
 
         response = self.send(
             Path(self.RESOURCE_CITIES),
-            complete_data,
+            params=complete_data,
             raise_errors=raise_errors
         )
 
@@ -695,8 +712,8 @@ class CDEKApiClient:
 
         response = self.send(
             self.RESOURCE_RECEIPT,
-            complete_data,
             method='post',
+            data=complete_data,
             raise_errors=raise_errors
         )
 
@@ -736,8 +753,8 @@ class CDEKApiClient:
 
         response = self.send(
             self.RESOURCE_BARCODE,
-            complete_data,
             method='post',
+            data=complete_data,
             raise_errors=raise_errors
         )
 
@@ -837,6 +854,10 @@ class CDEKApiClient:
         origin_response=False,
     ):
         """
+
+        TODO:
+        * new method https://confluence.cdek.ru/pages/viewpage.action?pageId=63345430
+
         goods (dict): Габаритные характеристики упаковки:
             weight (float): Вес упаковки (в килограммах)
             length (int): Длина упаковки (в сантиметрах)
@@ -906,7 +927,7 @@ class CDEKApiClient:
             complete_data['authLogin'] = self.id
             complete_data['secure'] = get_secure(self.secret, today)
 
-        response = self.send(self.RESOURCE_CALCULATOR_URL, json=complete_data)
+        response = self.send(self.RESOURCE_CALCULATOR_URL, data=complete_data)
 
         if raise_errors:
             response.raise_for_status()
@@ -988,7 +1009,7 @@ class CDEKApiClient:
 
         response = self.send(
             Path(self.RESOURCE_DELIVERYPOINTS),
-            complete_data,
+            params=complete_data,
             raise_errors=raise_errors
         )
 
