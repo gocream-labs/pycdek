@@ -12,6 +12,7 @@ import datetime as dt
 import json
 import logging
 
+from requests import Response
 import jwt
 import requests
 
@@ -152,6 +153,7 @@ class CDEKApiClient:
     RESOURCE_RECEIPT = 'print/orders'
     RESOURCE_BARCODE = 'print/barcodes'
     RESOURCE_SUBSCRIPTION = 'webhooks'
+    RESOURCE_DELIVERYPOINTS = 'deliverypoints'
     RESOURCE_CALCULATOR_URL = 'http://api.cdek.ru/calculator/calculate_price_by_json.php'
 
     def __init__(self, id, secret, is_shop, production=True):
@@ -198,6 +200,8 @@ class CDEKApiClient:
             'client_id': self.id,
             'client_secret': self.secret,
         })
+        assert response.status_code == 200, f"CDEK authorization error"
+
         json = response.json()
         token_type = json['token_type']
         assert token_type == 'bearer', f"CDEK return token type `{token_type}` that not supported."
@@ -213,7 +217,7 @@ class CDEKApiClient:
             return resource
 
         api = self.PRODUCTION_API_URL if self.production else self.DEVELOPMENT_API_URL
-        return f"http://{Path(api) / Path(resource)}"
+        return f"https://{Path(api) / Path(resource)}"
 
     def get_headers(self):
         """
@@ -224,7 +228,7 @@ class CDEKApiClient:
             'Authorization': f'Bearer {self.token}'
         }
 
-    def send(self, resource, data=None, method='get', raise_errors=True, **kwargs):
+    def send(self, resource, method='get', data=None, params=None, raise_errors=True, **kwargs):
         """
         Send request and add token to headers
 
@@ -241,6 +245,7 @@ class CDEKApiClient:
         request_kwargs = {
             'headers': self.get_headers(),
             'json': data,
+            'params': params,
         }
         request_kwargs.update(kwargs)
 
@@ -285,6 +290,8 @@ class CDEKApiClient:
         ):
         """
         Registrate order
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=29923926
 
         Args:
             tariff_code (int): Код тарифа `tarrifs`_.
@@ -428,8 +435,8 @@ class CDEKApiClient:
 
         response = self.send(
             self.RESOURCE_ORDER,
-            complete_data,
             method='post',
+            data=complete_data,
             raise_errors=raise_errors,
         )
 
@@ -441,6 +448,8 @@ class CDEKApiClient:
     def get_order(self, uuid, raise_errors=True, origin_response=False):
         """
         Get order info
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=29923975
 
         Args:
             uuid (str): order cdek uuid
@@ -461,6 +470,8 @@ class CDEKApiClient:
     def remove_order(self, uuid, raise_errors=True):
         """
         Remove order
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=29924487
 
         Args:
             uuid (str): order cdek uuid
@@ -499,6 +510,8 @@ class CDEKApiClient:
         ):
         """
         Registrate intakes
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=29925274
 
         Args:
             intake_date (str): Дата ожидания курьера в формате (yyyy-MM-dd)
@@ -561,8 +574,8 @@ class CDEKApiClient:
 
         response = self.send(
             self.RESOURCE_INTAKES,
-            complete_data,
             method='post',
+            data=complete_data,
             raise_errors=raise_errors
         )
 
@@ -574,6 +587,8 @@ class CDEKApiClient:
     def get_intakes(self, uuid, raise_errors=True, origin_response=False):
         """
         Get intakes info
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=29948360
 
         Args:
             uuid (str): intakes cdek uuid
@@ -597,6 +612,8 @@ class CDEKApiClient:
     def remove_intakes(self, uuid, raise_errors=True):
         """
         Remove intakes
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=29948379
 
         Args:
             uuid (str): intakes cdek uuid
@@ -626,6 +643,8 @@ class CDEKApiClient:
     ) -> List:
         """
         Request regions
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=33829418
 
         Args:
             country_codes           Массив кодов стран в формате  ISO_3166-1_alpha-2    string(2) [ ]   нет
@@ -657,7 +676,7 @@ class CDEKApiClient:
 
         response = self.send(
             Path(self.RESOURCE_REGIONS),
-            complete_data,
+            params=complete_data,
             raise_errors=raise_errors
         )
 
@@ -703,6 +722,8 @@ class CDEKApiClient:
         """
         Request regions
 
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=33829437
+
         Args:
             country_codes           Массив кодов стран в формате  ISO_3166-1_alpha-2    string(2) [ ]   нет
             region_code             Код региона СДЭК    string(255) нет
@@ -745,7 +766,7 @@ class CDEKApiClient:
 
         response = self.send(
             Path(self.RESOURCE_CITIES),
-            complete_data,
+            params=complete_data,
             raise_errors=raise_errors
         )
 
@@ -806,8 +827,8 @@ class CDEKApiClient:
 
         response = self.send(
             self.RESOURCE_RECEIPT,
-            complete_data,
             method='post',
+            data=complete_data,
             raise_errors=raise_errors
         )
 
@@ -855,8 +876,8 @@ class CDEKApiClient:
 
         response = self.send(
             self.RESOURCE_BARCODE,
-            complete_data,
             method='post',
+            data=complete_data,
             raise_errors=raise_errors
         )
 
@@ -976,6 +997,10 @@ class CDEKApiClient:
         origin_response=False,
     ):
         """
+
+        TODO:
+        * new method https://confluence.cdek.ru/pages/viewpage.action?pageId=63345430
+
         goods (dict): Габаритные характеристики упаковки:
             weight (float): Вес упаковки (в килограммах)
             length (int): Длина упаковки (в сантиметрах)
@@ -1045,10 +1070,11 @@ class CDEKApiClient:
             complete_data['authLogin'] = self.id
             complete_data['secure'] = get_secure(self.secret, today)
 
-        response = self.send(self.RESOURCE_CALCULATOR_URL, json=complete_data)
-
-        if raise_errors:
-            response.raise_for_status()
+        response = self.send(
+            self.RESOURCE_CALCULATOR_URL,
+            data=complete_data,
+            raise_errors=raise_errors,
+        )
 
         if not origin_response:
             response = response.json()
@@ -1056,6 +1082,11 @@ class CDEKApiClient:
         return response
 
     def subscribe(self, url, type, raise_errors=True, origin_response=False):
+        """
+        Webhook subscribe
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=29934408#id-Подписканавебхуки(Webhooks)-1.Добавлениеподписки
+        """
 
         complete_data = clear_dict({
             'url': url,
@@ -1064,48 +1095,147 @@ class CDEKApiClient:
 
         response = self.send(
             self.RESOURCE_SUBSCRIPTION,
-            complete_data,
             method='post',
+            data=complete_data,
             raise_errors=raise_errors
-            )
+        )
 
-        # if not origin_response:
-        #     response = response.json()['entity']
+        if not origin_response:
+            response = response.json()
 
         return response
 
     def subscribe_info(self, raise_errors=True, origin_response=False):
         """
         information about all current subscriptions
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=29934408#id-Подписканавебхуки(Webhooks)-2.Информацияоподписке
         """
+
         response = self.send(
             Path(self.RESOURCE_SUBSCRIPTION),
             method='get',
             raise_errors=raise_errors
-            )
+        )
+
+        if not origin_response:
+            response = response.json()
 
         return response
 
     def subscribe_info_by_uuid(self, uuid, raise_errors=True, origin_response=False):
         """
         subscription information, where uuid is the subscription identifier
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=29934408#id-Подписканавебхуки(Webhooks)-2.Информацияоподписке
         """
+
         response = self.send(
             Path(self.RESOURCE_SUBSCRIPTION) / Path(uuid),
             method='get',
             raise_errors=raise_errors
-            )
+        )
+
+        if not origin_response:
+            response = response.json()
 
         return response
 
     def subscribe_delete(self, uuid, raise_errors=True, origin_response=False):
         """
         request to delete a subscription
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=29934408#id-Подписканавебхуки(Webhooks)-3.Удалениеподписки
         """
+
         response = self.send(
-                Path(self.RESOURCE_SUBSCRIPTION) / Path(uuid),
-                method='delete',
-                raise_errors=raise_errors
-                )
+            Path(self.RESOURCE_SUBSCRIPTION) / Path(uuid),
+            method='delete',
+            raise_errors=raise_errors
+        )
+
+        if not origin_response:
+            response = response.json()
+
+        return response
+
+    def get_deliverypoints(
+        self,
+
+        postal_code1: Optional[int] = None,
+        city_code1: Optional[int] = None,
+        tipe: Optional[str] = None,
+        country_code: Optional[str] = None,
+        region_code: Optional[int] = None,
+        have_cashless: Optional[bool] = None,
+        have_cash: Optional[bool] = None,
+        allowed_cod: Optional[bool] = None,
+        is_dressing_room: Optional[bool] = None,
+        weight_max: Optional[int] = None,
+        weight_min: Optional[int] = None,
+        lang: Optional[str] = None,
+        take_only: Optional[bool] = None,
+        is_handout: Optional[bool] = None,
+
+        raise_errors: bool = True,
+        origin_response: bool = False,
+    ) -> Union[List[Dict], Response]:
+        """
+        Request delivery points
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=36982648
+
+        Args:
+            postal_code1                Почтовый индекс города, для которого необходим список офисов        integer         нет
+            city_code1                  Код города по базе СДЭК             integer         нет
+            tipe                        Тип офиса, может принимать значения:
+                «PVZ» - для отображения только складов СДЭК;
+                «POSTAMAT» - для отображения постаматов СДЭК;
+                «ALL» - для отображения всех ПВЗ независимо от их типа.
+                При отсутствии параметра принимается значение по умолчанию «ALL».       string(8)       нет
+            country_code                Код страны в формате ISO_3166-1_alpha-2 (см. “Общероссийский классификатор стран мира”)     string (2)  нет
+            region_code                 Код региона по базе СДЭК    integer
+            have_cashless               Наличие терминала оплаты     boolean     нет
+            have_cash                   Есть прием наличных     boolean     нет
+            allowed_cod                 Разрешен наложенный платеж     boolean     нет
+            is_dressing_room            Наличие примерочной     boolean     нет
+            weight_max                  Максимальный вес в кг, который может принять офис (значения больше 0 - передаются офисы, которые принимают этот вес; 0 - офисы с нулевым весом не передаются; значение не указано - все офисы). integer нет
+            weight_min                  Минимальный вес в кг, который принимает офис (при переданном значении будут выводиться офисы с минимальным весом до указанного значения)    integer нет
+            lang                        Локализация офиса. По умолчанию "rus".  string(3)   нет
+            take_only                   Является ли офис только пунктом выдачи     boolean     нет
+            is_handout                  Является пунктом выдачи     boolean     нет
+
+            raise_errors (bool, optional): raise errors? (default: True)
+            origin_response (bool, optional): return original response or only entity? (default: False)
+
+        Returns:
+            list: list of delivery points
+        """
+
+        complete_data = clear_dict({
+            'postal_code1': postal_code1,
+            'city_code1': city_code1,
+            'type': tipe,
+            'country_code': country_code,
+            'region_code': region_code,
+            'have_cashless': have_cashless,
+            'have_cash': have_cash,
+            'allowed_cod': allowed_cod,
+            'is_dressing_room': is_dressing_room,
+            'weight_max': weight_max,
+            'weight_min': weight_min,
+            'lang': lang,
+            'take_only': take_only,
+            'is_handout': is_handout,
+        })
+
+        response = self.send(
+            Path(self.RESOURCE_DELIVERYPOINTS),
+            params=complete_data,
+            raise_errors=raise_errors
+        )
+
+        if not origin_response:
+            response = response.json()
 
         return response
