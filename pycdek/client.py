@@ -46,7 +46,7 @@ class CDEKApiClient:
     RESOURCE_RECEIPT = 'print/orders'
     RESOURCE_BARCODE = 'print/barcodes'
     RESOURCE_DELIVERYPOINTS = 'deliverypoints'
-    RESOURCE_CALCULATOR_URL = 'http://api.cdek.ru/calculator/calculate_price_by_json.php'
+    RESOURCE_CALCULATOR_URL = 'https://api.cdek.ru/calculator/calculate_price_by_json.php'
 
     def __init__(self, id, secret, is_shop, production=True):
         """
