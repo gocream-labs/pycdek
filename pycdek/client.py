@@ -22,11 +22,118 @@ from pycdek.utils import clear_dict, get_secure
 logger = logging.getLogger("pycdek")
 
 
-ENTITY_STATUS_ACCEPTED = 'ACCEPTED'
-ENTITY_STATUS_PROCESSING = 'PROCESSING'
-ENTITY_STATUS_INVALID = 'INVALID'
-ENTITY_STATUS_REMOVED = 'REMOVED'
-ENTITY_STATUS_READY = 'READY'
+# print orders and barcodes statuses
+# https://confluence.cdek.ru/pages/viewpage.action?pageId=36967287#id-Получениеквитанциикзаказу-PrintOrdStatuses
+# https://confluence.cdek.ru/pages/viewpage.action?pageId=36967314#id-ПолучениеШКместакзаказу-PrintBarStatuses
+PRINT_STATUS_ACCEPTED = 'ACCEPTED'
+PRINT_STATUS_PROCESSING = 'PROCESSING'
+PRINT_STATUS_INVALID = 'INVALID'
+PRINT_STATUS_REMOVED = 'REMOVED'
+PRINT_STATUS_READY = 'READY'
+
+# webhooks types
+# https://confluence.cdek.ru/pages/viewpage.action?pageId=29924139
+SUBSCRIBE_TYPE_ORDER = 'ORDER_STATUS'  # событие по статусам
+SUBSCRIBE_TYPE_PRINT = 'PRINT_FORM'  # готовность печатной формы
+
+
+# статусы вебхуков в числовом коде
+# https://confluence.cdek.ru/pages/viewpage.action?pageId=29924139#id-Вебхуки(Webhooks)-StatusesWbПриложение1.Статусызаказов
+WEBHOOK_ORDER_SHIPPING_STATUS_CREATED = 1  # Создан
+WEBHOOK_ORDER_SHIPPING_STATUS_DELETED = 2  # Удален
+WEBHOOK_ORDER_SHIPPING_STATUS_RECEIVED_AT_SENDER_WAREHOUSE = 3  # Принят на склад отправителя
+WEBHOOK_ORDER_SHIPPING_STATUS_DELIVERED = 4  # Вручен
+WEBHOOK_ORDER_SHIPPING_STATUS_NOT_DELIVERED = 5  # Не вручен
+WEBHOOK_ORDER_SHIPPING_STATUS_READY_FOR_SHIPMENT_IN_SENDER_CITY = 6  # Выдан на отправку в г. отправителе
+WEBHOOK_ORDER_SHIPPING_STATUS_TAKEN_BY_TRANSPORTER_FROM_SENDER_CITY = 7  # Сдан перевозчику в г. отправителе
+WEBHOOK_ORDER_SHIPPING_STATUS_SENT_TO_RECIPIENT_CITY = 8  # Отправлен в г. получатель
+WEBHOOK_ORDER_SHIPPING_STATUS_ARRIVED_AT_RECIPIENT_CITY = 9  # Встречен в г. получателе
+WEBHOOK_ORDER_SHIPPING_STATUS_ACCEPTED_AT_RECIPIENT_CITY_WAREHOUSE = 10  # Принят на склад доставки
+WEBHOOK_ORDER_SHIPPING_STATUS_TAKEN_BY_COURIER = 11  # Выдан на доставку
+WEBHOOK_ORDER_SHIPPING_STATUS_ACCEPTED_AT_PICK_UP_POINT = 12  # Принят на склад до востребования
+WEBHOOK_ORDER_SHIPPING_STATUS_ACCEPTED_AT_TRANSIT_WAREHOUSE = 13  # Принят на склад транзита
+WEBHOOK_ORDER_SHIPPING_STATUS_RETURNED_TO_SENDER_CITY_WAREHOUSE = 16  # Возвращен на склад отправителя
+WEBHOOK_ORDER_SHIPPING_STATUS_RETURNED_TO_TRANSIT_WAREHOUSE = 17  # Возвращен на склад транзита
+WEBHOOK_ORDER_SHIPPING_STATUS_RETURNED_TO_RECIPIENT_CITY_WAREHOUSE = 18  # Возвращен на склад доставки
+WEBHOOK_ORDER_SHIPPING_STATUS_READY_FOR_SHIPMENT_IN_TRANSIT_CITY = 19  # Выдан на отправку в г. транзите
+WEBHOOK_ORDER_SHIPPING_STATUS_TAKEN_BY_TRANSPORTER_FROM_TRANSIT_CITY = 20  #
+WEBHOOK_ORDER_SHIPPING_STATUS_SENT_TO_TRASIT_CITY = 21  # Отправлен в г. транзит
+WEBHOOK_ORDER_SHIPPING_STATUS_ACCEPTED_IN_TRANSIT_CITY = 22  # Встречен в г. транзите
+WEBHOOK_ORDER_SHIPPING_STATUS_SENT_TO_SENDER_CITY = 27  # Отправлен в г. отправитель
+WEBHOOK_ORDER_SHIPPING_STATUS_ACCEPTED_IN_SENDER_CITY = 28  # Встречен в г. отправителе
+
+
+# коды статусов заказов
+# https://confluence.cdek.ru/pages/viewpage.action?pageId=29923975#id-Информацияозаказе-StatusesПриложение1.Статусызаказов
+ORDER_SHIPPING_STATUS_ACCEPTED = 'ACCEPTED'
+ORDER_SHIPPING_STATUS_CREATED = 'CREATED'
+ORDER_SHIPPING_STATUS_RECEIVED_AT_SENDER_WAREHOUSE = 'RECEIVED_AT_SENDER_WAREHOUSE'
+ORDER_SHIPPING_STATUS_DELIVERED = 'DELIVERED'
+ORDER_SHIPPING_STATUS_NOT_DELIVERED = 'NOT_DELIVERED'
+ORDER_SHIPPING_STATUS_INVALID = 'INVALID'
+ORDER_SHIPPING_STATUS_READY_FOR_SHIPMENT_IN_SENDER_CITY = 'READY_FOR_SHIPMENT_IN_SENDER_CITY'
+ORDER_SHIPPING_STATUS_TAKEN_BY_TRANSPORTER_FROM_SENDER_CITY = 'TAKEN_BY_TRANSPORTER_FROM_SENDER_CITY'
+ORDER_SHIPPING_STATUS_SENT_TO_RECIPIENT_CITY = 'SENT_TO_RECIPIENT_CITY'
+ORDER_SHIPPING_STATUS_ARRIVED_AT_RECIPIENT_CITY = 'ARRIVED_AT_RECIPIENT_CITY'
+ORDER_SHIPPING_STATUS_ACCEPTED_AT_RECIPIENT_CITY_WAREHOUSE = 'ACCEPTED_AT_RECIPIENT_CITY_WAREHOUSE'
+ORDER_SHIPPING_STATUS_TAKEN_BY_COURIER = 'TAKEN_BY_COURIER'
+ORDER_SHIPPING_STATUS_ACCEPTED_AT_PICK_UP_POINT = 'ACCEPTED_AT_PICK_UP_POINT'
+ORDER_SHIPPING_STATUS_ACCEPTED_AT_TRANSIT_WAREHOUSE = 'ACCEPTED_AT_TRANSIT_WAREHOUSE'
+ORDER_SHIPPING_STATUS_RETURNED_TO_SENDER_CITY_WAREHOUSE = 'RETURNED_TO_SENDER_CITY_WAREHOUSE'
+ORDER_SHIPPING_STATUS_RETURNED_TO_TRANSIT_WAREHOUSE = 'RETURNED_TO_TRANSIT_WAREHOUSE'
+ORDER_SHIPPING_STATUS_RETURNED_TO_RECIPIENT_CITY_WAREHOUSE = 'RETURNED_TO_RECIPIENT_CITY_WAREHOUSE'
+ORDER_SHIPPING_STATUS_READY_FOR_SHIPMENT_IN_TRANSIT_CITY = 'READY_FOR_SHIPMENT_IN_TRANSIT_CITY'
+ORDER_SHIPPING_STATUS_TAKEN_BY_TRANSPORTER_FROM_TRANSIT_CITY = 'TAKEN_BY_TRANSPORTER_FROM_TRANSIT_CITY'
+ORDER_SHIPPING_STATUS_SENT_TO_TRASIT_CITY = 'SENT_TO_TRANSIT_CITY'
+ORDER_SHIPPING_STATUS_ACCEPTED_IN_TRANSIT_CITY = 'ACCEPTED_IN_TRANSIT_CITY'
+
+# преобразование статуса заказа в статус вебхуков
+ORDER_SHIPPING_WEBHOOK_BY_STATUS = {
+    ORDER_SHIPPING_STATUS_CREATED: WEBHOOK_ORDER_SHIPPING_STATUS_CREATED,
+    ORDER_SHIPPING_STATUS_RECEIVED_AT_SENDER_WAREHOUSE: WEBHOOK_ORDER_SHIPPING_STATUS_RECEIVED_AT_SENDER_WAREHOUSE,
+    ORDER_SHIPPING_STATUS_DELIVERED: WEBHOOK_ORDER_SHIPPING_STATUS_DELIVERED,
+    ORDER_SHIPPING_STATUS_NOT_DELIVERED: WEBHOOK_ORDER_SHIPPING_STATUS_NOT_DELIVERED,
+    ORDER_SHIPPING_STATUS_READY_FOR_SHIPMENT_IN_SENDER_CITY: WEBHOOK_ORDER_SHIPPING_STATUS_READY_FOR_SHIPMENT_IN_SENDER_CITY,
+    ORDER_SHIPPING_STATUS_TAKEN_BY_TRANSPORTER_FROM_SENDER_CITY: WEBHOOK_ORDER_SHIPPING_STATUS_TAKEN_BY_TRANSPORTER_FROM_SENDER_CITY,
+    ORDER_SHIPPING_STATUS_SENT_TO_RECIPIENT_CITY: WEBHOOK_ORDER_SHIPPING_STATUS_SENT_TO_RECIPIENT_CITY,
+    ORDER_SHIPPING_STATUS_ARRIVED_AT_RECIPIENT_CITY: WEBHOOK_ORDER_SHIPPING_STATUS_ARRIVED_AT_RECIPIENT_CITY,
+    ORDER_SHIPPING_STATUS_ACCEPTED_AT_RECIPIENT_CITY_WAREHOUSE: WEBHOOK_ORDER_SHIPPING_STATUS_ACCEPTED_AT_RECIPIENT_CITY_WAREHOUSE,
+    ORDER_SHIPPING_STATUS_TAKEN_BY_COURIER: WEBHOOK_ORDER_SHIPPING_STATUS_TAKEN_BY_COURIER,
+    ORDER_SHIPPING_STATUS_ACCEPTED_AT_PICK_UP_POINT: WEBHOOK_ORDER_SHIPPING_STATUS_ACCEPTED_AT_PICK_UP_POINT,
+    ORDER_SHIPPING_STATUS_ACCEPTED_AT_TRANSIT_WAREHOUSE: WEBHOOK_ORDER_SHIPPING_STATUS_ACCEPTED_AT_TRANSIT_WAREHOUSE,
+    ORDER_SHIPPING_STATUS_RETURNED_TO_SENDER_CITY_WAREHOUSE: WEBHOOK_ORDER_SHIPPING_STATUS_RETURNED_TO_SENDER_CITY_WAREHOUSE,
+    ORDER_SHIPPING_STATUS_RETURNED_TO_TRANSIT_WAREHOUSE: WEBHOOK_ORDER_SHIPPING_STATUS_RETURNED_TO_TRANSIT_WAREHOUSE,
+    ORDER_SHIPPING_STATUS_RETURNED_TO_RECIPIENT_CITY_WAREHOUSE: WEBHOOK_ORDER_SHIPPING_STATUS_RETURNED_TO_RECIPIENT_CITY_WAREHOUSE,
+    ORDER_SHIPPING_STATUS_READY_FOR_SHIPMENT_IN_TRANSIT_CITY: WEBHOOK_ORDER_SHIPPING_STATUS_READY_FOR_SHIPMENT_IN_TRANSIT_CITY,
+    ORDER_SHIPPING_STATUS_TAKEN_BY_TRANSPORTER_FROM_TRANSIT_CITY: WEBHOOK_ORDER_SHIPPING_STATUS_TAKEN_BY_TRANSPORTER_FROM_TRANSIT_CITY,
+    ORDER_SHIPPING_STATUS_SENT_TO_TRASIT_CITY: WEBHOOK_ORDER_SHIPPING_STATUS_SENT_TO_TRASIT_CITY,
+    ORDER_SHIPPING_STATUS_ACCEPTED_IN_TRANSIT_CITY: WEBHOOK_ORDER_SHIPPING_STATUS_ACCEPTED_IN_TRANSIT_CITY,
+}
+ORDER_SHIPPING_STATUS_TO_WEBHOOK = ORDER_SHIPPING_WEBHOOK_BY_STATUS
+
+# преобразование статуса вебхуков в статус заказа
+ORDER_SHIPPING_STATUS_BY_WEBHOOK = {
+    WEBHOOK_ORDER_SHIPPING_STATUS_CREATED: ORDER_SHIPPING_STATUS_CREATED,
+    WEBHOOK_ORDER_SHIPPING_STATUS_RECEIVED_AT_SENDER_WAREHOUSE: ORDER_SHIPPING_STATUS_RECEIVED_AT_SENDER_WAREHOUSE,
+    WEBHOOK_ORDER_SHIPPING_STATUS_DELIVERED: ORDER_SHIPPING_STATUS_DELIVERED,
+    WEBHOOK_ORDER_SHIPPING_STATUS_NOT_DELIVERED: ORDER_SHIPPING_STATUS_NOT_DELIVERED,
+    WEBHOOK_ORDER_SHIPPING_STATUS_READY_FOR_SHIPMENT_IN_SENDER_CITY: ORDER_SHIPPING_STATUS_READY_FOR_SHIPMENT_IN_SENDER_CITY,
+    WEBHOOK_ORDER_SHIPPING_STATUS_TAKEN_BY_TRANSPORTER_FROM_SENDER_CITY: ORDER_SHIPPING_STATUS_TAKEN_BY_TRANSPORTER_FROM_SENDER_CITY,
+    WEBHOOK_ORDER_SHIPPING_STATUS_SENT_TO_RECIPIENT_CITY: ORDER_SHIPPING_STATUS_SENT_TO_RECIPIENT_CITY,
+    WEBHOOK_ORDER_SHIPPING_STATUS_ARRIVED_AT_RECIPIENT_CITY: ORDER_SHIPPING_STATUS_ARRIVED_AT_RECIPIENT_CITY,
+    WEBHOOK_ORDER_SHIPPING_STATUS_ACCEPTED_AT_RECIPIENT_CITY_WAREHOUSE: ORDER_SHIPPING_STATUS_ACCEPTED_AT_RECIPIENT_CITY_WAREHOUSE,
+    WEBHOOK_ORDER_SHIPPING_STATUS_TAKEN_BY_COURIER: ORDER_SHIPPING_STATUS_TAKEN_BY_COURIER,
+    WEBHOOK_ORDER_SHIPPING_STATUS_ACCEPTED_AT_PICK_UP_POINT: ORDER_SHIPPING_STATUS_ACCEPTED_AT_PICK_UP_POINT,
+    WEBHOOK_ORDER_SHIPPING_STATUS_ACCEPTED_AT_TRANSIT_WAREHOUSE: ORDER_SHIPPING_STATUS_ACCEPTED_AT_TRANSIT_WAREHOUSE,
+    WEBHOOK_ORDER_SHIPPING_STATUS_RETURNED_TO_SENDER_CITY_WAREHOUSE: ORDER_SHIPPING_STATUS_RETURNED_TO_SENDER_CITY_WAREHOUSE,
+    WEBHOOK_ORDER_SHIPPING_STATUS_RETURNED_TO_TRANSIT_WAREHOUSE: ORDER_SHIPPING_STATUS_RETURNED_TO_TRANSIT_WAREHOUSE,
+    WEBHOOK_ORDER_SHIPPING_STATUS_RETURNED_TO_RECIPIENT_CITY_WAREHOUSE: ORDER_SHIPPING_STATUS_RETURNED_TO_RECIPIENT_CITY_WAREHOUSE,
+    WEBHOOK_ORDER_SHIPPING_STATUS_READY_FOR_SHIPMENT_IN_TRANSIT_CITY: ORDER_SHIPPING_STATUS_READY_FOR_SHIPMENT_IN_TRANSIT_CITY,
+    WEBHOOK_ORDER_SHIPPING_STATUS_TAKEN_BY_TRANSPORTER_FROM_TRANSIT_CITY: ORDER_SHIPPING_STATUS_TAKEN_BY_TRANSPORTER_FROM_TRANSIT_CITY,
+    WEBHOOK_ORDER_SHIPPING_STATUS_SENT_TO_TRASIT_CITY: ORDER_SHIPPING_STATUS_SENT_TO_TRASIT_CITY,
+    WEBHOOK_ORDER_SHIPPING_STATUS_ACCEPTED_IN_TRANSIT_CITY: ORDER_SHIPPING_STATUS_ACCEPTED_IN_TRANSIT_CITY,
+}
+ORDER_SHIPPING_STATUS_FROM_WEBHOOK = ORDER_SHIPPING_STATUS_BY_WEBHOOK
 
 
 class CDEKApiClient:
@@ -45,6 +152,7 @@ class CDEKApiClient:
     RESOURCE_CITIES = 'location/cities'
     RESOURCE_RECEIPT = 'print/orders'
     RESOURCE_BARCODE = 'print/barcodes'
+    RESOURCE_SUBSCRIPTION = 'webhooks'
     RESOURCE_DELIVERYPOINTS = 'deliverypoints'
     RESOURCE_CALCULATOR_URL = 'https://api.cdek.ru/calculator/calculate_price_by_json.php'
 
@@ -683,7 +791,14 @@ class CDEKApiClient:
 
             request_kwargs['page'] += 1
 
-    def request_receipt(self, orders, copy_count=2, tipe=None, raise_errors=True, origin_response=False):
+    def request_receipt(
+        self,
+        orders,
+        copy_count=2,
+        tipe=None,
+        raise_errors=True,
+        origin_response=False
+    ):
         """
         Request for the receipt of an order
 
@@ -692,7 +807,7 @@ class CDEKApiClient:
                 order_uuid      Идентификатор заказа в ИС СДЭК
                 cdek_number     Номер заказа СДЭК
             copy_count:                         Число копий одной квитанции на листе. Рекомендовано указывать не менее 2, одна приклеивается на груз, вторая остается у отправителя (default: 2)
-            type                                Форма квитанции. Может принимать значения:
+            tipe                                Форма квитанции. Может принимать значения:
                 tpl_china - квитанция на китайском
                 tpl_armenia - квитанция на армянском
             raise_errors (bool, optional):      raise errors? (default: True)
@@ -722,7 +837,15 @@ class CDEKApiClient:
 
         return response
 
-    def request_barcode(self, orders, copy_count=2, frmt=None, lang=None, raise_errors=True, origin_response=False):
+    def request_barcode(
+        self,
+        orders,
+        copy_count=1,
+        frmt='A6',
+        lang=None,
+        raise_errors=True,
+        origin_response=False
+    ):
         """
         Request for the BARCODE of an order
 
@@ -763,7 +886,12 @@ class CDEKApiClient:
 
         return response
 
-    def get_receipt(self, uuid, raise_errors=True, origin_response=False):
+    def get_receipt(
+        self,
+        uuid,
+        raise_errors=True,
+        origin_response=False
+    ):
         """
         Get link to receipt
 
@@ -788,7 +916,12 @@ class CDEKApiClient:
 
         return response
 
-    def get_barcode(self, uuid, raise_errors=True, origin_response=False):
+    def get_barcode(
+        self,
+        uuid,
+        raise_errors=True,
+        origin_response=False
+    ):
         """
         Get link to barcode
 
@@ -813,9 +946,19 @@ class CDEKApiClient:
 
         return response
 
-    def download(self, url, raise_errors=True, origin_response=False):
+    def download(
+        self,
+        url,
+        raise_errors=True,
+        origin_response=False
+    ):
         """
         Download document
+
+        Args:
+            url (str): cdek url
+            raise_errors (bool, optional): raise errors? (default: True)
+            origin_response (bool, optional): return original response or only entity? (default: False)
         """
         response = self.send(url, raise_errors=raise_errors)
 
@@ -927,10 +1070,89 @@ class CDEKApiClient:
             complete_data['authLogin'] = self.id
             complete_data['secure'] = get_secure(self.secret, today)
 
-        response = self.send(self.RESOURCE_CALCULATOR_URL, data=complete_data)
+        response = self.send(
+            self.RESOURCE_CALCULATOR_URL,
+            data=complete_data,
+            raise_errors=raise_errors,
+        )
 
-        if raise_errors:
-            response.raise_for_status()
+        if not origin_response:
+            response = response.json()
+
+        return response
+
+    def subscribe(self, url, type, raise_errors=True, origin_response=False):
+        """
+        Webhook subscribe
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=29934408#id-Подписканавебхуки(Webhooks)-1.Добавлениеподписки
+        """
+
+        complete_data = clear_dict({
+            'url': url,
+            'type': type,
+        })
+
+        response = self.send(
+            self.RESOURCE_SUBSCRIPTION,
+            method='post',
+            data=complete_data,
+            raise_errors=raise_errors
+        )
+
+        if not origin_response:
+            response = response.json()
+
+        return response
+
+    def subscribe_info(self, raise_errors=True, origin_response=False):
+        """
+        information about all current subscriptions
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=29934408#id-Подписканавебхуки(Webhooks)-2.Информацияоподписке
+        """
+
+        response = self.send(
+            Path(self.RESOURCE_SUBSCRIPTION),
+            method='get',
+            raise_errors=raise_errors
+        )
+
+        if not origin_response:
+            response = response.json()
+
+        return response
+
+    def subscribe_info_by_uuid(self, uuid, raise_errors=True, origin_response=False):
+        """
+        subscription information, where uuid is the subscription identifier
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=29934408#id-Подписканавебхуки(Webhooks)-2.Информацияоподписке
+        """
+
+        response = self.send(
+            Path(self.RESOURCE_SUBSCRIPTION) / Path(uuid),
+            method='get',
+            raise_errors=raise_errors
+        )
+
+        if not origin_response:
+            response = response.json()
+
+        return response
+
+    def subscribe_delete(self, uuid, raise_errors=True, origin_response=False):
+        """
+        request to delete a subscription
+
+        https://confluence.cdek.ru/pages/viewpage.action?pageId=29934408#id-Подписканавебхуки(Webhooks)-3.Удалениеподписки
+        """
+
+        response = self.send(
+            Path(self.RESOURCE_SUBSCRIPTION) / Path(uuid),
+            method='delete',
+            raise_errors=raise_errors
+        )
 
         if not origin_response:
             response = response.json()
