@@ -5,13 +5,13 @@
 #
 # W - Warehouse
 # D - Door
-# P - PostPoint
+# P - Parcel machine
 
 # WW - Warehouse - Warehouse
 # WD - Warehouse - Door
 # DW - Door - Warehouse
 # DD - Door - Door
-# WP - Warehouse - PostPoint
+# WP - Warehouse - Parcel machine
 # etc.
 #
 
@@ -28,16 +28,16 @@ IS_REGULAR_WD = 137  # Посылка склад-дверь
 IS_REGULAR_DW = 138  # Посылка дверь-склад
 IS_REGULAR_DD = 139  # Посылка дверь-дверь
 
-# IS_INTERNATIONAL_EXPRESS_WW = 178  # Международный экспресс грузы склад-склад
-# IS_INTERNATIONAL_EXPRESS_WD = 179  # Международный экспресс грузы склад-дверь
-# IS_INTERNATIONAL_EXPRESS_DW = 180  # Международный экспресс грузы дверь-склад
+IS_INTERNATIONAL_EXPRESS_WW = 178  # DEPRECATED!!! Международный экспресс грузы склад-склад
+IS_INTERNATIONAL_EXPRESS_WD = 179  # DEPRECATED!!! Международный экспресс грузы склад-дверь
+IS_INTERNATIONAL_EXPRESS_DW = 180  # DEPRECATED!!! Международный экспресс грузы дверь-склад
 
-# IS_INTERNATIONAL_EXPRESS_DOCS_WW = 181  # Международный экспресс документы склад-склад
-# IS_INTERNATIONAL_EXPRESS_DOCS_WD = 182  # Международный экспресс документы склад-дверь
-# IS_INTERNATIONAL_EXPRESS_DOCS_DW = 183  # Международный экспресс документы дверь-склад
+IS_INTERNATIONAL_EXPRESS_DOCS_WW = 181  # DEPRECATED!!! Международный экспресс документы склад-склад
+IS_INTERNATIONAL_EXPRESS_DOCS_WD = 182  # DEPRECATED!!! Международный экспресс документы склад-дверь
+IS_INTERNATIONAL_EXPRESS_DOCS_DW = 183  # DEPRECATED!!! Международный экспресс документы дверь-склад
 
-# IS_ECONOMY_DD = 231  # Экономичная посылка дверь-дверь
-# IS_ECONOMY_DW = 232  # Экономичная посылка дверь-склад
+IS_ECONOMY_DD = 231  # DEPRECATED!!! Экономичная посылка дверь-дверь
+IS_ECONOMY_DW = 232  # DEPRECATED!!! Экономичная посылка дверь-склад
 IS_ECONOMY_WD = 233  # Экономичная посылка склад-дверь
 IS_ECONOMY_WW = 234  # Экономичная посылка склад-склад
 
@@ -49,7 +49,7 @@ IS_EXPRESS_DW = 295  # CDEK Express дверь-склад
 IS_REGULAR_DP = 366  # Посылка дверь-постамат
 IS_REGULAR_WP = 368  # Посылка склад-постамат
 
-# IS_ECONOMY_DP = 376  # Экономичная посылка дверь-постамат
+IS_ECONOMY_DP = 376  # DEPRECATED!!! Экономичная посылка дверь-постамат
 IS_ECONOMY_WP = 378  # Экономичная посылка склад-постамат
 
 # END OF INTERNET SHOP #
