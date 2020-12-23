@@ -267,8 +267,6 @@ class CDEKApiClient:
             self,
             tariff_code,
             recipient,
-            from_location,
-            to_location,
             packages,
             number=None,
             comment=None,
@@ -284,7 +282,10 @@ class CDEKApiClient:
             delivery_recipient_cost_adv=None,
             sender=None,
             seller=None,
+            from_location=None,
+            to_location=None,
             services=None,
+            # print
             raise_errors=True,
             origin_response=False,
         ):
@@ -308,30 +309,6 @@ class CDEKApiClient:
                 passport_organization (str, optional): Орган выдачи паспорта
                 passport_date_of_birth (date, optional): Дата рождения в формате 'yyyy-MM-dd'
                 email (str, optional): Эл. адрес
-            from_location (dict): Адрес отправления:
-                country_code (str): Код страны в формате ISO_3166-1_alpha-2
-                address (str): Строка адреса
-                code (str, optional): Код локации (справочник СДЭК)
-                fias_guid (str, optional): Уникальный идентификатор ФИАС (UUID)
-                postal_code (str, optional): Почтовый индекс
-                longitude (float, optional): Долгота
-                latitude (float, optional): Широта
-                region (str, optional): Название региона
-                sub_region (str, optional): Название района региона
-                city (str, optional): Название города
-                kladr_code (str, optional): Код КЛАДР
-            to_location (dict): Адрес получения:
-                country_code (str): Код страны в формате ISO_3166-1_alpha-2
-                address (str): Строка адреса
-                code (str, optional): Код локации (справочник СДЭК)
-                fias_guid (str, optional): Уникальный идентификатор ФИАС (UUID)
-                postal_code (str, optional): Почтовый индекс
-                longitude (float, optional): Долгота
-                latitude (float, optional): Широта
-                region (str, optional): Название региона
-                sub_region (str, optional): Название района региона
-                city (str, optional): Название города
-                kladr_code (str, optional): Код КЛАДР
             packages (dict): Список информации по местам (упаковкам)
                 number (str): Номер упаковки (можно использовать порядковый номер упаковки заказа или номер заказа), уникален в пределах заказа. Идентификатор заказа в ИС Клиента
                 weight (int): Общий вес (в граммах)
@@ -387,6 +364,30 @@ class CDEKApiClient:
                 phone (str, optional): Телефон истинного продавца.
                 ownership_form (int, optional): Код формы собственности `ownership form`_.
                 address (str, optional): Адрес истинного продавца. Используется при печати инвойсов для отображения адреса настоящего продавца товара, либо торгового названия.
+            from_location (dict): Адрес отправления:
+                country_code (str): Код страны в формате ISO_3166-1_alpha-2
+                address (str): Строка адреса
+                code (str, optional): Код локации (справочник СДЭК)
+                fias_guid (str, optional): Уникальный идентификатор ФИАС (UUID)
+                postal_code (str, optional): Почтовый индекс
+                longitude (float, optional): Долгота
+                latitude (float, optional): Широта
+                region (str, optional): Название региона
+                sub_region (str, optional): Название района региона
+                city (str, optional): Название города
+                kladr_code (str, optional): Код КЛАДР
+            to_location (dict): Адрес получения:
+                country_code (str): Код страны в формате ISO_3166-1_alpha-2
+                address (str): Строка адреса
+                code (str, optional): Код локации (справочник СДЭК)
+                fias_guid (str, optional): Уникальный идентификатор ФИАС (UUID)
+                postal_code (str, optional): Почтовый индекс
+                longitude (float, optional): Долгота
+                latitude (float, optional): Широта
+                region (str, optional): Название региона
+                sub_region (str, optional): Название района региона
+                city (str, optional): Название города
+                kladr_code (str, optional): Код КЛАДР
             services (dict, optional): Дополнительные услуги:
                 code (int): Тип дополнительной услуги `extra services`_.
                 parameter (int, optional): Параметр дополнительной услуги:
