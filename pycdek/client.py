@@ -1064,12 +1064,11 @@ class CDEKApiClient:
         if auth:
             assert self.id and self.secret, "Has no provide auth information"
 
-            today = dt.date.today().isoformat()
             if not 'dateExecute' in complete_data:
-                complete_data['dateExecute'] = today
+                complete_data['dateExecute'] = dt.date.today().isoformat()
 
             complete_data['authLogin'] = self.id
-            complete_data['secure'] = get_secure(self.secret, today)
+            complete_data['secure'] = get_secure(self.secret, complete_data['dateExecute'])
 
         response = self.send(
             self.RESOURCE_CALCULATOR_URL,
