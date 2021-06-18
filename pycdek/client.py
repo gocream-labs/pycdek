@@ -185,7 +185,7 @@ class CDEKApiClient:
             # token not getted or expired -> response
             response = self.authorization()
             self._token = response['access_token']
-            token_data = jwt.decode(response['access_token'], verify=False)
+            token_data = jwt.decode(response['access_token'], options={'verify_signature': False})
             self._token_exp = dt.datetime.fromtimestamp(token_data['exp'])
 
         return self._token
