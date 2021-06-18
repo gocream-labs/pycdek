@@ -24,7 +24,7 @@ setup(
     zip_safe = False,
     install_requires = [
         'requests>=2.22.0,<3',
-        'pyjwt==1.7.1',
+        'pyjwt<3,>=2',
     ],
     long_description = long_description,
     platforms = 'All',
