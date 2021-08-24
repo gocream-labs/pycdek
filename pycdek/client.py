@@ -146,7 +146,7 @@ class CDEKApiClient:
     CONTRACT_TYPE_SHOP = 'shop'
     CONTRACT_TYPE_DELIVERY = 'delivery'
 
-    RESOURCE_AUTH_TOKENx = 'v2/oauth/token'
+    RESOURCE_AUTH_TOKEN = 'v2/oauth/token'
     RESOURCE_ORDER = 'v2/orders'
     RESOURCE_INTAKES = 'v2/intakes'
     RESOURCE_REGIONS = 'v2/location/regions'
@@ -196,7 +196,7 @@ class CDEKApiClient:
         request jwt token for use in api requests
         """
 
-        response = requests.post(self.get_url(self.RESOURCE_AUTH_TOKENx), params={
+        response = requests.post(self.get_url(self.RESOURCE_AUTH_TOKEN), params={
             'grant_type': 'client_credentials',
             'client_id': self.id,
             'client_secret': self.secret,

@@ -1,3 +1,5 @@
+<img alt="CDEK" src="/logo.svg" width="150" height="auto" />
+
 # PyCDEK 2
 
 Python library for CDEK API v2.0
@@ -15,7 +17,7 @@ config для git flow:
 ```
 [gitflow "branch"]
     master = master
-    develop = dev
+    develop = develop
 [gitflow "prefix"]
     feature = feature/
     bugfix = bugfix/

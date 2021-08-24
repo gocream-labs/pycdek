@@ -4,12 +4,15 @@
 *.so
 .*
 db.*
+~*
 
 /bin
 /include
 /lib
 /logs
 /share
+/build
+/dist
 
 /local_settings.py
 pip-selfcheck.json
