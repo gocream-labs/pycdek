@@ -140,21 +140,22 @@ class CDEKApiClient:
     """
     Client for cdek api
     """
-    PRODUCTION_API_URL = 'api.cdek.ru/v2/'
-    DEVELOPMENT_API_URL = 'api.edu.cdek.ru/v2/'
+    PRODUCTION_API_URL = 'api.cdek.ru/'
+    DEVELOPMENT_API_URL = 'api.edu.cdek.ru/'
 
     CONTRACT_TYPE_SHOP = 'shop'
     CONTRACT_TYPE_DELIVERY = 'delivery'
 
-    RESOURCE_ORDER = 'orders'
-    RESOURCE_INTAKES = 'intakes'
-    RESOURCE_REGIONS = 'location/regions'
-    RESOURCE_CITIES = 'location/cities'
-    RESOURCE_RECEIPT = 'print/orders'
-    RESOURCE_BARCODE = 'print/barcodes'
-    RESOURCE_SUBSCRIPTION = 'webhooks'
-    RESOURCE_DELIVERYPOINTS = 'deliverypoints'
-    RESOURCE_CALCULATOR_URL = 'https://api.cdek.ru/calculator/calculate_price_by_json.php'
+    RESOURCE_AUTH_TOKENx = 'v2/oauth/token'
+    RESOURCE_ORDER = 'v2/orders'
+    RESOURCE_INTAKES = 'v2/intakes'
+    RESOURCE_REGIONS = 'v2/location/regions'
+    RESOURCE_CITIES = 'v2/location/cities'
+    RESOURCE_RECEIPT = 'v2/print/orders'
+    RESOURCE_BARCODE = 'v2/print/barcodes'
+    RESOURCE_SUBSCRIPTION = 'v2/webhooks'
+    RESOURCE_DELIVERYPOINTS = 'v2/deliverypoints'
+    RESOURCE_CALCULATOR_URL = 'calculator/calculate_price_by_json.php'
 
     def __init__(self, id, secret, is_shop, production=True):
         """
@@ -195,7 +196,7 @@ class CDEKApiClient:
         request jwt token for use in api requests
         """
 
-        response = requests.post(self.get_url('oauth/token'), params={
+        response = requests.post(self.get_url(self.RESOURCE_AUTH_TOKENx), params={
             'grant_type': 'client_credentials',
             'client_id': self.id,
             'client_secret': self.secret,
