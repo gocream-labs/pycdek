@@ -1,4 +1,4 @@
-<img alt="staya UI" src="/logo.svg" width="150" height="auto"/>
+<img alt="CDEK" src="/logo.svg" width="150" height="auto" />
 
 # PyCDEK 2
 
