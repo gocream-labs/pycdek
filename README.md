@@ -1,3 +1,5 @@
+<img alt="CDEK" src="/logo.svg" width="150" height="auto" />
+
 # PyCDEK 2
 
 Python library for CDEK API v2.0
