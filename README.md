@@ -15,7 +15,7 @@ config для git flow:
 ```
 [gitflow "branch"]
     master = master
-    develop = dev
+    develop = develop
 [gitflow "prefix"]
     feature = feature/
     bugfix = bugfix/
