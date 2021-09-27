@@ -16,7 +16,13 @@ from requests import Response
 import jwt
 import requests
 
-from pycdek.utils import clear_dict, get_secure
+from pycdek.exceptions import CdekApiAccessException
+from pycdek.exceptions import CdekApiException
+from pycdek.exceptions import CdekApiUnavailableException
+from pycdek.exceptions import CdekApiWrongTokenTypeException
+from pycdek.exceptions import CdekNoAuthClientException
+from pycdek.utils import clear_dict
+from pycdek.utils import get_secure
 
 
 logger = logging.getLogger("pycdek")
@@ -201,11 +207,31 @@ class CDEKApiClient:
             'client_id': self.id,
             'client_secret': self.secret,
         })
-        assert response.status_code == 200, f"CDEK authorization error"
 
-        json = response.json()
-        token_type = json['token_type']
-        assert token_type == 'bearer', f"CDEK return token type `{token_type}` that not supported."
+        if response.status_code != 200:
+            message = response.text
+            code = None
+
+            if response.headers['Content-Type'] == 'application/json':
+                json = response.json()
+
+                if 'error_description' in json and 'invalid_client' in json:
+                    message = json['error_description']
+                    code = json['invalid_client']
+
+                elif 'reason' in json and len(json) == 1:
+                    message = json['reason']
+
+            if code == 'invalid_client' and message == 'Bad client credentials':
+                raise CdekApiAccessException()
+
+            elif code is None and message == 'Service Unavailable':
+                raise CdekApiUnavailableException()
+
+            raise CdekApiException(message, code)
+
+        if json['token_type'] == 'bearer':
+            raise CdekApiWrongTokenTypeException(json['token_type'])
 
         return json
 
@@ -1063,7 +1089,8 @@ class CDEKApiClient:
         })
 
         if auth:
-            assert self.id and self.secret, "Has no provide auth information"
+            if not self.id or not self.secret:
+                raise CdekNoAuthClientException("Has no provide auth information")
 
             if not 'dateExecute' in complete_data:
                 complete_data['dateExecute'] = dt.date.today().isoformat()
