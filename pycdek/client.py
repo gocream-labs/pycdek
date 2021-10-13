@@ -230,7 +230,10 @@ class CDEKApiClient:
 
             raise CdekApiException(message, code)
 
-        if json['token_type'] == 'bearer':
+        else:
+            json = response.json()
+
+        if json['token_type'] != 'bearer':
             raise CdekApiWrongTokenTypeException(json['token_type'])
 
         return json
