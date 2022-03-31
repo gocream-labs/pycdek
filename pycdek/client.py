@@ -272,21 +272,18 @@ class CDEKApiClient:
             dict: request returned data
         """
 
-        request_kwargs = {
-            'headers': self.get_headers(),
-            'json': data,
-            'params': params,
-        }
-        request_kwargs.update(kwargs)
+        kwargs.setdefault('headers', self.get_headers())
+        kwargs['json'] = data
+        kwargs['params'] = params
 
         if method == 'get':
-            response = requests.get(self.get_url(resource), **request_kwargs)
+            response = requests.get(self.get_url(resource), **kwargs)
 
         elif method == 'post':
-            response = requests.post(self.get_url(resource), **request_kwargs)
+            response = requests.post(self.get_url(resource), **kwargs)
 
         elif method == 'delete':
-            response = requests.delete(self.get_url(resource), **request_kwargs)
+            response = requests.delete(self.get_url(resource), **kwargs)
 
         if raise_errors:
             response.raise_for_status()
@@ -294,31 +291,32 @@ class CDEKApiClient:
         return response
 
     def registrate_order(
-            self,
-            tariff_code,
-            recipient,
-            packages,
-            number=None,
-            comment=None,
-            shipment_point=None,
-            delivery_point=None,
-            items_cost_currency=None,
-            date_invoice=None,
-            shipper_name=None,
-            shipper_address=None,
-            # наложенный платёж,
-            recipient_currency=None,
-            delivery_recipient_cost=None,
-            delivery_recipient_cost_adv=None,
-            sender=None,
-            seller=None,
-            from_location=None,
-            to_location=None,
-            services=None,
-            # print
-            raise_errors=True,
-            origin_response=False,
-        ):
+        self,
+        tariff_code,
+        recipient,
+        packages,
+        number=None,
+        comment=None,
+        shipment_point=None,
+        delivery_point=None,
+        items_cost_currency=None,
+        date_invoice=None,
+        shipper_name=None,
+        shipper_address=None,
+        # наложенный платёж,
+        recipient_currency=None,
+        delivery_recipient_cost=None,
+        delivery_recipient_cost_adv=None,
+        sender=None,
+        seller=None,
+        from_location=None,
+        to_location=None,
+        services=None,
+        # print
+        raise_errors=True,
+        origin_response=False,
+        **kwargs,
+    ):
         """
         Registrate order
 
@@ -464,19 +462,17 @@ class CDEKApiClient:
             'services': services,
         })
 
-        response = self.send(
-            self.RESOURCE_ORDER,
-            method='post',
-            data=complete_data,
-            raise_errors=raise_errors,
-        )
+        kwargs['raise_errors'] = raise_errors
+        kwargs['data'] = complete_data
+
+        response = self.send(self.RESOURCE_ORDER, method='post', **kwargs)
 
         if not origin_response:
             response = response.json()['entity']
 
         return response
 
-    def get_order(self, uuid, raise_errors=True, origin_response=False):
+    def get_order(self, uuid, raise_errors=True, origin_response=False, **kwargs):
         """
         Get order info
 
@@ -491,7 +487,8 @@ class CDEKApiClient:
             dict: order info
         """
 
-        response = self.send(Path(self.RESOURCE_ORDER) / Path(uuid), raise_errors=raise_errors)
+        kwargs['raise_errors'] = raise_errors
+        response = self.send(Path(self.RESOURCE_ORDER) / Path(uuid), **kwargs)
 
         if not origin_response:
             response = response.json()['entity']
@@ -519,26 +516,26 @@ class CDEKApiClient:
         )
 
     def registrate_intakes(
-            self,
-            intake_date,
-            intake_time_from,
-            intake_time_to,
-            order_uuid=None,
-            lunch_time_from=None,
-            lunch_time_to=None,
-            name=None,
-            cdek_number=None,
-            weight=None,
-            length=None,
-            width=None,
-            height=None,
-            comment=None,
-            sender=None,
-            from_location=None,
-            need_call=None,
-            raise_errors=True,
-            origin_response=False,
-        ):
+        self,
+        intake_date,
+        intake_time_from,
+        intake_time_to,
+        order_uuid=None,
+        lunch_time_from=None,
+        lunch_time_to=None,
+        name=None,
+        cdek_number=None,
+        weight=None,
+        length=None,
+        width=None,
+        height=None,
+        comment=None,
+        sender=None,
+        from_location=None,
+        need_call=None,
+        raise_errors=True,
+        origin_response=False,
+    ):
         """
         Registrate intakes
 
@@ -1026,6 +1023,7 @@ class CDEKApiClient:
         auth=False,
         raise_errors=True,
         origin_response=False,
+        **kwargs,
     ):
         """
 
@@ -1101,11 +1099,10 @@ class CDEKApiClient:
             complete_data['authLogin'] = self.id
             complete_data['secure'] = get_secure(self.secret, complete_data['dateExecute'])
 
-        response = self.send(
-            self.RESOURCE_CALCULATOR_URL,
-            data=complete_data,
-            raise_errors=raise_errors,
-        )
+        kwargs['raise_errors'] = raise_errors
+        kwargs['data'] = complete_data
+
+        response = self.send(self.RESOURCE_CALCULATOR_URL, **kwargs)
 
         if not origin_response:
             response = response.json()
