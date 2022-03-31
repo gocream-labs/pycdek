@@ -273,6 +273,7 @@ class CDEKApiClient:
         """
 
         kwargs.setdefault('headers', self.get_headers())
+        kwargs.setdefault('timeout', (3, 7))
         kwargs['json'] = data
         kwargs['params'] = params
 
