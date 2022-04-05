@@ -321,7 +321,7 @@ class CDEKApiClient:
         """
         Registrate order
 
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=29923926
+        https://api-docs.cdek.ru/29923926.html
 
         Args:
             tariff_code (int): Код тарифа `tarrifs`_.
@@ -473,14 +473,24 @@ class CDEKApiClient:
 
         return response
 
-    def get_order(self, uuid, raise_errors=True, origin_response=False, **kwargs):
+    def get_order(
+        self,
+        uuid=None,
+        cdek_number=None,
+        im_number=None,
+        raise_errors=True,
+        origin_response=False,
+        **kwargs
+    ):
         """
         Get order info
 
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=29923975
+        https://api-docs.cdek.ru/29923975.html
 
         Args:
-            uuid (str): order cdek uuid
+            uuid (str): CDEK order uuid
+            cdek_number (str): CDEK order id (aka tracknumber)
+            im_number (str): Store order id
             raise_errors (bool, optional): raise errors? (default: True)
             origin_response (bool, optional): return original response or only entity? (default: False)
 
@@ -488,8 +498,22 @@ class CDEKApiClient:
             dict: order info
         """
 
-        kwargs['raise_errors'] = raise_errors
-        response = self.send(Path(self.RESOURCE_ORDER) / Path(uuid), **kwargs)
+        if sum([bool(uuid), bool(cdek_number), bool(im_number)]) != 1:
+            raise Exception("Only one of the `uuid` or `cdek_number` or `im_number` options must be specified")
+
+        url = Path(self.RESOURCE_ORDER)
+        if uuid:
+            url /= Path(uuid)
+
+        elif cdek_number:
+            kwargs['params'] = {'cdek_number': cdek_number}
+
+        elif im_number:
+            kwargs['params'] = {'im_number': im_number}
+
+        kwargs['params'] = params
+
+        response = self.send(url, **kwargs)
 
         if not origin_response:
             response = response.json()['entity']
