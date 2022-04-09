@@ -511,8 +511,6 @@ class CDEKApiClient:
         elif im_number:
             kwargs['params'] = {'im_number': im_number}
 
-        kwargs['params'] = params
-
         response = self.send(url, **kwargs)
 
         if not origin_response:
