@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # https://confluence.cdek.ru/pages/viewpage.action?pageId=29923926#id-Регистрациязаказа-tarrifs1Приложение1.ТарифыСДЭК
 #
-# updated:   2020/12/15
+# updated:   2022/04/13
 #
 # W - Warehouse
 # D - Door
@@ -18,7 +18,8 @@
 
 # INTERNET SHOP #
 # INTERNET SHOP - IS
-# https://confluence.cdek.ru/pages/viewpage.action?pageId=29923926#id-Регистрациязаказа-ТарифыдляИМ
+# ru: https://api-docs.cdek.ru/63345430.html - Приложение 2.Тарифы СДЭК  Тарифы для ИМ
+# en: https://api-docs.cdek.ru/63347397.html - Appendix 2. CDEK Tariffs  Tariffs for Online Stores
 
 IS_INTERNATIONAL_EXPRESS_DOCS = 7  # Международный экспресс документы дверь-дверь
 IS_INTERNATIONAL_EXPRESS = 8  # Международный экспресс грузы дверь-дверь
@@ -56,7 +57,8 @@ IS_ECONOMY_WP = 378  # Экономичная посылка склад-пост
 
 
 # CHINA EXPRESS #
-# https://confluence.cdek.ru/pages/viewpage.action?pageId=29923926#id-Регистрациязаказа-ТарифыКитайскийэкспресс
+# ru: https://api-docs.cdek.ru/63345430.html - Приложение 2.Тарифы СДЭК  Тарифы Китайский экспресс
+# en: https://api-docs.cdek.ru/63347397.html - Appendix 2. CDEK Tariffs  Chinese Express Tariffs
 
 CHINA_EXPRESS_WW = 243  # Китайский экспресс склад-склад
 CHINA_EXPRESS_DD = 245  # Китайский экспресс дверь-дверь
@@ -67,7 +69,8 @@ CHINA_EXPRESS_DW = 247  # Китайский экспресс дверь-скл�
 
 
 # BASE #
-# https://confluence.cdek.ru/pages/viewpage.action?pageId=29923926#id-Регистрациязаказа-Тарифыдляобычнойдоставки
+# ru: https://api-docs.cdek.ru/63345430.html - Приложение 2.Тарифы СДЭК  Тарифы для обычной доставки
+# en: https://api-docs.cdek.ru/63347397.html - Appendix 2. CDEK Tariffs  Regular Delivery Tariffs
 
 BASE_EXPRESS_LITE_DD = 1  # Экспресс лайт дверь-дверь
 BASE_EXPRESS_LITE_WW = 10  # Экспресс лайт склад-склад
