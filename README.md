@@ -56,8 +56,8 @@ config для git flow:
 * test flask app
 
 
-[api_url_ru]:https://confluence.cdek.ru/pages/viewpage.action?pageId=29923741
-[api_url_en]:https://confluence.cdek.ru/pages/viewpage.action?pageId=33828739
+[api_url_ru]:https://api-docs.cdek.ru/29923741.html
+[api_url_en]:https://api-docs.cdek.ru/33828739.html
 [semver]: https://semver.org/lang/ru/
 [git_flow]: https://jeffkreeftmeijer.com/git-flow/
 [git_flow_atlassian]: https://www.atlassian.com/ru/git/tutorials/comparing-workflows/gitflow-workflow
