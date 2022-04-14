@@ -851,44 +851,39 @@ class CDEKApiClient:
 
     def request_receipt(
         self,
-        orders,
-        copy_count=2,
-        tipe=None,
-        raise_errors=True,
-        origin_response=False
+        orders: List[Dict],
+        copy_count: int=None,
+        form_type: str=None,
+        origin_response: bool=False,
+        **kwargs,
     ):
         """
-        Request for the receipt of an order
+        Request for the receipt of an order.
 
         Args:
-            orders:                             Список заказов:
-                order_uuid      Идентификатор заказа в ИС СДЭК
-                cdek_number     Номер заказа СДЭК
-            copy_count:                         Число копий одной квитанции на листе. Рекомендовано указывать не менее 2, одна приклеивается на груз, вторая остается у отправителя (default: 2)
-            tipe                                Форма квитанции. Может принимать значения:
+            orders (list of dict): Список заказов:
+                order_uuid (str, optional): Идентификатор заказа в ИС СДЭК
+                cdek_number (str, optional): Номер заказа СДЭК
+            copy_count (integer, optional): Число копий одной квитанции на листе. Рекомендовано указывать не менее 2, одна приклеивается на груз, вторая остается у отправителя (default: 2)
+            form_type (bool, optional): Форма квитанции. Может принимать значения:
                 tpl_china - квитанция на китайском
                 tpl_armenia - квитанция на армянском
-            raise_errors (bool, optional):      raise errors? (default: True)
-            origin_response (bool, optional):   return original response or only entity? (default: False)
+            origin_response (bool, optional): return original response or only entity? (default: False)
 
         Returns:
             dict: requested invoice dict
 
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=36967276
+        https://api-docs.cdek.ru/36967276.html
         """
 
         complete_data = clear_dict({
             'orders': orders,
             'copy_count': copy_count,
-            'type': tipe,
+            'type': form_type,
         })
 
-        response = self.send(
-            self.RESOURCE_RECEIPT,
-            method='post',
-            data=complete_data,
-            raise_errors=raise_errors
-        )
+        kwargs['data'] = complete_data
+        response = self.send(self.RESOURCE_RECEIPT, method='post', **kwargs)
 
         if not origin_response:
             response = response.json()['entity']
@@ -897,128 +892,99 @@ class CDEKApiClient:
 
     def request_barcode(
         self,
-        orders,
-        copy_count=1,
-        frmt='A6',
-        lang=None,
-        raise_errors=True,
-        origin_response=False
+        orders: List[Dict],
+        copy_count: int=None,
+        format_type: str=None,
+        lang: str=None,
+        origin_response: bool=False,
+        **kwargs,
     ):
         """
         Request for the BARCODE of an order
 
         Args:
-            orders:                             Список заказов:
-                order_uuid      Идентификатор заказа в ИС СДЭК
-                cdek_number     Номер заказа СДЭК
-            copy_count                          Число копий. (default: 2)
-            frmt                              Формат печати. Может принимать значения: A4, A5, A6 (A - буква латинского алфавита). (По умолчанию A4)
-            lang                                Язык печатной формы. Возможные языки в кодировке ISO - 639-3:
-                Русский - RUS
-                Английский - ENG
-            raise_errors (bool, optional): raise errors? (default: True)
+            orders (list of dict): Список заказов:
+                order_uuid (str, optional): Идентификатор заказа в ИС СДЭК
+                cdek_number (str, optional): Номер заказа СДЭК
+            copy_count (integer, optional): Число копий одной квитанции на листе. Рекомендовано указывать не менее 2, одна приклеивается на груз, вторая остается у отправителя (default: 2)
+            form_type (str, optional): Формат печати. Может принимать значения: A4, A5, A6 (A - буква латинского алфавита). По умолчанию A4.
+            lang (str, optional): Язык печатной формы. Возможные языки в кодировке ISO - 639-3:
+                * Русский - RUS
+                * Английский - ENG
             origin_response (bool, optional): return original response or only entity? (default: False)
 
         Returns:
             dict: requested invoice dict
 
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=36967295
+        https://api-docs.cdek.ru/36967295.html
         """
 
         complete_data = clear_dict({
             'orders': orders,
             'copy_count': copy_count,
-            'format': frmt,
+            'format': format_type,
             'lang': lang,
         })
 
-        response = self.send(
-            self.RESOURCE_BARCODE,
-            method='post',
-            data=complete_data,
-            raise_errors=raise_errors
-        )
+        kwargs['data'] = complete_data
+        response = self.send(self.RESOURCE_BARCODE, method='post', **kwargs)
 
         if not origin_response:
             response = response.json()['entity']
 
         return response
 
-    def get_receipt(
-        self,
-        uuid,
-        raise_errors=True,
-        origin_response=False
-    ):
+    def get_receipt(self, uuid, origin_response=False, **kwargs):
         """
-        Get link to receipt
+        Receiving a receipt for the order.
 
         Args:
             uuid (str): intakes cdek uuid
-            raise_errors (bool, optional): raise errors? (default: True)
             origin_response (bool, optional): return original response or only entity? (default: False)
 
         Returns:
             dict: requested invoice dict
 
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=36967287
+        https://api-docs.cdek.ru/36967287.html
         """
 
-        response = self.send(
-            Path(self.RESOURCE_RECEIPT) / Path(uuid),
-            raise_errors=raise_errors
-        )
+        response = self.send(Path(self.RESOURCE_RECEIPT) / Path(uuid), **kwargs)
 
         if not origin_response:
             response = response.json()['entity']
 
         return response
 
-    def get_barcode(
-        self,
-        uuid,
-        raise_errors=True,
-        origin_response=False
-    ):
+    def get_barcode(self, uuid, origin_response=False):
         """
-        Get link to barcode
+        Receiving a get_barcode for the order.
 
         Args:
             uuid (str): intakes cdek uuid
-            raise_errors (bool, optional): raise errors? (default: True)
             origin_response (bool, optional): return original response or only entity? (default: False)
 
         Returns:
             dict: requested barcode dict
 
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=36967287
+        https://api-docs.cdek.ru/36967298.html
         """
 
-        response = self.send(
-            Path(self.RESOURCE_BARCODE) / Path(uuid),
-            raise_errors=raise_errors
-        )
+        response = self.send(Path(self.RESOURCE_BARCODE) / Path(uuid), **kwargs)
 
         if not origin_response:
             response = response.json()['entity']
 
         return response
 
-    def download(
-        self,
-        url,
-        raise_errors=True,
-        origin_response=False
-    ):
+    def download(self, url, origin_response=False, **kwargs):
         """
-        Download document
+        Download document.
 
         Args:
             url (str): cdek url
-            raise_errors (bool, optional): raise errors? (default: True)
             origin_response (bool, optional): return original response or only entity? (default: False)
         """
-        response = self.send(url, raise_errors=raise_errors)
+        response = self.send(url, **kwargs)
 
         if origin_response:
             return response
