@@ -956,7 +956,7 @@ class CDEKApiClient:
 
         return response
 
-    def get_barcode(self, uuid, origin_response=False):
+    def get_barcode(self, uuid, origin_response=False, **kwargs):
         """
         Receiving a get_barcode for the order.
 
