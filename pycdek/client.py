@@ -1148,6 +1148,7 @@ class CDEKApiClient:
         """
 
         kwargs['data'] = clear_dict({
+            'type': 1 if self.contract_type == self.CONTRACT_TYPE_SHOP else 2,
             'tariff_code': tariff_code,
             'from_location': from_location,
             'to_location': to_location,
