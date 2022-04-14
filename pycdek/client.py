@@ -1132,12 +1132,12 @@ class CDEKApiClient:
             country_code (str, optional): Код страны в формате ISO_3166-1_alpha-2
             city (str, optional): Название города
             address (str, optional): Полная строка адреса
-        packages (dict): Список информации по местам (упаковкам)
+        packages (list of dict): Список информации по местам (упаковкам)
             weight (int): Общий вес (в граммах)
             length (int, optional): Габариты упаковки. Длина (в сантиметрах)
             width (int, optional):  Габариты упаковки. Ширина (в сантиметрах)
             height (int, optional): Габариты упаковки. Высота (в сантиметрах)
-        date (int, optional): Дата и время планируемой передачи заказа. По умолчанию - текущая.
+        date (str, optional): Дата и время планируемой передачи заказа. По умолчанию - текущая.
         currency (int, optional): Валюта, в которой необходимо произвести расчет. По умолчанию - валюта договора
         services (list of dict, optional): Дополнительные услуги
             code (string): Тип дополнительной услуги, код из справочника доп. услуг
@@ -1148,6 +1148,7 @@ class CDEKApiClient:
         """
 
         kwargs['data'] = clear_dict({
+            'type': 1 if self.contract_type == self.CONTRACT_TYPE_SHOP else 2,
             'tariff_code': tariff_code,
             'from_location': from_location,
             'to_location': to_location,
