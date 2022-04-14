@@ -161,6 +161,7 @@ class CDEKApiClient:
     RESOURCE_BARCODE = 'v2/print/barcodes'
     RESOURCE_SUBSCRIPTION = 'v2/webhooks'
     RESOURCE_DELIVERYPOINTS = 'v2/deliverypoints'
+    RESOURCE_CALCULATOR_TARIFF = 'v2/calculator/tariff'
     RESOURCE_CALCULATOR_URL = 'calculator/calculate_price_by_json.php'
 
     def __init__(self, id, secret, is_shop, production=True):
@@ -1099,6 +1100,63 @@ class CDEKApiClient:
         kwargs['data'] = complete_data
 
         response = self.send(self.RESOURCE_CALCULATOR_URL, **kwargs)
+
+        if not origin_response:
+            response = response.json()
+
+        return response
+
+    def calculator_tariff(
+        self,
+        tariff_code,
+        from_location,
+        to_location,
+        packages,
+        date=None,
+        currency=None,
+        services=None,
+        origin_response=False,
+        **kwargs,
+    ):
+        """
+        tariff_code (int): Код тарифа
+        from_location (dict): Адрес отправления
+            code (int, optional): Код населенного пункта СДЭК (метод "Список населенных пунктов")
+            postal_code (str, optional): Почтовый индекс
+            country_code (str, optional): Код страны в формате ISO_3166-1_alpha-2
+            city (str, optional): Название города
+            address (str, optional): Полная строка адреса
+        to_location (dict): Адрес получения
+            code (int, optional): Код населенного пункта СДЭК (метод "Список населенных пунктов")
+            postal_code (str, optional): Почтовый индекс
+            country_code (str, optional): Код страны в формате ISO_3166-1_alpha-2
+            city (str, optional): Название города
+            address (str, optional): Полная строка адреса
+        packages (dict): Список информации по местам (упаковкам)
+            weight (int): Общий вес (в граммах)
+            length (int, optional): Габариты упаковки. Длина (в сантиметрах)
+            width (int, optional):  Габариты упаковки. Ширина (в сантиметрах)
+            height (int, optional): Габариты упаковки. Высота (в сантиметрах)
+        date (int, optional): Дата и время планируемой передачи заказа. По умолчанию - текущая.
+        currency (int, optional): Валюта, в которой необходимо произвести расчет. По умолчанию - валюта договора
+        services (list of dict, optional): Дополнительные услуги
+            code (string): Тип дополнительной услуги, код из справочника доп. услуг
+            parameter (string, optional): Параметр дополнительной услуги
+        origin_response (bool, optional): return original response or only entity? (default: False)
+
+        https://api-docs.cdek.ru/63345430.html
+        """
+
+        kwargs['data'] = clear_dict({
+            'tariff_code': tariff_code,
+            'from_location': from_location,
+            'to_location': to_location,
+            'packages': packages,
+            'date': date,
+            'currency': currency,
+            'services': services,
+        })
+        response = self.send(self.RESOURCE_CALCULATOR_TARIFF, method='post', **kwargs)
 
         if not origin_response:
             response = response.json()
