@@ -298,14 +298,12 @@ class CDEKApiClient:
         packages,
         number=None,
         comment=None,
+        developer_key=None,
         shipment_point=None,
         delivery_point=None,
-        items_cost_currency=None,
         date_invoice=None,
         shipper_name=None,
         shipper_address=None,
-        # наложенный платёж,
-        recipient_currency=None,
         delivery_recipient_cost=None,
         delivery_recipient_cost_adv=None,
         sender=None,
@@ -313,13 +311,15 @@ class CDEKApiClient:
         from_location=None,
         to_location=None,
         services=None,
-        # print
-        raise_errors=True,
+        request_print=None,
         origin_response=False,
         **kwargs,
     ):
         """
-        Registrate order
+        Registrate order.
+
+        The order type is specified in accordance with the contract type specified during client
+        initialization.
 
         https://api-docs.cdek.ru/29923926.html
 
@@ -327,7 +327,6 @@ class CDEKApiClient:
             tariff_code (int): Код тарифа `tarrifs`_.
             recipient (dict): Получатель:
                 name (str): ФИО контактного лица
-                tin (str): ИНН
                 phones (list of dict): Список телефонов:
                     number (str): Номер телефона. Должен передаваться в международном формате: код страны (для России +7) и сам номер (10 и более цифр)
                     additional (str, optional): Дополнительная информация (доп. номер)
@@ -336,6 +335,7 @@ class CDEKApiClient:
                 passport_number (str, optional): Номер паспорта
                 passport_date_of_issue (str, optional): Дата выдачи паспорта в формате 'yyyy-MM-dd'
                 passport_organization (str, optional): Орган выдачи паспорта
+                tin (str, optional): ИНН
                 passport_date_of_birth (date, optional): Дата рождения в формате 'yyyy-MM-dd'
                 email (str, optional): Эл. адрес
             packages (dict): Список информации по местам (упаковкам)
@@ -362,20 +362,20 @@ class CDEKApiClient:
                     material (str, optional): Код материала
                     wifi_gsm (bool, optional): Содержит wifi/gsm
                     url (str, optional): Ссылка на сайт интернет-магазина с описанием товара
+
             number (str, optional): Номер заказа в ИС Клиента (если не передан, будет присвоен номер заказа в ИС СДЭК - uuid). Только для заказов "интернет-магазин".
             comment (str, optional): Комментарий к заказу.
+            developer_key (str, optional): Ключ разработчика (для разработчиков модулей).
             shipment_point (str, optional): Код ПВЗ СДЭК, на который будет производится забор отправления, либо самостоятельный привоз клиентом.
             delivery_point (str, optional): Код ПВЗ СДЭК, на который будет доставлена посылка.
-            items_cost_currency (str, optional): Код валюты объявленной стоимости заказа всех вложений `currency`_.
             date_invoice (date, optional): Дата инвойса.
             shipper_name (str, optional): Грузоотправитель.
             shipper_address (str, optional): Адрес грузоотправителя.
-            recipient_currency (str, optional): Код валюты наложенного платежа: доп. сбора за доставку и оплаты за товар с получателя `currency`_.
             delivery_recipient_cost (dict, optional): Доп. сбор за доставку, которую ИМ берет с получателя. Валюта сбора должна совпадать с валютой наложенного платежа:
                 value (float): Сумма дополнительного сбора
                 vat_sum (float, optional): Сумма НДС
                 vat_rate (int, optional): Ставка НДС (значение - 0, 10, 18, 20 и т.п. , null - нет НДС)
-            delivery_recipient_cost_adv (dict, optional): Доп. сбор за доставку (которую ИМ берет с получателя) в зависимости от суммы заказа:
+            delivery_recipient_cost_adv (list of dict, optional): Доп. сбор за доставку (которую ИМ берет с получателя) в зависимости от суммы заказа:
                 threshold (int): Порог стоимости товара (действует по условию меньше или равно) в целых единицах валюты
                 sum (float): Доп. сбор за доставку товаров, общая стоимость которых попадает в интервал
                 vat_sum (float, optional): Сумма НДС, включённая в доп. сбор за доставку
@@ -384,7 +384,13 @@ class CDEKApiClient:
                 company (str, optional): Название компании.
                 name (str, optional): ФИО контактного лица.
                 email (str, optional): Эл. адрес.
-                phones (list of `dict`, optional): Список телефонов:
+                passport_series (str, optional): Серия паспорта
+                passport_number (str, optional): Номер паспорта
+                passport_date_of_issue (str, optional): Дата выдачи паспорта
+                passport_organization (str, optional): Орган выдачи паспорта
+                tin (str, optional): ИНН
+                passport_date_of_birth (str, optional): Дата рождения
+                phones (list of dict, optional): Список телефонов:
                     number (str): Номер телефона. Должен передаваться в международном формате: код страны (для России +7) и сам номер (10 и более цифр).
                     additional (str, optional): Дополнительная информация (доп. номер).
             seller (dict, optional): Реквизиты реального продавца:
@@ -394,26 +400,28 @@ class CDEKApiClient:
                 ownership_form (int, optional): Код формы собственности `ownership form`_.
                 address (str, optional): Адрес истинного продавца. Используется при печати инвойсов для отображения адреса настоящего продавца товара, либо торгового названия.
             from_location (dict): Адрес отправления:
-                country_code (str): Код страны в формате ISO_3166-1_alpha-2
                 address (str): Строка адреса
-                code (str, optional): Код локации (справочник СДЭК)
+                code (int, optional): Код локации (справочник СДЭК)
                 fias_guid (str, optional): Уникальный идентификатор ФИАС (UUID)
                 postal_code (str, optional): Почтовый индекс
                 longitude (float, optional): Долгота
                 latitude (float, optional): Широта
+                country_code (str, optional): Код страны в формате ISO_3166-1_alpha-2
                 region (str, optional): Название региона
+                region_code (int, optional): Код региона СДЭК
                 sub_region (str, optional): Название района региона
                 city (str, optional): Название города
                 kladr_code (str, optional): Код КЛАДР
             to_location (dict): Адрес получения:
-                country_code (str): Код страны в формате ISO_3166-1_alpha-2
                 address (str): Строка адреса
-                code (str, optional): Код локации (справочник СДЭК)
+                code (int, optional): Код локации (справочник СДЭК)
                 fias_guid (str, optional): Уникальный идентификатор ФИАС (UUID)
                 postal_code (str, optional): Почтовый индекс
                 longitude (float, optional): Долгота
                 latitude (float, optional): Широта
+                country_code (str, optional): Код страны в формате ISO_3166-1_alpha-2
                 region (str, optional): Название региона
+                region_code (int, optional): Код региона СДЭК
                 sub_region (str, optional): Название района региона
                 city (str, optional): Название города
                 kladr_code (str, optional): Код КЛАДР
@@ -422,48 +430,47 @@ class CDEKApiClient:
                 parameter (int, optional): Параметр дополнительной услуги:
                     * количество упаковок для услуги "Упаковка 1" (для всех типов заказа)
                     * объявленная стоимость заказа для услуги "Страхование" (только для заказов с типом "доставка")
-            raise_errors (bool, optional): raise errors? (default: True)
+            request_print (str, optional): Необходимость сформировать печатную форму по заказу. Может принимать значения:
+                * barcode - ШК мест (число копий - 1)
+                * waybill - квитанция (число копий - 2)
             origin_response (bool, optional): return original response or only entity? (default: False)
 
         Returns:
             dict: Order dict
 
         .. _documentation:
-            https://confluence.cdek.ru/pages/viewpage.action?pageId=29923926
+            https://api-docs.cdek.ru/63345430.html
         .. _tarrifs:
-            https://confluence.cdek.ru/pages/viewpage.action?pageId=29923926#id-Регистрациязаказа-TariffПриложение1.ТарифыСДЭК
-        .. _currency:
-            https://confluence.cdek.ru/pages/viewpage.action?pageId=29923926#id-Регистрациязаказа-CurrencyПриложение2.Валюта
+            https://api-docs.cdek.ru/63345430.html
         .. _ownership form:
-            https://confluence.cdek.ru/pages/viewpage.action?pageId=29923926#id-Регистрациязаказа-OwnershipПриложение3.Формасобственности
+            https://api-docs.cdek.ru/63345430.html
         .. _extra services:
-            https://confluence.cdek.ru/pages/viewpage.action?pageId=29923926#id-Регистрациязаказа-ServicesПриложение4.Дополнительныеуслуги
+            https://api-docs.cdek.ru/63345430.html
         """
 
         complete_data = clear_dict({
             'type': 1 if self.contract_type == self.CONTRACT_TYPE_SHOP else 2,
             'tariff_code': tariff_code,
             'recipient': recipient,
-            'from_location': from_location,
-            'to_location': to_location,
             'packages': packages,
             'number': number,
             'comment': comment,
+            'developer_key': developer_key,
             'shipment_point': shipment_point,
             'delivery_point': delivery_point,
-            'items_cost_currency': items_cost_currency,
             'date_invoice': date_invoice,
             'shipper_name': shipper_name,
             'shipper_address': shipper_address,
-            'recipient_currency': recipient_currency,
             'delivery_recipient_cost': delivery_recipient_cost,
             'delivery_recipient_cost_adv': delivery_recipient_cost_adv,
             'sender': sender,
             'seller': seller,
+            'from_location': from_location,
+            'to_location': to_location,
             'services': services,
+            'print': request_print,
         })
 
-        kwargs['raise_errors'] = raise_errors
         kwargs['data'] = complete_data
 
         response = self.send(self.RESOURCE_ORDER, method='post', **kwargs)
@@ -844,44 +851,39 @@ class CDEKApiClient:
 
     def request_receipt(
         self,
-        orders,
-        copy_count=2,
-        tipe=None,
-        raise_errors=True,
-        origin_response=False
+        orders: List[Dict],
+        copy_count: int=None,
+        form_type: str=None,
+        origin_response: bool=False,
+        **kwargs,
     ):
         """
-        Request for the receipt of an order
+        Request for the receipt of an order.
 
         Args:
-            orders:                             Список заказов:
-                order_uuid      Идентификатор заказа в ИС СДЭК
-                cdek_number     Номер заказа СДЭК
-            copy_count:                         Число копий одной квитанции на листе. Рекомендовано указывать не менее 2, одна приклеивается на груз, вторая остается у отправителя (default: 2)
-            tipe                                Форма квитанции. Может принимать значения:
+            orders (list of dict): Список заказов:
+                order_uuid (str, optional): Идентификатор заказа в ИС СДЭК
+                cdek_number (str, optional): Номер заказа СДЭК
+            copy_count (integer, optional): Число копий одной квитанции на листе. Рекомендовано указывать не менее 2, одна приклеивается на груз, вторая остается у отправителя (default: 2)
+            form_type (bool, optional): Форма квитанции. Может принимать значения:
                 tpl_china - квитанция на китайском
                 tpl_armenia - квитанция на армянском
-            raise_errors (bool, optional):      raise errors? (default: True)
-            origin_response (bool, optional):   return original response or only entity? (default: False)
+            origin_response (bool, optional): return original response or only entity? (default: False)
 
         Returns:
             dict: requested invoice dict
 
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=36967276
+        https://api-docs.cdek.ru/36967276.html
         """
 
         complete_data = clear_dict({
             'orders': orders,
             'copy_count': copy_count,
-            'type': tipe,
+            'type': form_type,
         })
 
-        response = self.send(
-            self.RESOURCE_RECEIPT,
-            method='post',
-            data=complete_data,
-            raise_errors=raise_errors
-        )
+        kwargs['data'] = complete_data
+        response = self.send(self.RESOURCE_RECEIPT, method='post', **kwargs)
 
         if not origin_response:
             response = response.json()['entity']
@@ -890,128 +892,99 @@ class CDEKApiClient:
 
     def request_barcode(
         self,
-        orders,
-        copy_count=1,
-        frmt='A6',
-        lang=None,
-        raise_errors=True,
-        origin_response=False
+        orders: List[Dict],
+        copy_count: int=None,
+        format_type: str=None,
+        lang: str=None,
+        origin_response: bool=False,
+        **kwargs,
     ):
         """
         Request for the BARCODE of an order
 
         Args:
-            orders:                             Список заказов:
-                order_uuid      Идентификатор заказа в ИС СДЭК
-                cdek_number     Номер заказа СДЭК
-            copy_count                          Число копий. (default: 2)
-            frmt                              Формат печати. Может принимать значения: A4, A5, A6 (A - буква латинского алфавита). (По умолчанию A4)
-            lang                                Язык печатной формы. Возможные языки в кодировке ISO - 639-3:
-                Русский - RUS
-                Английский - ENG
-            raise_errors (bool, optional): raise errors? (default: True)
+            orders (list of dict): Список заказов:
+                order_uuid (str, optional): Идентификатор заказа в ИС СДЭК
+                cdek_number (str, optional): Номер заказа СДЭК
+            copy_count (integer, optional): Число копий одной квитанции на листе. Рекомендовано указывать не менее 2, одна приклеивается на груз, вторая остается у отправителя (default: 2)
+            form_type (str, optional): Формат печати. Может принимать значения: A4, A5, A6 (A - буква латинского алфавита). По умолчанию A4.
+            lang (str, optional): Язык печатной формы. Возможные языки в кодировке ISO - 639-3:
+                * Русский - RUS
+                * Английский - ENG
             origin_response (bool, optional): return original response or only entity? (default: False)
 
         Returns:
             dict: requested invoice dict
 
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=36967295
+        https://api-docs.cdek.ru/36967295.html
         """
 
         complete_data = clear_dict({
             'orders': orders,
             'copy_count': copy_count,
-            'format': frmt,
+            'format': format_type,
             'lang': lang,
         })
 
-        response = self.send(
-            self.RESOURCE_BARCODE,
-            method='post',
-            data=complete_data,
-            raise_errors=raise_errors
-        )
+        kwargs['data'] = complete_data
+        response = self.send(self.RESOURCE_BARCODE, method='post', **kwargs)
 
         if not origin_response:
             response = response.json()['entity']
 
         return response
 
-    def get_receipt(
-        self,
-        uuid,
-        raise_errors=True,
-        origin_response=False
-    ):
+    def get_receipt(self, uuid, origin_response=False, **kwargs):
         """
-        Get link to receipt
+        Receiving a receipt for the order.
 
         Args:
             uuid (str): intakes cdek uuid
-            raise_errors (bool, optional): raise errors? (default: True)
             origin_response (bool, optional): return original response or only entity? (default: False)
 
         Returns:
             dict: requested invoice dict
 
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=36967287
+        https://api-docs.cdek.ru/36967287.html
         """
 
-        response = self.send(
-            Path(self.RESOURCE_RECEIPT) / Path(uuid),
-            raise_errors=raise_errors
-        )
+        response = self.send(Path(self.RESOURCE_RECEIPT) / Path(uuid), **kwargs)
 
         if not origin_response:
             response = response.json()['entity']
 
         return response
 
-    def get_barcode(
-        self,
-        uuid,
-        raise_errors=True,
-        origin_response=False
-    ):
+    def get_barcode(self, uuid, origin_response=False):
         """
-        Get link to barcode
+        Receiving a get_barcode for the order.
 
         Args:
             uuid (str): intakes cdek uuid
-            raise_errors (bool, optional): raise errors? (default: True)
             origin_response (bool, optional): return original response or only entity? (default: False)
 
         Returns:
             dict: requested barcode dict
 
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=36967287
+        https://api-docs.cdek.ru/36967298.html
         """
 
-        response = self.send(
-            Path(self.RESOURCE_BARCODE) / Path(uuid),
-            raise_errors=raise_errors
-        )
+        response = self.send(Path(self.RESOURCE_BARCODE) / Path(uuid), **kwargs)
 
         if not origin_response:
             response = response.json()['entity']
 
         return response
 
-    def download(
-        self,
-        url,
-        raise_errors=True,
-        origin_response=False
-    ):
+    def download(self, url, origin_response=False, **kwargs):
         """
-        Download document
+        Download document.
 
         Args:
             url (str): cdek url
-            raise_errors (bool, optional): raise errors? (default: True)
             origin_response (bool, optional): return original response or only entity? (default: False)
         """
-        response = self.send(url, raise_errors=raise_errors)
+        response = self.send(url, **kwargs)
 
         if origin_response:
             return response
