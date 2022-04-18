@@ -19,3 +19,6 @@ V2_BAD_REQUEST = 'v2_bad_request'
 
 # Неверно задан тип тарифа
 ERR_INVALID_TARIFFTYPECODE = 'ERR_INVALID_TARIFFTYPECODE'
+
+# По данному направлению при заданных условиях выбранный тариф недоступен
+ERR_RESULT_SERVICE_EMPTY = 'ERR_RESULT_SERVICE_EMPTY'
