@@ -424,7 +424,7 @@ class CDEKApiClient:
         """
         Remove order
 
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=29924487
+        https://api-docs.cdek.ru/29924487.html
 
         Args:
             uuid (str): order cdek uuid
