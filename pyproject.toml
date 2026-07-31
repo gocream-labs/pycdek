@@ -94,7 +94,7 @@ release = [
 
 [tool.hatch.envs.default]
 description = "Dev environment"
-python = "3.12"
+python = "3.14"
 dependency-groups = ["test", "lint"]
 
 # `hatch run init` вместо инструкции «скопируйте конфиг руками» в README.
@@ -115,7 +115,7 @@ remove = [
 [tool.hatch.envs.lint]
 description = "Lint environment"
 detached = true
-python = "3.12"
+python = "3.14"
 dependency-groups = ["lint"]
 
 [tool.hatch.envs.lint.scripts]
@@ -130,7 +130,7 @@ format = [
 # Не detached: тесты импортируют pycdek, пусть ставится как настоящий пакет.
 [tool.hatch.envs.test]
 description = "Tests environment"
-python = "3.12"
+python = "3.14"
 dependency-groups = ["test"]
 
 [tool.hatch.envs.test.scripts]
@@ -140,7 +140,7 @@ check = "pytest {args:--cov=pycdek --cov-report term-missing}"
 [tool.hatch.envs.release]
 description = "Release environment"
 detached = true
-python = "3.12"
+python = "3.14"
 dependency-groups = ["release"]
 
 [tool.hatch.envs.release.scripts]
