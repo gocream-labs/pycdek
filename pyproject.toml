@@ -50,9 +50,6 @@ Repository = "https://gitlab.com/gocream/pycdek-2"
 # "Bug Tracker" = "https://github.com/dd/pycdek-2/issues"
 
 
-# Версия лежит в pycdek/__init__.py литералом - это позволяет и hatchling её
-# читать, и semantic-release переписывать при релизе. Вычисляемое значение
-# (прежняя get_version()) не подходило ни тому, ни другому.
 [tool.hatch.version]
 path = "pycdek/__init__.py"
 
@@ -73,10 +70,6 @@ exclude = [
 packages = ["pycdek"]
 
 
-# Версии инструментов прибиты намеренно. Встроенные `hatch test` / `hatch check`
-# тянут ruff и pytest из внутренних окружений hatch, и при обновлении самого
-# hatch они молча меняются - CI краснеет на ровном месте, без единой правки в
-# коде. Здесь же версия меняется только явным коммитом.
 [dependency-groups]
 lint = [
 	"ruff==0.15.14",
@@ -97,9 +90,6 @@ description = "Dev environment"
 python = "3.14"
 dependency-groups = ["test", "lint"]
 
-# `hatch run init` вместо инструкции «скопируйте конфиг руками» в README.
-# Проект перешёл с git flow на GitHub Flow, поэтому настраивать ветки и
-# префиксы больше не нужно - остаются только хуки и вспомогательные настройки.
 [tool.hatch.envs.default.scripts]
 init = [
 	"git config --local blame.ignoreRevsFile .git-blame-ignore-revs",
@@ -111,7 +101,6 @@ remove = [
 ]
 
 
-# detached: проект не устанавливается, линтеру он не нужен.
 [tool.hatch.envs.lint]
 description = "Lint environment"
 detached = true
@@ -127,7 +116,6 @@ format = [
 ]
 
 
-# Не detached: тесты импортируют pycdek, пусть ставится как настоящий пакет.
 [tool.hatch.envs.test]
 description = "Tests environment"
 python = "3.14"
@@ -144,7 +132,6 @@ python = "3.14"
 dependency-groups = ["release"]
 
 [tool.hatch.envs.release.scripts]
-# Что произойдёт при релизе, без единой записи на диск.
 preview = "semantic-release --noop version --print"
 changelog = "semantic-release changelog"
 
