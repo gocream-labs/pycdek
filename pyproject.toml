@@ -11,7 +11,7 @@ name = "pycdek-2"
 description = "python wrapper for cdek api v2.0"
 readme = "README.md"
 requires-python = ">=3.10"
-license = "GPL-3.0-or-later"
+license = "MPL-2.0"
 license-files = ["LICENSE"]
 authors = [
 	{ name = "Dmitry Dobrynin", email = "dd@tovarisch.engineer" },

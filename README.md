@@ -55,13 +55,15 @@ API - [ru][api_url_ru] [en][api_url_en]
 * [x] Dev-зависимости в `[dependency-groups]` ([PEP 735][pep_735]), а не в
 	`optional-dependencies` - тогда они не попадают в метаданные пакета и не видны
 	пользователям
-* [x] Лицензия строкой SPDX ([PEP 639][pep_639]) вместо classifier и устаревшего
-	`license-file`
+* [x] Лицензия объявлена строкой SPDX ([PEP 639][pep_639]) вместо вольного
+	текста в `setup.py`, classifier `License ::` и устаревшего ключа
+	`license-file` из `setup.cfg`. Сам файл `LICENSE` никуда не делся - он
+	по-прежнему едет в пакете, теперь через `license-files`
 * [x] Актуализировать метаданные пакета: имя без пробела, `requires-python`,
 	`readme` с указанием content-type (без него PyPI не отрендерит README),
 	корректные classifiers
-* [ ] `Development Status` - к релизу 2.0.0 перевести в `5 - Production/Stable`.
-	Пока стоит `4 - Beta`: это честно для текущей `2.0.0b9`, но было `3 - Alpha`
+* [x] `Development Status` из `3 - Alpha` в `4 - Beta` - соответствует текущей
+	`2.0.0b9`
 * [x] Отдельные окружения `lint` / `test` / `mtest` с **прибитыми** версиями
 	инструментов вместо встроенных `hatch check` и `hatch test`. Встроенные тянут
 	`ruff` и `pytest` из внутренних окружений hatch, и при обновлении самого hatch
@@ -171,6 +173,12 @@ hatch build                # sdist + wheel
 	(`postal_code1`, `city_code1`); Python-сигнатуру при этом не трогаем
 
 
+### 4.1 Релиз версии 2.0.0
+
+* [ ] `Development Status` в `5 - Production/Stable` - **в момент выпуска
+	2.0.0**, не раньше
+
+
 ### 5. Рефактор и полное обновление - релиз 3.0.0
 
 Единственный этап с ломающими изменениями, поэтому мажорная версия: обновиться с
@@ -230,7 +238,8 @@ hatch build                # sdist + wheel
 	`setup.py`
 * [ ] Кастомный шаблон CHANGELOG: дефолтный ставит заголовками голые эмодзи
 	(`### 🏗️`) вместо человекочитаемых названий разделов
-* [ ] Определиться с лицензией; смена требует согласия всех контрибьюторов
+* [x] Лицензия сменена с GPLv3 на [MPL-2.0][mpl] - GPLv3 для клиентской
+	библиотеки практически запретительна для коммерческого использования
 * [ ] Тестовое приложение на Flask для ручной проверки
 
 Версия и CHANGELOG считаются [python-semantic-release][psr] по gitmoji в
@@ -361,6 +370,7 @@ hatch run init
 [api_url_en]:https://api-docs.cdek.ru/33828739.html
 [hatch]: https://hatch.pypa.io/
 [pypa]: https://github.com/pypa/hatch
+[mpl]: https://www.mozilla.org/MPL/2.0/
 [onrik_pycdek]: https://github.com/onrik/pycdek
 [psr]: https://python-semantic-release.readthedocs.io/
 [github_flow]: https://docs.github.com/en/get-started/using-github/github-flow
