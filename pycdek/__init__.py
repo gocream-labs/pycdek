@@ -1,30 +1,10 @@
 # -*- coding: utf-8 -*-
 
+# Формат SemVer с дефисом, а не PEP 440 (`2.0.0b9`): semantic-release матчит
+# версию SemVer-регекспом и на PEP 440-суффикс без дефиса заменяет только часть
+# строки, оставляя хвост. При установке PEP 440 нормализует это обратно в
+# `2.0.0b9`, так что для потребителей пакета версия не меняется.
+__version__ = "2.0.0-b.9"
 
-def get_version(raw_version):
-    # https://www.python.org/dev/peps/pep-0386/#the-new-versioning-algorithm
-
-    version = ""
-    for subversion in raw_version:
-
-        if subversion[0] in ['a', 'b', 'c', 'rc']:
-            # [{a|b|c|rc}N[.N]+]
-            version += f'{subversion[0]}{subversion[1]}'
-            if len(subversion) == 3:
-                version += f'.{subversion[2]}'
-
-        elif subversion[0] in ['post', 'dev']:
-            # [.postN][.devN]
-            version += f'.{subversion[0]}{subversion[1]}'
-
-        else:
-            # N.N[.N]
-            version = '.'.join([str(i) for i in subversion])
-    return version
-
-
-version = __VERSION__ = get_version((
-    (2, 0, 0),
-    ('b', 9),
-    # ('dev', 1)
-))
+# Исторические имена, сохранены для обратной совместимости.
+version = __VERSION__ = __version__

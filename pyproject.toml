@@ -1,0 +1,339 @@
+[build-system]
+# Нижняя граница нужна из-за PEP 639 (`license` строкой SPDX + `license-files`):
+# в более старых hatchling этого синтаксиса нет. Верхнюю границу тут ставить не
+# принято - её нельзя переопределить, и она ломает сборку старых sdist в будущем.
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+
+[project]
+name = "pycdek-2"
+description = "python wrapper for cdek api v2.0"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+authors = [
+	{ name = "Dmitry Dobrynin", email = "dd@tovarisch.engineer" },
+]
+keywords = ["cdek", "сдэк", "delivery", "api", "client"]
+classifiers = [
+	"Development Status :: 4 - Beta",
+	"Environment :: Web Environment",
+	"Intended Audience :: Developers",
+	"Natural Language :: Russian",
+	"Operating System :: OS Independent",
+	"Programming Language :: Python",
+	"Programming Language :: Python :: 3",
+	"Programming Language :: Python :: 3.10",
+	"Programming Language :: Python :: 3.11",
+	"Programming Language :: Python :: 3.12",
+	"Programming Language :: Python :: 3.13",
+	"Programming Language :: Python :: 3.14",
+	"Programming Language :: Python :: 3 :: Only",
+	"Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+	"requests>=2.22.0,<3",
+	"pyjwt>=2,<3",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://gitlab.com/gocream/pycdek-2"
+Repository = "https://gitlab.com/gocream/pycdek-2"
+# Раскомментировать после переезда на GitHub и публикации документации.
+# Багтрекер намеренно не привязан к GitLab - заводить его там, чтобы через
+# месяц переносить, смысла нет.
+# Documentation = "https://dd.github.io/pycdek-2"
+# Changelog = "https://github.com/dd/pycdek-2/blob/master/CHANGELOG.md"
+# "Bug Tracker" = "https://github.com/dd/pycdek-2/issues"
+
+
+# Версия лежит в pycdek/__init__.py литералом - это позволяет и hatchling её
+# читать, и semantic-release переписывать при релизе. Вычисляемое значение
+# (прежняя get_version()) не подходило ни тому, ни другому.
+[tool.hatch.version]
+path = "pycdek/__init__.py"
+
+
+# `.gitignore` в этот список добавлять бесполезно: hatchling кладёт VCS-ignore
+# в sdist принудительно, чтобы пересборка из него отбирала ровно те же файлы.
+# Проверено - `exclude` его не убирает.
+[tool.hatch.build]
+exclude = [
+	"dist",
+	".editorconfig",
+	".mailmapx",
+]
+
+# Остальное hatchling берёт по умолчанию: всё, что под контролем VCS.
+# Явный include не нужен - README, LICENSE, AUTHORS и logo.svg попадают сами.
+[tool.hatch.build.targets.wheel]
+packages = ["pycdek"]
+
+
+# Версии инструментов прибиты намеренно. Встроенные `hatch test` / `hatch check`
+# тянут ruff и pytest из внутренних окружений hatch, и при обновлении самого
+# hatch они молча меняются - CI краснеет на ровном месте, без единой правки в
+# коде. Здесь же версия меняется только явным коммитом.
+[dependency-groups]
+lint = [
+	"ruff==0.15.14",
+]
+test = [
+	"pytest==9.1.1",
+	"pytest-cov==7.1.0",
+	"responses==0.26.2",
+	"pytest-socket==0.8.0",
+]
+release = [
+	"python-semantic-release==10.5.3",
+]
+
+
+[tool.hatch.envs.default]
+description = "Dev environment"
+python = "3.12"
+dependency-groups = ["test", "lint"]
+
+# `hatch run init` вместо инструкции «скопируйте конфиг руками» в README.
+# Проект перешёл с git flow на GitHub Flow, поэтому настраивать ветки и
+# префиксы больше не нужно - остаются только хуки и вспомогательные настройки.
+[tool.hatch.envs.default.scripts]
+init = [
+	"git config --local blame.ignoreRevsFile .git-blame-ignore-revs",
+	# "pre-commit install --hook-type pre-commit --hook-type commit-msg",
+]
+remove = [
+	"git config --local --unset blame.ignoreRevsFile",
+	# "pre-commit uninstall",
+]
+
+
+# detached: проект не устанавливается, линтеру он не нужен.
+[tool.hatch.envs.lint]
+description = "Lint environment"
+detached = true
+python = "3.12"
+dependency-groups = ["lint"]
+
+[tool.hatch.envs.lint.scripts]
+check = "ruff check {args:.}"
+fmt-check = "ruff format --check --diff {args:.}"
+format = [
+	"ruff check --fix {args:.}",
+	"ruff format {args:.}",
+]
+
+
+# Не detached: тесты импортируют pycdek, пусть ставится как настоящий пакет.
+[tool.hatch.envs.test]
+description = "Tests environment"
+python = "3.12"
+dependency-groups = ["test"]
+
+[tool.hatch.envs.test.scripts]
+check = "pytest {args:--cov=pycdek --cov-report term-missing}"
+
+
+[tool.hatch.envs.release]
+description = "Release environment"
+detached = true
+python = "3.12"
+dependency-groups = ["release"]
+
+[tool.hatch.envs.release.scripts]
+# Что произойдёт при релизе, без единой записи на диск.
+preview = "semantic-release --noop version --print"
+changelog = "semantic-release changelog"
+
+
+[tool.hatch.envs.mtest]
+description = "Test matrix environment"
+dependency-groups = ["test"]
+
+[tool.hatch.envs.mtest.scripts]
+check = "pytest {args:-q}"
+
+[[tool.hatch.envs.mtest.matrix]]
+python = ["3.10", "3.11", "3.12", "3.13", "3.14"]
+
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+show-fixes = true
+
+[tool.ruff.lint]
+select = [
+	"B",	# flake8-bugbear
+	"C4",	# flake8-comprehensions
+	"DTZ",	# flake8-datetimez
+	"E",	# pycodestyle errors
+	"F",	# pyflakes
+	"I",	# isort
+	"ICN",	# flake8-import-conventions
+	"N",	# pep8-naming
+	"RUF",	# ruff-specific
+	"S",	# flake8-bandit
+	"SIM",	# flake8-simplify
+	"UP",	# pyupgrade
+	"W",	# pycodestyle warnings
+]
+
+# Правила выбраны широко, но часть отключена до своего этапа роадмапа.
+# Так проверка зелёная с первого дня, а включение каждого правила - отдельный
+# осмысленный коммит, а не тонущая в шуме массовая правка. По сути этот список
+# и есть машинно-проверяемый бэклог.
+ignore = [
+	# Постоянно: проект русскоязычный, кириллица в комментариях и докстрингах
+	# намеренная. Это 144 срабатывания из 149 по группе RUF.
+	"RUF002",	# кириллица в докстрингах
+	"RUF003",	# кириллица в комментариях
+
+	# Этап 2, модернизация до 3.10+ и аннотации
+	"RUF013",	# неявный Optional (`x: str = None`), 5 шт.
+	"UP006",	# List -> list
+	"UP007",	# Union[a, b] -> a | b
+	"UP009",	# ненужный `# -*- coding: utf-8 -*-`
+	"UP035",	# импорт устаревших имён из typing
+	"UP045",	# Optional[x] -> x | None
+
+	# Этап 3, переработка докстрингов.
+	# Длинные строки - это документация СДЭК, скопированная как есть;
+	# самая длинная 487 символов, переносить их сейчас преждевременно
+	"E501",	# длина строки
+
+	# Вместе с коммитом форматирования.
+	# В client.py сложилась раскладка «from ... перед import ...», ruff хочет
+	# её пересортировать. Отложено, чтобы не смешивать с содержательными
+	# правками; см. врезку про форматирование в README.
+	"I001",	# порядок импортов
+
+	# Этап 4, безопасные исправления
+	"C408",	# dict() -> {} в utils.py
+	"E713",	# not x in y -> x not in y
+	"F401",	# неиспользуемые импорты
+	"UP012",	# ненужный .encode('utf-8')
+	"UP028",	# for-yield -> yield from
+
+	# Этап 5, ломает совместимость либо требует решения по существу
+	"DTZ005",	# datetime.now() без tz - логика протухания токена
+	"DTZ006",	# fromtimestamp() без tz - там же
+	"DTZ011",	# date.today() в устаревшем калькуляторе v1.5
+	"N818",	# переименование исключений в *Error - изменение API
+	"S105",	# ложные срабатывания на RESOURCE_AUTH_TOKEN и token_type
+	"S113",	# requests без timeout (в send() он есть, тут ложное)
+	"S324",	# md5 в get_secure - подпись устаревшего калькулятора v1.5
+]
+
+# Настроено под уже сложившийся в проекте стиль, а не наоборот:
+# по одному импорту на строку и `from ...` перед `import ...` внутри группы.
+[tool.ruff.lint.isort]
+known-first-party = ["pycdek"]
+force-single-line = true
+lines-after-imports = 2
+
+# Проект уже пишет `import datetime as dt` - закрепляем договорённость.
+[tool.ruff.lint.flake8-import-conventions.extend-aliases]
+datetime = "dt"
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401", "F403"]
+"tests/*" = ["S101", "PLR2004"]
+
+[tool.ruff.format]
+quote-style = "preserve"
+indent-style = "space"
+
+
+[tool.coverage.run]
+source = ["pycdek"]
+omit = ["*/tests/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+	"pragma: no cover",
+	"if TYPE_CHECKING:",
+]
+
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--disable-socket"
+
+
+# Релизы: версия и CHANGELOG считаются из gitmoji в коммитах.
+# Проверить, что получится, не записывая ничего: `hatch run release:preview`.
+#
+# ВАЖНО про первый релиз, две отдельные проблемы.
+#
+# 1. PSR отсчитывает от последнего СТАБИЛЬНОГО тега и линию 2.0.0bX за точку
+#    отсчёта не берёт - без флагов он предлагает 1.4.6 (от тега 1.4.5).
+#    Лечится флагом: `--major` от 1.4.5 даёт ровно 2.0.0.
+#
+# 2. PSR работает в SemVer, где пререлиз отделяется дефисом, а у нас в файле
+#    версия в формате PEP 440 - `2.0.0b9`. Его регексп матчит только часть
+#    `2.0.0` и заменяет её, оставляя хвост. Проверено:
+#        было 2.0.0b9 + --major -> стало 2.0.0b9   (замена ничего не изменила)
+#        было 2.0.0b9 + --minor -> стало 1.5.0b9   (версия испорчена)
+#        было 2.0.0   + --minor -> стало 1.5.0     (чисто)
+#    Поэтому версия в файле уже приведена к SemVer-формату `2.0.0-b.9`. PEP 440
+#    нормализует его обратно в `2.0.0b9`, поэтому имена артефактов и версия в
+#    метаданных не изменились. Дальше PSR генерирует собственный формат
+#    (`2.0.0`, `2.0.0-rc.1`), который его же регексп разбирает целиком, и цикл
+#    самосогласован.
+#
+# `tag_format` без префикса `v` - под текущую конвенцию репозитория (1.4.5,
+# 2.0.0b9). Пятнадцать древних тегов вида v1.0.0b1 под неё не подходят и дают
+# предупреждения при каждом запуске; на расчёт это не влияет.
+[tool.semantic_release]
+build_command = "hatch build"
+commit_message = "🔖 (release): Release {version} [skip ci]"
+commit_parser = "emoji"
+version_variables = ["pycdek/__init__.py:__version__"]
+tag_format = "{version}"
+
+[tool.semantic_release.branches.main]
+match = "master"
+prerelease = false
+
+# Ветка для release candidate перед стабильным релизом.
+[tool.semantic_release.branches.next]
+match = "next"
+prerelease = true
+prerelease_token = "rc"
+
+[tool.semantic_release.changelog]
+mode = "update"
+
+[tool.semantic_release.commit_parser_options]
+ignore_merge_commits = true
+# Любой разрешённый коммит поднимает как минимум патч.
+default_bump_level = 2
+allowed_tags = [
+	"💥",	# ломающие изменения
+	"✨",	# новая функциональность
+	"⚡️",	# производительность
+	"🐛",	# исправление бага
+	"🩹",	# мелкое исправление
+	"🚑️",	# критический хотфикс
+	"🔒️",	# безопасность
+	"♻️",	# рефакторинг
+	"🗑️",	# пометка устаревшего
+	"👽️",	# правки под изменения внешнего API
+	"🏷️",	# типы
+	"📝",	# документация
+	"🔧",	# конфигурация
+	"🏗️",	# архитектура и сборка
+	"⬆️",	# обновление зависимостей
+	"⬇️",	# понижение зависимостей
+	"➕",	# добавлена зависимость
+	"➖",	# удалена зависимость
+	"🌐",	# локализация
+	"✏️",	# опечатки
+	"⏪️",	# откат изменений
+]
+major_tags = ["💥"]
+minor_tags = ["✨"]
