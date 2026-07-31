@@ -12,6 +12,7 @@
 !.gitignore
 !.editorconfig
 !.gitattributes
+!.gitlint
 !.github/
 !.pre-commit-config.yaml
 !.git-blame-ignore-revs

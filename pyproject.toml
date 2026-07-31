@@ -72,6 +72,7 @@ packages = ["pycdek"]
 
 [dependency-groups]
 lint = [
+	"pre-commit==4.6.0",
 	"ruff==0.15.14",
 ]
 test = [
@@ -93,11 +94,12 @@ dependency-groups = ["test", "lint"]
 [tool.hatch.envs.default.scripts]
 init = [
 	"git config --local blame.ignoreRevsFile .git-blame-ignore-revs",
-	# "pre-commit install --hook-type pre-commit --hook-type commit-msg",
+	"pre-commit install --hook-type pre-commit --hook-type commit-msg",
 ]
 remove = [
 	"git config --local --unset blame.ignoreRevsFile",
-	# "pre-commit uninstall",
+	"pre-commit uninstall --hook-type pre-commit",
+	"pre-commit uninstall --hook-type commit-msg",
 ]
 
 
@@ -300,27 +302,27 @@ mode = "update"
 ignore_merge_commits = true
 # Теги перечислены по уровню, чтобы техническое форматирование не выпускало
 # новую версию пакета.
-major_tags = ["💥"]
-minor_tags = ["✨"]
+major_tags = ["💥", ":boom:"]
+minor_tags = ["✨", ":sparkles:"]
 patch_tags = [
-	"⚡️",	# производительность
-	"🐛",	# исправление бага
-	"🩹",	# мелкое исправление
-	"🚑️",	# критический хотфикс
-	"🔒️",	# безопасность
-	"♻️",	# рефакторинг
-	"🗑️",	# пометка устаревшего
-	"👽️",	# правки под изменения внешнего API
-	"🏷️",	# типы
-	"📝",	# документация
-	"🔧",	# конфигурация
-	"🏗️",	# архитектура и сборка
-	"⬆️",	# обновление зависимостей
-	"⬇️",	# понижение зависимостей
-	"➕",	# добавлена зависимость
-	"➖",	# удалена зависимость
-	"🌐",	# локализация
-	"✏️",	# опечатки
-	"⏪️",	# откат изменений
+	"⚡️", ":zap:",	# производительность
+	"🐛", ":bug:",	# исправление бага
+	"🩹", ":adhesive_bandage:",	# мелкое исправление
+	"🚑️", ":ambulance:",	# критический хотфикс
+	"🔒️", ":lock:",	# безопасность
+	"♻️", ":recycle:",	# рефакторинг
+	"🗑️", ":wastebasket:",	# пометка устаревшего
+	"👽️", ":alien:",	# правки под изменения внешнего API
+	"🏷️", ":label:",	# типы
+	"📝", ":memo:",	# документация
+	"🔧", ":wrench:",	# конфигурация
+	"🏗️", ":building_construction:",	# архитектура и сборка
+	"⬆️", ":arrow_up:",	# обновление зависимостей
+	"⬇️", ":arrow_down:",	# понижение зависимостей
+	"➕", ":heavy_plus_sign:",	# добавлена зависимость
+	"➖", ":heavy_minus_sign:",	# удалена зависимость
+	"🌐", ":globe_with_meridians:",	# локализация
+	"✏️", ":pencil2:",	# опечатки
+	"⏪️", ":rewind:",	# откат изменений
 ]
-other_allowed_tags = ["🎨"]
+other_allowed_tags = ["🎨", ":art:"]
