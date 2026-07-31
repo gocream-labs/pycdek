@@ -231,7 +231,7 @@ datetime = "dt"
 "tests/*" = ["S101", "PLR2004"]
 
 [tool.ruff.format]
-quote-style = "preserve"
+quote-style = "double"
 indent-style = "space"
 
 

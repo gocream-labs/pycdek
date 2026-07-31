@@ -31,32 +31,33 @@ logger = logging.getLogger("pycdek")
 # Webhook Event Types
 # ru: https://api-docs.cdek.ru/29934408.html
 # en: https://api-docs.cdek.ru/33828888.html
-WEBHOOK_EVENT_TYPE_ORDER = 'ORDER_STATUS'  # событие по статусам
-WEBHOOK_EVENT_TYPE_PRINT = 'PRINT_FORM'  # готовность печатной формы
-WEBHOOK_EVENT_TYPE_PHOTO = 'DOWNLOAD_PHOTO'  # получение фото документов по заказам
+WEBHOOK_EVENT_TYPE_ORDER = "ORDER_STATUS"  # событие по статусам
+WEBHOOK_EVENT_TYPE_PRINT = "PRINT_FORM"  # готовность печатной формы
+WEBHOOK_EVENT_TYPE_PHOTO = "DOWNLOAD_PHOTO"  # получение фото документов по заказам
 
 
 class CDEKApiClient:
     """
     Client for cdek api
     """
-    PRODUCTION_API_URL = 'api.cdek.ru/'
-    DEVELOPMENT_API_URL = 'api.edu.cdek.ru/'
 
-    CONTRACT_TYPE_SHOP = 'shop'
-    CONTRACT_TYPE_DELIVERY = 'delivery'
+    PRODUCTION_API_URL = "api.cdek.ru/"
+    DEVELOPMENT_API_URL = "api.edu.cdek.ru/"
 
-    RESOURCE_AUTH_TOKEN = 'v2/oauth/token'
-    RESOURCE_ORDER = 'v2/orders'
-    RESOURCE_INTAKES = 'v2/intakes'
-    RESOURCE_REGIONS = 'v2/location/regions'
-    RESOURCE_CITIES = 'v2/location/cities'
-    RESOURCE_RECEIPT = 'v2/print/orders'
-    RESOURCE_BARCODE = 'v2/print/barcodes'
-    RESOURCE_SUBSCRIPTION = 'v2/webhooks'
-    RESOURCE_DELIVERYPOINTS = 'v2/deliverypoints'
-    RESOURCE_CALCULATOR_TARIFF = 'v2/calculator/tariff'
-    RESOURCE_CALCULATOR_URL = 'calculator/calculate_price_by_json.php'
+    CONTRACT_TYPE_SHOP = "shop"
+    CONTRACT_TYPE_DELIVERY = "delivery"
+
+    RESOURCE_AUTH_TOKEN = "v2/oauth/token"
+    RESOURCE_ORDER = "v2/orders"
+    RESOURCE_INTAKES = "v2/intakes"
+    RESOURCE_REGIONS = "v2/location/regions"
+    RESOURCE_CITIES = "v2/location/cities"
+    RESOURCE_RECEIPT = "v2/print/orders"
+    RESOURCE_BARCODE = "v2/print/barcodes"
+    RESOURCE_SUBSCRIPTION = "v2/webhooks"
+    RESOURCE_DELIVERYPOINTS = "v2/deliverypoints"
+    RESOURCE_CALCULATOR_TARIFF = "v2/calculator/tariff"
+    RESOURCE_CALCULATOR_URL = "calculator/calculate_price_by_json.php"
 
     def __init__(self, id, secret, is_shop, production=True):
         """
@@ -86,9 +87,9 @@ class CDEKApiClient:
         if not self._token or self._token_exp <= now:
             # token not getted or expired -> response
             response = self.authorization()
-            self._token = response['access_token']
-            token_data = jwt.decode(response['access_token'], options={'verify_signature': False})
-            self._token_exp = dt.datetime.fromtimestamp(token_data['exp'])
+            self._token = response["access_token"]
+            token_data = jwt.decode(response["access_token"], options={"verify_signature": False})
+            self._token_exp = dt.datetime.fromtimestamp(token_data["exp"])
 
         return self._token
 
@@ -97,30 +98,33 @@ class CDEKApiClient:
         request jwt token for use in api requests
         """
 
-        response = requests.post(self.get_url(self.RESOURCE_AUTH_TOKEN), params={
-            'grant_type': 'client_credentials',
-            'client_id': self.id,
-            'client_secret': self.secret,
-        })
+        response = requests.post(
+            self.get_url(self.RESOURCE_AUTH_TOKEN),
+            params={
+                "grant_type": "client_credentials",
+                "client_id": self.id,
+                "client_secret": self.secret,
+            },
+        )
 
         if response.status_code != 200:
             message = response.text
             code = None
 
-            if response.headers['Content-Type'] == 'application/json':
+            if response.headers["Content-Type"] == "application/json":
                 json = response.json()
 
-                if 'error_description' in json and 'invalid_client' in json:
-                    message = json['error_description']
-                    code = json['invalid_client']
+                if "error_description" in json and "invalid_client" in json:
+                    message = json["error_description"]
+                    code = json["invalid_client"]
 
-                elif 'reason' in json and len(json) == 1:
-                    message = json['reason']
+                elif "reason" in json and len(json) == 1:
+                    message = json["reason"]
 
-            if code == 'invalid_client' and message == 'Bad client credentials':
+            if code == "invalid_client" and message == "Bad client credentials":
                 raise CdekApiAccessException()
 
-            elif code is None and message == 'Service Unavailable':
+            elif code is None and message == "Service Unavailable":
                 raise CdekApiUnavailableException()
 
             raise CdekApiException(message, code)
@@ -128,8 +132,8 @@ class CDEKApiClient:
         else:
             json = response.json()
 
-        if json['token_type'] != 'bearer':
-            raise CdekApiWrongTokenTypeException(json['token_type'])
+        if json["token_type"] != "bearer":
+            raise CdekApiWrongTokenTypeException(json["token_type"])
 
         return json
 
@@ -138,7 +142,7 @@ class CDEKApiClient:
         make request url
         """
 
-        if str(resource).startswith('http'):
+        if str(resource).startswith("http"):
             return resource
 
         api = self.PRODUCTION_API_URL if self.production else self.DEVELOPMENT_API_URL
@@ -149,11 +153,9 @@ class CDEKApiClient:
         make headers for requests
         """
 
-        return {
-            'Authorization': f'Bearer {self.token}'
-        }
+        return {"Authorization": f"Bearer {self.token}"}
 
-    def send(self, resource, method='get', data=None, params=None, raise_errors=True, **kwargs):
+    def send(self, resource, method="get", data=None, params=None, raise_errors=True, **kwargs):
         """
         Send request and add token to headers
 
@@ -167,18 +169,18 @@ class CDEKApiClient:
             dict: request returned data
         """
 
-        kwargs.setdefault('headers', self.get_headers())
-        kwargs.setdefault('timeout', (3, 7))
-        kwargs['json'] = data
-        kwargs['params'] = params
+        kwargs.setdefault("headers", self.get_headers())
+        kwargs.setdefault("timeout", (3, 7))
+        kwargs["json"] = data
+        kwargs["params"] = params
 
-        if method == 'get':
+        if method == "get":
             response = requests.get(self.get_url(resource), **kwargs)
 
-        elif method == 'post':
+        elif method == "post":
             response = requests.post(self.get_url(resource), **kwargs)
 
-        elif method == 'delete':
+        elif method == "delete":
             response = requests.delete(self.get_url(resource), **kwargs)
 
         if raise_errors:
@@ -343,46 +345,42 @@ class CDEKApiClient:
             https://api-docs.cdek.ru/63345430.html
         """
 
-        complete_data = clear_dict({
-            'type': 1 if self.contract_type == self.CONTRACT_TYPE_SHOP else 2,
-            'tariff_code': tariff_code,
-            'recipient': recipient,
-            'packages': packages,
-            'number': number,
-            'comment': comment,
-            'developer_key': developer_key,
-            'shipment_point': shipment_point,
-            'delivery_point': delivery_point,
-            'date_invoice': date_invoice,
-            'shipper_name': shipper_name,
-            'shipper_address': shipper_address,
-            'delivery_recipient_cost': delivery_recipient_cost,
-            'delivery_recipient_cost_adv': delivery_recipient_cost_adv,
-            'sender': sender,
-            'seller': seller,
-            'from_location': from_location,
-            'to_location': to_location,
-            'services': services,
-            'print': request_print,
-        })
+        complete_data = clear_dict(
+            {
+                "type": 1 if self.contract_type == self.CONTRACT_TYPE_SHOP else 2,
+                "tariff_code": tariff_code,
+                "recipient": recipient,
+                "packages": packages,
+                "number": number,
+                "comment": comment,
+                "developer_key": developer_key,
+                "shipment_point": shipment_point,
+                "delivery_point": delivery_point,
+                "date_invoice": date_invoice,
+                "shipper_name": shipper_name,
+                "shipper_address": shipper_address,
+                "delivery_recipient_cost": delivery_recipient_cost,
+                "delivery_recipient_cost_adv": delivery_recipient_cost_adv,
+                "sender": sender,
+                "seller": seller,
+                "from_location": from_location,
+                "to_location": to_location,
+                "services": services,
+                "print": request_print,
+            }
+        )
 
-        kwargs['data'] = complete_data
+        kwargs["data"] = complete_data
 
-        response = self.send(self.RESOURCE_ORDER, method='post', **kwargs)
+        response = self.send(self.RESOURCE_ORDER, method="post", **kwargs)
 
         if not origin_response:
-            response = response.json()['entity']
+            response = response.json()["entity"]
 
         return response
 
     def get_order(
-        self,
-        uuid=None,
-        cdek_number=None,
-        im_number=None,
-        raise_errors=True,
-        origin_response=False,
-        **kwargs
+        self, uuid=None, cdek_number=None, im_number=None, raise_errors=True, origin_response=False, **kwargs
     ):
         """
         Get order info
@@ -408,15 +406,15 @@ class CDEKApiClient:
             url /= Path(uuid)
 
         elif cdek_number:
-            kwargs['params'] = {'cdek_number': cdek_number}
+            kwargs["params"] = {"cdek_number": cdek_number}
 
         elif im_number:
-            kwargs['params'] = {'im_number': im_number}
+            kwargs["params"] = {"im_number": im_number}
 
         response = self.send(url, **kwargs)
 
         if not origin_response:
-            response = response.json()['entity']
+            response = response.json()["entity"]
 
         return response
 
@@ -434,11 +432,7 @@ class CDEKApiClient:
             dict: deleted order info
         """
 
-        return self.send(
-            Path(self.RESOURCE_ORDER) / Path(uuid),
-            method='delete',
-            raise_errors=raise_errors
-        )
+        return self.send(Path(self.RESOURCE_ORDER) / Path(uuid), method="delete", raise_errors=raise_errors)
 
     def registrate_intakes(
         self,
@@ -506,34 +500,31 @@ class CDEKApiClient:
             dict: Intakes dict
         """
 
-        complete_data = clear_dict({
-            'intake_date': intake_date,
-            'intake_time_from': intake_time_from,
-            'intake_time_to': intake_time_to,
-            'order_uuid': order_uuid,
-            'lunch_time_from': lunch_time_from,
-            'lunch_time_to': lunch_time_to,
-            'name': name,
-            'cdek_number': cdek_number,
-            'weight': weight,
-            'length': length,
-            'width': width,
-            'height': height,
-            'comment': comment,
-            'sender': sender,
-            'from_location': from_location,
-            'need_call': need_call,
-        })
-
-        response = self.send(
-            self.RESOURCE_INTAKES,
-            method='post',
-            data=complete_data,
-            raise_errors=raise_errors
+        complete_data = clear_dict(
+            {
+                "intake_date": intake_date,
+                "intake_time_from": intake_time_from,
+                "intake_time_to": intake_time_to,
+                "order_uuid": order_uuid,
+                "lunch_time_from": lunch_time_from,
+                "lunch_time_to": lunch_time_to,
+                "name": name,
+                "cdek_number": cdek_number,
+                "weight": weight,
+                "length": length,
+                "width": width,
+                "height": height,
+                "comment": comment,
+                "sender": sender,
+                "from_location": from_location,
+                "need_call": need_call,
+            }
         )
 
+        response = self.send(self.RESOURCE_INTAKES, method="post", data=complete_data, raise_errors=raise_errors)
+
         if not origin_response:
-            response = response.json()['entity']
+            response = response.json()["entity"]
 
         return response
 
@@ -552,13 +543,10 @@ class CDEKApiClient:
             dict: intakes info
         """
 
-        response = self.send(
-            Path(self.RESOURCE_INTAKES) / Path(uuid),
-            raise_errors=raise_errors
-        )
+        response = self.send(Path(self.RESOURCE_INTAKES) / Path(uuid), raise_errors=raise_errors)
 
         if not origin_response:
-            response = response.json()['entity']
+            response = response.json()["entity"]
 
         return response
 
@@ -576,11 +564,7 @@ class CDEKApiClient:
             dict: deleted intakes info
         """
 
-        return self.send(
-            Path(self.RESOURCE_INTAKES) / Path(uuid),
-            method='delete',
-            raise_errors=raise_errors
-        )
+        return self.send(Path(self.RESOURCE_INTAKES) / Path(uuid), method="delete", raise_errors=raise_errors)
 
     def get_regions(
         self,
@@ -617,21 +601,19 @@ class CDEKApiClient:
         https://confluence.cdek.ru/pages/viewpage.action?pageId=33829418
         """
 
-        complete_data = clear_dict({
-            'country_codes': country_codes,
-            'region_code': region_code,
-            'kladr_region_code': kladr_region_code,
-            'fias_region_guid': fias_region_guid,
-            'size': size,
-            'page': page,
-            'lang': lang,
-        })
-
-        response = self.send(
-            Path(self.RESOURCE_REGIONS),
-            params=complete_data,
-            raise_errors=raise_errors
+        complete_data = clear_dict(
+            {
+                "country_codes": country_codes,
+                "region_code": region_code,
+                "kladr_region_code": kladr_region_code,
+                "fias_region_guid": fias_region_guid,
+                "size": size,
+                "page": page,
+                "lang": lang,
+            }
         )
+
+        response = self.send(Path(self.RESOURCE_REGIONS), params=complete_data, raise_errors=raise_errors)
 
         if not origin_response:
             response = response.json()
@@ -640,8 +622,8 @@ class CDEKApiClient:
 
     def get_all_regions(self, **kwargs):
         request_kwargs = deepcopy(kwargs)
-        request_kwargs['page'] = 0
-        request_kwargs['origin_response'] = False
+        request_kwargs["page"] = 0
+        request_kwargs["origin_response"] = False
 
         while True:
             regions = self.get_regions(**request_kwargs)
@@ -652,7 +634,7 @@ class CDEKApiClient:
             for region in regions:
                 yield region
 
-            request_kwargs['page'] += 1
+            request_kwargs["page"] += 1
 
     def get_cities(
         self,
@@ -701,27 +683,25 @@ class CDEKApiClient:
             list: list of cities
         """
 
-        complete_data = clear_dict({
-            'country_codes': country_codes,
-            'region_code': region_code,
-            'kladr_region_code': kladr_region_code,
-            'fias_region_guid': fias_region_guid,
-            'kladr_code': kladr_code,
-            'fias_guid': fias_guid,
-            'postal_code': postal_code,
-            'code': code,
-            'city': city,
-            'page': page,
-            'size': size,
-            'lang': lang,
-            'payment_limit': payment_limit,
-        })
-
-        response = self.send(
-            Path(self.RESOURCE_CITIES),
-            params=complete_data,
-            raise_errors=raise_errors
+        complete_data = clear_dict(
+            {
+                "country_codes": country_codes,
+                "region_code": region_code,
+                "kladr_region_code": kladr_region_code,
+                "fias_region_guid": fias_region_guid,
+                "kladr_code": kladr_code,
+                "fias_guid": fias_guid,
+                "postal_code": postal_code,
+                "code": code,
+                "city": city,
+                "page": page,
+                "size": size,
+                "lang": lang,
+                "payment_limit": payment_limit,
+            }
         )
+
+        response = self.send(Path(self.RESOURCE_CITIES), params=complete_data, raise_errors=raise_errors)
 
         if not origin_response:
             response = response.json()
@@ -730,8 +710,8 @@ class CDEKApiClient:
 
     def get_all_cities(self, **kwargs):
         request_kwargs = deepcopy(kwargs)
-        request_kwargs['page'] = 0
-        request_kwargs['origin_response'] = False
+        request_kwargs["page"] = 0
+        request_kwargs["origin_response"] = False
 
         while True:
             cities = self.get_cities(**request_kwargs)
@@ -742,14 +722,14 @@ class CDEKApiClient:
             for city in cities:
                 yield city
 
-            request_kwargs['page'] += 1
+            request_kwargs["page"] += 1
 
     def request_receipt(
         self,
         orders: List[Dict],
-        copy_count: int=None,
-        form_type: str=None,
-        origin_response: bool=False,
+        copy_count: int = None,
+        form_type: str = None,
+        origin_response: bool = False,
         **kwargs,
     ):
         """
@@ -771,27 +751,29 @@ class CDEKApiClient:
         https://api-docs.cdek.ru/36967276.html
         """
 
-        complete_data = clear_dict({
-            'orders': orders,
-            'copy_count': copy_count,
-            'type': form_type,
-        })
+        complete_data = clear_dict(
+            {
+                "orders": orders,
+                "copy_count": copy_count,
+                "type": form_type,
+            }
+        )
 
-        kwargs['data'] = complete_data
-        response = self.send(self.RESOURCE_RECEIPT, method='post', **kwargs)
+        kwargs["data"] = complete_data
+        response = self.send(self.RESOURCE_RECEIPT, method="post", **kwargs)
 
         if not origin_response:
-            response = response.json()['entity']
+            response = response.json()["entity"]
 
         return response
 
     def request_barcode(
         self,
         orders: List[Dict],
-        copy_count: int=None,
-        format_type: str=None,
-        lang: str=None,
-        origin_response: bool=False,
+        copy_count: int = None,
+        format_type: str = None,
+        lang: str = None,
+        origin_response: bool = False,
         **kwargs,
     ):
         """
@@ -814,18 +796,20 @@ class CDEKApiClient:
         https://api-docs.cdek.ru/36967295.html
         """
 
-        complete_data = clear_dict({
-            'orders': orders,
-            'copy_count': copy_count,
-            'format': format_type,
-            'lang': lang,
-        })
+        complete_data = clear_dict(
+            {
+                "orders": orders,
+                "copy_count": copy_count,
+                "format": format_type,
+                "lang": lang,
+            }
+        )
 
-        kwargs['data'] = complete_data
-        response = self.send(self.RESOURCE_BARCODE, method='post', **kwargs)
+        kwargs["data"] = complete_data
+        response = self.send(self.RESOURCE_BARCODE, method="post", **kwargs)
 
         if not origin_response:
-            response = response.json()['entity']
+            response = response.json()["entity"]
 
         return response
 
@@ -846,7 +830,7 @@ class CDEKApiClient:
         response = self.send(Path(self.RESOURCE_RECEIPT) / Path(uuid), **kwargs)
 
         if not origin_response:
-            response = response.json()['entity']
+            response = response.json()["entity"]
 
         return response
 
@@ -867,7 +851,7 @@ class CDEKApiClient:
         response = self.send(Path(self.RESOURCE_BARCODE) / Path(uuid), **kwargs)
 
         if not origin_response:
-            response = response.json()['entity']
+            response = response.json()["entity"]
 
         return response
 
@@ -958,40 +942,42 @@ class CDEKApiClient:
         https://confluence.cdek.ru/pages/viewpage.action?pageId=15616129#id-Протоколобменаданными(v1.5)-4.13CalculatorКалькулятор
         """
 
-        complete_data = clear_dict({
-            'goods': goods,
-            'version': version,
-            'dateExecute': date_execute,
-            'lang': lang,
-            'senderCountryCode': sender_country_code,
-            'receiverCountryCode': receiver_country_code,
-            'senderCityId': sender_city_id,
-            'senderCity': sender_city,
-            'senderCityPostCode': sender_city_post_code,
-            'receiverCityId': receiver_city_id,
-            'receiverCityPostCode': receiver_city_post_code,
-            'receiverCity': receiver_city,
-            'senderLongitude': sender_longitude,
-            'receiverLongitude': receiver_longitude,
-            'senderLatitude': sender_latitude,
-            'receiverLatitude': receiver_latitude,
-            'tariffId': tariff_id,
-            'tariffList': tariff_list,
-            'services': services,
-        })
+        complete_data = clear_dict(
+            {
+                "goods": goods,
+                "version": version,
+                "dateExecute": date_execute,
+                "lang": lang,
+                "senderCountryCode": sender_country_code,
+                "receiverCountryCode": receiver_country_code,
+                "senderCityId": sender_city_id,
+                "senderCity": sender_city,
+                "senderCityPostCode": sender_city_post_code,
+                "receiverCityId": receiver_city_id,
+                "receiverCityPostCode": receiver_city_post_code,
+                "receiverCity": receiver_city,
+                "senderLongitude": sender_longitude,
+                "receiverLongitude": receiver_longitude,
+                "senderLatitude": sender_latitude,
+                "receiverLatitude": receiver_latitude,
+                "tariffId": tariff_id,
+                "tariffList": tariff_list,
+                "services": services,
+            }
+        )
 
         if auth:
             if not self.id or not self.secret:
                 raise CdekNoAuthClientException("Has no provide auth information")
 
-            if not 'dateExecute' in complete_data:
-                complete_data['dateExecute'] = dt.date.today().isoformat()
+            if not "dateExecute" in complete_data:
+                complete_data["dateExecute"] = dt.date.today().isoformat()
 
-            complete_data['authLogin'] = self.id
-            complete_data['secure'] = get_secure(self.secret, complete_data['dateExecute'])
+            complete_data["authLogin"] = self.id
+            complete_data["secure"] = get_secure(self.secret, complete_data["dateExecute"])
 
-        kwargs['raise_errors'] = raise_errors
-        kwargs['data'] = complete_data
+        kwargs["raise_errors"] = raise_errors
+        kwargs["data"] = complete_data
 
         response = self.send(self.RESOURCE_CALCULATOR_URL, **kwargs)
 
@@ -1041,17 +1027,19 @@ class CDEKApiClient:
         https://api-docs.cdek.ru/63345430.html
         """
 
-        kwargs['data'] = clear_dict({
-            'type': 1 if self.contract_type == self.CONTRACT_TYPE_SHOP else 2,
-            'tariff_code': tariff_code,
-            'from_location': from_location,
-            'to_location': to_location,
-            'packages': packages,
-            'date': date,
-            'currency': currency,
-            'services': services,
-        })
-        response = self.send(self.RESOURCE_CALCULATOR_TARIFF, method='post', **kwargs)
+        kwargs["data"] = clear_dict(
+            {
+                "type": 1 if self.contract_type == self.CONTRACT_TYPE_SHOP else 2,
+                "tariff_code": tariff_code,
+                "from_location": from_location,
+                "to_location": to_location,
+                "packages": packages,
+                "date": date,
+                "currency": currency,
+                "services": services,
+            }
+        )
+        response = self.send(self.RESOURCE_CALCULATOR_TARIFF, method="post", **kwargs)
 
         if not origin_response:
             response = response.json()
@@ -1065,17 +1053,14 @@ class CDEKApiClient:
         https://confluence.cdek.ru/pages/viewpage.action?pageId=29934408#id-Подписканавебхуки(Webhooks)-1.Добавлениеподписки
         """
 
-        complete_data = clear_dict({
-            'url': url,
-            'type': type,
-        })
-
-        response = self.send(
-            self.RESOURCE_SUBSCRIPTION,
-            method='post',
-            data=complete_data,
-            raise_errors=raise_errors
+        complete_data = clear_dict(
+            {
+                "url": url,
+                "type": type,
+            }
         )
+
+        response = self.send(self.RESOURCE_SUBSCRIPTION, method="post", data=complete_data, raise_errors=raise_errors)
 
         if not origin_response:
             response = response.json()
@@ -1089,11 +1074,7 @@ class CDEKApiClient:
         https://confluence.cdek.ru/pages/viewpage.action?pageId=29934408#id-Подписканавебхуки(Webhooks)-2.Информацияоподписке
         """
 
-        response = self.send(
-            Path(self.RESOURCE_SUBSCRIPTION),
-            method='get',
-            raise_errors=raise_errors
-        )
+        response = self.send(Path(self.RESOURCE_SUBSCRIPTION), method="get", raise_errors=raise_errors)
 
         if not origin_response:
             response = response.json()
@@ -1107,11 +1088,7 @@ class CDEKApiClient:
         https://confluence.cdek.ru/pages/viewpage.action?pageId=29934408#id-Подписканавебхуки(Webhooks)-2.Информацияоподписке
         """
 
-        response = self.send(
-            Path(self.RESOURCE_SUBSCRIPTION) / Path(uuid),
-            method='get',
-            raise_errors=raise_errors
-        )
+        response = self.send(Path(self.RESOURCE_SUBSCRIPTION) / Path(uuid), method="get", raise_errors=raise_errors)
 
         if not origin_response:
             response = response.json()
@@ -1125,11 +1102,7 @@ class CDEKApiClient:
         https://confluence.cdek.ru/pages/viewpage.action?pageId=29934408#id-Подписканавебхуки(Webhooks)-3.Удалениеподписки
         """
 
-        response = self.send(
-            Path(self.RESOURCE_SUBSCRIPTION) / Path(uuid),
-            method='delete',
-            raise_errors=raise_errors
-        )
+        response = self.send(Path(self.RESOURCE_SUBSCRIPTION) / Path(uuid), method="delete", raise_errors=raise_errors)
 
         if not origin_response:
             response = response.json()
@@ -1138,7 +1111,6 @@ class CDEKApiClient:
 
     def get_deliverypoints(
         self,
-
         postal_code1: Optional[int] = None,
         city_code1: Optional[int] = None,
         tipe: Optional[str] = None,
@@ -1153,7 +1125,6 @@ class CDEKApiClient:
         lang: Optional[str] = None,
         take_only: Optional[bool] = None,
         is_handout: Optional[bool] = None,
-
         raise_errors: bool = True,
         origin_response: bool = False,
     ) -> Union[List[Dict], Response]:
@@ -1189,28 +1160,26 @@ class CDEKApiClient:
             list: list of delivery points
         """
 
-        complete_data = clear_dict({
-            'postal_code1': postal_code1,
-            'city_code1': city_code1,
-            'type': tipe,
-            'country_code': country_code,
-            'region_code': region_code,
-            'have_cashless': have_cashless,
-            'have_cash': have_cash,
-            'allowed_cod': allowed_cod,
-            'is_dressing_room': is_dressing_room,
-            'weight_max': weight_max,
-            'weight_min': weight_min,
-            'lang': lang,
-            'take_only': take_only,
-            'is_handout': is_handout,
-        })
-
-        response = self.send(
-            Path(self.RESOURCE_DELIVERYPOINTS),
-            params=complete_data,
-            raise_errors=raise_errors
+        complete_data = clear_dict(
+            {
+                "postal_code1": postal_code1,
+                "city_code1": city_code1,
+                "type": tipe,
+                "country_code": country_code,
+                "region_code": region_code,
+                "have_cashless": have_cashless,
+                "have_cash": have_cash,
+                "allowed_cod": allowed_cod,
+                "is_dressing_room": is_dressing_room,
+                "weight_max": weight_max,
+                "weight_min": weight_min,
+                "lang": lang,
+                "take_only": take_only,
+                "is_handout": is_handout,
+            }
         )
+
+        response = self.send(Path(self.RESOURCE_DELIVERYPOINTS), params=complete_data, raise_errors=raise_errors)
 
         if not origin_response:
             response = response.json()

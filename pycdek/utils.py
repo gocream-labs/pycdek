@@ -4,7 +4,7 @@ import hashlib
 
 
 def is_empty(value):
-    return not(isinstance(value, (int, float)) or not value in (None, (), {}, ''))
+    return not (isinstance(value, (int, float)) or not value in (None, (), {}, ""))
 
 
 def clear_dict(raw_dict, empty_data=is_empty):
@@ -35,5 +35,5 @@ def clear_dict(raw_dict, empty_data=is_empty):
 
 
 def get_secure(secure_password, date):
-    code = f'{date}&{secure_password}'.encode('utf-8')
+    code = f"{date}&{secure_password}".encode("utf-8")
     return hashlib.md5(code).hexdigest()
