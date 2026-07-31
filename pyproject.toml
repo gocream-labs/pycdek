@@ -114,6 +114,7 @@ format = [
 	"ruff check --fix {args:.}",
 	"ruff format {args:.}",
 ]
+commit = "bash scripts/commit-lint.sh"
 
 
 [tool.hatch.envs.test]
@@ -297,11 +298,11 @@ mode = "update"
 
 [tool.semantic_release.commit_parser_options]
 ignore_merge_commits = true
-# Любой разрешённый коммит поднимает как минимум патч.
-default_bump_level = 2
-allowed_tags = [
-	"💥",	# ломающие изменения
-	"✨",	# новая функциональность
+# Теги перечислены по уровню, чтобы техническое форматирование не выпускало
+# новую версию пакета.
+major_tags = ["💥"]
+minor_tags = ["✨"]
+patch_tags = [
 	"⚡️",	# производительность
 	"🐛",	# исправление бага
 	"🩹",	# мелкое исправление
@@ -322,5 +323,4 @@ allowed_tags = [
 	"✏️",	# опечатки
 	"⏪️",	# откат изменений
 ]
-major_tags = ["💥"]
-minor_tags = ["✨"]
+other_allowed_tags = ["🎨"]

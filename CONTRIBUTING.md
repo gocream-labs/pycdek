@@ -44,10 +44,12 @@ hatch build                # sdist + wheel
 ```text
 ✨ (client): Add order update method
 🐛 (utils): Fix clear_dict on nested lists
+🎨 (style): Format code with Ruff
 ```
 
 Формат влияет на версию следующего релиза и CHANGELOG. Поэтому сообщения
-коммитов должны соответствовать ему; планируется отдельный `commit-msg`-хук.
+коммитов должны соответствовать ему; `🎨` допустим для форматирования и не
+повышает версию. Планируется отдельный `commit-msg`-хук.
 
 
 ## Important Considerations
