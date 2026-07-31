@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 
 [project]
-name = "pycdek-2"
+name = "gocream-pycdek"
 description = "python wrapper for cdek api v2.0"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -51,7 +51,7 @@ Repository = "https://gitlab.com/gocream/pycdek-2"
 
 
 [tool.hatch.version]
-path = "pycdek/__init__.py"
+path = "gocream_pycdek/__init__.py"
 
 
 # `.gitignore` в этот список добавлять бесполезно: hatchling кладёт VCS-ignore
@@ -67,7 +67,7 @@ exclude = [
 # Остальное hatchling берёт по умолчанию: всё, что под контролем VCS.
 # Явный include не нужен - README, LICENSE, AUTHORS и logo.svg попадают сами.
 [tool.hatch.build.targets.wheel]
-packages = ["pycdek"]
+packages = ["gocream_pycdek"]
 
 
 [dependency-groups]
@@ -125,7 +125,7 @@ python = "3.14"
 dependency-groups = ["test"]
 
 [tool.hatch.envs.test.scripts]
-check = "pytest {args:--cov=pycdek --cov-report term-missing}"
+check = "pytest {args:--cov=gocream_pycdek --cov-report term-missing}"
 
 
 [tool.hatch.envs.release]
@@ -221,7 +221,7 @@ ignore = [
 # Настроено под уже сложившийся в проекте стиль, а не наоборот:
 # по одному импорту на строку и `from ...` перед `import ...` внутри группы.
 [tool.ruff.lint.isort]
-known-first-party = ["pycdek"]
+known-first-party = ["gocream_pycdek"]
 force-single-line = true
 lines-after-imports = 2
 
@@ -239,7 +239,7 @@ indent-style = "space"
 
 
 [tool.coverage.run]
-source = ["pycdek"]
+source = ["gocream_pycdek"]
 omit = ["*/tests/*"]
 
 [tool.coverage.report]
@@ -282,7 +282,7 @@ addopts = "--disable-socket"
 build_command = "hatch build"
 commit_message = "🔖 (release): Release {version} [skip ci]"
 commit_parser = "emoji"
-version_variables = ["pycdek/__init__.py:__version__"]
+version_variables = ["gocream_pycdek/__init__.py:__version__"]
 tag_format = "{version}"
 
 [tool.semantic_release.branches.main]

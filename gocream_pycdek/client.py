@@ -16,16 +16,16 @@ from requests import Response
 import jwt
 import requests
 
-from pycdek.exceptions import CdekApiAccessException
-from pycdek.exceptions import CdekApiException
-from pycdek.exceptions import CdekApiUnavailableException
-from pycdek.exceptions import CdekApiWrongTokenTypeException
-from pycdek.exceptions import CdekNoAuthClientException
-from pycdek.utils import clear_dict
-from pycdek.utils import get_secure
+from gocream_pycdek.exceptions import CdekApiAccessException
+from gocream_pycdek.exceptions import CdekApiException
+from gocream_pycdek.exceptions import CdekApiUnavailableException
+from gocream_pycdek.exceptions import CdekApiWrongTokenTypeException
+from gocream_pycdek.exceptions import CdekNoAuthClientException
+from gocream_pycdek.utils import clear_dict
+from gocream_pycdek.utils import get_secure
 
 
-logger = logging.getLogger("pycdek")
+logger = logging.getLogger("gocream_pycdek")
 
 
 # Webhook Event Types

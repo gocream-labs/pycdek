@@ -1,6 +1,6 @@
 <img alt="CDEK" src="/logo.svg" width="150" height="auto" />
 
-# PyCDEK 2
+# GoCream PyCDEK
 
 Python-библиотека для CDEK API v2.0.
 
@@ -10,13 +10,13 @@ Python-библиотека для CDEK API v2.0.
 ## Installation
 
 ```sh
-pip install pycdek-2
+pip install gocream-pycdek
 ```
 
-Импорт в Python выполняется через `pycdek`:
+Импорт в Python выполняется через `gocream_pycdek`:
 
 ```python
-from pycdek.client import CDEKApiClient
+from gocream_pycdek.client import CDEKApiClient
 ```
 
 
