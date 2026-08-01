@@ -7,7 +7,6 @@ from datetime import timedelta
 import pytest
 import responses
 
-from gocream_pycdek.client import CDEKApiClient
 from gocream_pycdek.exceptions import CdekApiAccessException
 from gocream_pycdek.exceptions import CdekApiUnavailableException
 from gocream_pycdek.exceptions import CdekApiWrongTokenTypeException

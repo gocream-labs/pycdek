@@ -1,9 +1,9 @@
 """Общие фикстуры клиентов и ответов для тестов API-клиента."""
 
+import json
 from copy import deepcopy
 from datetime import datetime
 from datetime import timedelta
-import json
 from pathlib import Path
 
 import pytest

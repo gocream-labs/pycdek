@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # See the full list of errors in the CDEK documentation:
 # docs: https://apidoc.cdek.ru/#tag/common/Spisok-vozmozhnyh-oshibok

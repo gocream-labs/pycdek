@@ -1,20 +1,12 @@
-# -*- coding: utf-8 -*-
-
+import datetime as dt
+import logging
 from copy import deepcopy
 from io import BytesIO
 from pathlib import Path
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Tuple
-from typing import Union
-import datetime as dt
-import json
-import logging
 
-from requests import Response
 import jwt
 import requests
+from requests import Response
 
 from gocream_pycdek.exceptions import CdekApiAccessException
 from gocream_pycdek.exceptions import CdekApiException
@@ -224,7 +216,8 @@ class CDEKApiClient:
             recipient (dict): Получатель:
                 name (str): ФИО контактного лица
                 phones (list of dict): Список телефонов:
-                    number (str): Номер телефона. Должен передаваться в международном формате: код страны (для России +7) и сам номер (10 и более цифр)
+                    number (str): Номер телефона. Должен передаваться в международном формате:
+                        код страны (для России +7) и сам номер (10 и более цифр)
                     additional (str, optional): Дополнительная информация (доп. номер)
                 company (str, optional): Название компании
                 passport_series (str, optional): Серия паспорта
@@ -235,7 +228,8 @@ class CDEKApiClient:
                 passport_date_of_birth (date, optional): Дата рождения в формате 'yyyy-MM-dd'
                 email (str, optional): Эл. адрес
             packages (dict): Список информации по местам (упаковкам)
-                number (str): Номер упаковки (можно использовать порядковый номер упаковки заказа или номер заказа), уникален в пределах заказа. Идентификатор заказа в ИС Клиента
+                number (str): Номер упаковки (можно использовать порядковый номер упаковки заказа или
+                    номер заказа), уникален в пределах заказа. Идентификатор заказа в ИС Клиента
                 weight (int): Общий вес (в граммах)
                 length (int, optioanl): Габариты упаковки. Длина (в сантиметрах)
                 width (int, optioanl): Габариты упаковки. Ширина (в сантиметрах)
@@ -244,11 +238,13 @@ class CDEKApiClient:
                 items (list of dict, optioanl): Позиции товаров в упаковке:
                     name (str): Наименование товара (может также содержать описание товара: размер, цвет)
                     ware_key (str): Идентификатор/артикул товара
-                    payment (dict): Оплата за товар при получении (за единицу товара в указанной валюте, значение >=0) — наложенный платеж, в случае предоплаты значение = 0:
+                    payment (dict): Оплата за товар при получении (за единицу товара в указанной валюте,
+                        значение >=0) — наложенный платеж, в случае предоплаты значение = 0:
                         value (float): Сумма дополнительного сбора
                         vat_sum (float, optional): Сумма НДС
                         vat_rate (int, optional): Ставка НДС (значение - 0, 10, 18, 20 и т.п. , null - нет НДС)
-                    cost (float): Объявленная стоимость товара (за единицу товара в указанной валюте, значение >=0). С данного значения рассчитывается страховка
+                    cost (float): Объявленная стоимость товара (за единицу товара в указанной валюте,
+                        значение >=0). С данного значения рассчитывается страховка
                     weight (int): Вес (за единицу товара, в граммах)
                     weight_gross (int, optional): Вес брутто
                     amount (int): Количество единиц товара (в штуках)
@@ -259,19 +255,23 @@ class CDEKApiClient:
                     wifi_gsm (bool, optional): Содержит wifi/gsm
                     url (str, optional): Ссылка на сайт интернет-магазина с описанием товара
 
-            number (str, optional): Номер заказа в ИС Клиента (если не передан, будет присвоен номер заказа в ИС СДЭК - uuid). Только для заказов "интернет-магазин".
+            number (str, optional): Номер заказа в ИС Клиента (если не передан, будет присвоен номер
+                заказа в ИС СДЭК - uuid). Только для заказов "интернет-магазин".
             comment (str, optional): Комментарий к заказу.
             developer_key (str, optional): Ключ разработчика (для разработчиков модулей).
-            shipment_point (str, optional): Код ПВЗ СДЭК, на который будет производится забор отправления, либо самостоятельный привоз клиентом.
+            shipment_point (str, optional): Код ПВЗ СДЭК, на который будет производится забор отправления,
+                либо самостоятельный привоз клиентом.
             delivery_point (str, optional): Код ПВЗ СДЭК, на который будет доставлена посылка.
             date_invoice (date, optional): Дата инвойса.
             shipper_name (str, optional): Грузоотправитель.
             shipper_address (str, optional): Адрес грузоотправителя.
-            delivery_recipient_cost (dict, optional): Доп. сбор за доставку, которую ИМ берет с получателя. Валюта сбора должна совпадать с валютой наложенного платежа:
+            delivery_recipient_cost (dict, optional): Доп. сбор за доставку, которую ИМ берет с получателя.
+                Валюта сбора должна совпадать с валютой наложенного платежа:
                 value (float): Сумма дополнительного сбора
                 vat_sum (float, optional): Сумма НДС
                 vat_rate (int, optional): Ставка НДС (значение - 0, 10, 18, 20 и т.п. , null - нет НДС)
-            delivery_recipient_cost_adv (list of dict, optional): Доп. сбор за доставку (которую ИМ берет с получателя) в зависимости от суммы заказа:
+            delivery_recipient_cost_adv (list of dict, optional): Доп. сбор за доставку (которую ИМ берет
+                с получателя) в зависимости от суммы заказа:
                 threshold (int): Порог стоимости товара (действует по условию меньше или равно) в целых единицах валюты
                 sum (float): Доп. сбор за доставку товаров, общая стоимость которых попадает в интервал
                 vat_sum (float, optional): Сумма НДС, включённая в доп. сбор за доставку
@@ -287,14 +287,16 @@ class CDEKApiClient:
                 tin (str, optional): ИНН
                 passport_date_of_birth (str, optional): Дата рождения
                 phones (list of dict, optional): Список телефонов:
-                    number (str): Номер телефона. Должен передаваться в международном формате: код страны (для России +7) и сам номер (10 и более цифр).
+                    number (str): Номер телефона. Должен передаваться в международном формате:
+                        код страны (для России +7) и сам номер (10 и более цифр).
                     additional (str, optional): Дополнительная информация (доп. номер).
             seller (dict, optional): Реквизиты реального продавца:
                 name (str, optional): Наименование истинного продавца.
                 inn (str, optional): ИНН истинного продавца.
                 phone (str, optional): Телефон истинного продавца.
                 ownership_form (int, optional): Код формы собственности `ownership form`_.
-                address (str, optional): Адрес истинного продавца. Используется при печати инвойсов для отображения адреса настоящего продавца товара, либо торгового названия.
+                address (str, optional): Адрес истинного продавца. Используется при печати инвойсов
+                    для отображения адреса настоящего продавца товара, либо торгового названия.
             from_location (dict): Адрес отправления:
                 address (str): Строка адреса
                 code (int, optional): Код локации (справочник СДЭК)
@@ -326,7 +328,8 @@ class CDEKApiClient:
                 parameter (int, optional): Параметр дополнительной услуги:
                     * количество упаковок для услуги "Упаковка 1" (для всех типов заказа)
                     * объявленная стоимость заказа для услуги "Страхование" (только для заказов с типом "доставка")
-            request_print (str, optional): Необходимость сформировать печатную форму по заказу. Может принимать значения:
+            request_print (str, optional): Необходимость сформировать печатную форму по заказу.
+                Может принимать значения:
                 * barcode - ШК мест (число копий - 1)
                 * waybill - квитанция (число копий - 2)
             origin_response (bool, optional): return original response or only entity? (default: False)
@@ -465,8 +468,10 @@ class CDEKApiClient:
             intake_time_from (time): Время начала ожидания курьера
             intake_time_to (time): Время окончания ожидания курьера
             order_uuid (str, optional): Идентификатор заказа в ИС СДЭК (UUID)
-            lunch_time_from (time, optional): Время начала обеда, должно входить в диапозон [intake_time_to;intake_time_to]
-            lunch_time_to (time, optional): Время окончания обеда, должно входить в диапозон [intake_time_to;intake_time_to]
+            lunch_time_from (time, optional): Время начала обеда, должно входить в диапазон
+                [intake_time_to;intake_time_to]
+            lunch_time_to (time, optional): Время окончания обеда, должно входить в диапазон
+                [intake_time_to;intake_time_to]
             name (str, optional): Описание груза
             cdek_number (int, optional): Номер заказа СДЭК
             weight (int, optional): Общий вес (в граммах)
@@ -568,16 +573,16 @@ class CDEKApiClient:
 
     def get_regions(
         self,
-        country_codes: Optional[List[str]] = None,
-        region_code: Optional[str] = None,
-        kladr_region_code: Optional[str] = None,
-        fias_region_guid: Optional[str] = None,
-        size: Optional[int] = 1000,
-        page: Optional[int] = 0,
-        lang: Optional[str] = None,
-        raise_errors: Optional[bool] = True,
-        origin_response: Optional[bool] = False,
-    ) -> List:
+        country_codes: list[str] | None = None,
+        region_code: str | None = None,
+        kladr_region_code: str | None = None,
+        fias_region_guid: str | None = None,
+        size: int | None = 1000,
+        page: int | None = 0,
+        lang: str | None = None,
+        raise_errors: bool | None = True,
+        origin_response: bool | None = False,
+    ) -> list:
         """
         Request regions
 
@@ -628,8 +633,7 @@ class CDEKApiClient:
             if len(regions) == 0:
                 break
 
-            for region in regions:
-                yield region
+            yield from regions
 
             request_kwargs["page"] += 1
 
@@ -716,16 +720,15 @@ class CDEKApiClient:
             if len(cities) == 0:
                 break
 
-            for city in cities:
-                yield city
+            yield from cities
 
             request_kwargs["page"] += 1
 
     def request_receipt(
         self,
-        orders: List[Dict],
-        copy_count: int = None,
-        form_type: str = None,
+        orders: list[dict],
+        copy_count: int | None = None,
+        form_type: str | None = None,
         origin_response: bool = False,
         **kwargs,
     ):
@@ -736,7 +739,8 @@ class CDEKApiClient:
             orders (list of dict): Список заказов:
                 order_uuid (str, optional): Идентификатор заказа в ИС СДЭК
                 cdek_number (str, optional): Номер заказа СДЭК
-            copy_count (integer, optional): Число копий одной квитанции на листе. Рекомендовано указывать не менее 2, одна приклеивается на груз, вторая остается у отправителя (default: 2)
+            copy_count (integer, optional): Число копий одной квитанции на листе. Рекомендовано указывать
+                не менее 2, одна приклеивается на груз, вторая остается у отправителя (default: 2)
             form_type (bool, optional): Форма квитанции. Может принимать значения:
                 tpl_china - квитанция на китайском
                 tpl_armenia - квитанция на армянском
@@ -766,10 +770,10 @@ class CDEKApiClient:
 
     def request_barcode(
         self,
-        orders: List[Dict],
-        copy_count: int = None,
-        format_type: str = None,
-        lang: str = None,
+        orders: list[dict],
+        copy_count: int | None = None,
+        format_type: str | None = None,
+        lang: str | None = None,
         origin_response: bool = False,
         **kwargs,
     ):
@@ -780,8 +784,10 @@ class CDEKApiClient:
             orders (list of dict): Список заказов:
                 order_uuid (str, optional): Идентификатор заказа в ИС СДЭК
                 cdek_number (str, optional): Номер заказа СДЭК
-            copy_count (integer, optional): Число копий одной квитанции на листе. Рекомендовано указывать не менее 2, одна приклеивается на груз, вторая остается у отправителя (default: 2)
-            form_type (str, optional): Формат печати. Может принимать значения: A4, A5, A6 (A - буква латинского алфавита). По умолчанию A4.
+            copy_count (integer, optional): Число копий одной квитанции на листе. Рекомендовано указывать
+                не менее 2, одна приклеивается на груз, вторая остается у отправителя (default: 2)
+            form_type (str, optional): Формат печати. Может принимать значения: A4, A5, A6
+                (A - буква латинского алфавита). По умолчанию A4.
             lang (str, optional): Язык печатной формы. Возможные языки в кодировке ISO - 639-3:
                 * Русский - RUS
                 * Английский - ENG
@@ -913,13 +919,16 @@ class CDEKApiClient:
         secure (str, optional): Ключ
         date_execute (date, optional): Планируемая дата отправки заказа в формате “ГГГГ-ММ-ДД” date    нет
         lang (str, optional): Локализация названий городов. По умолчанию "rus"
-        sender_country_code (str, optional): Код страны отправителя в формате ISO_3166-1_alpha-2 (см. “Общероссийский классификатор стран мира”). По умолчанию - ru.
-        receiver_country_code (str, optional): Код страны получателя в формате ISO_3166-1_alpha-2 (см. “Общероссийский классификатор стран мира”). По умолчанию - ru.
+        sender_country_code (str, optional): Код страны отправителя в формате ISO_3166-1_alpha-2
+            (см. “Общероссийский классификатор стран мира”). По умолчанию - ru.
+        receiver_country_code (str, optional): Код страны получателя в формате ISO_3166-1_alpha-2
+            (см. “Общероссийский классификатор стран мира”). По умолчанию - ru.
         sender_city_id (int, optional): Код города отправителя из базы СДЭК (см. файл «City_XXX_YYYYMMDD.xls»)
         sender_city (str, optional): Наименование города отправителя string  нет
         sender_city_post_code (int, optional): Индекс города отправителя из базы СДЭК (см. файл «City_XXX_YYYYMMDD.xls»)
         receiver_city_id (int, optional): Код города получателя из базы СДЭК (см. файл «City_XXX_YYYYMMDD.xls»)
-        receiver_city_post_code (int, optional): Индекс города получателя из базы СДЭК (см. файл «City_XXX_YYYYMMDD.xls»)
+        receiver_city_post_code (int, optional): Индекс города получателя из базы СДЭК
+            (см. файл «City_XXX_YYYYMMDD.xls»)
         receiver_city (, optional): Наименование города получателя  string  нет
         sender_longitude (float, optional): Долгота города отправителя
         receiver_longitude (float, optional): Долгота города получателя
@@ -967,7 +976,7 @@ class CDEKApiClient:
             if not self.id or not self.secret:
                 raise CdekNoAuthClientException("Has no provide auth information")
 
-            if not "dateExecute" in complete_data:
+            if "dateExecute" not in complete_data:
                 complete_data["dateExecute"] = dt.date.today().isoformat()
 
             complete_data["authLogin"] = self.id
@@ -1108,44 +1117,51 @@ class CDEKApiClient:
 
     def get_deliverypoints(
         self,
-        postal_code1: Optional[int] = None,
-        city_code1: Optional[int] = None,
-        tipe: Optional[str] = None,
-        country_code: Optional[str] = None,
-        region_code: Optional[int] = None,
-        have_cashless: Optional[bool] = None,
-        have_cash: Optional[bool] = None,
-        allowed_cod: Optional[bool] = None,
-        is_dressing_room: Optional[bool] = None,
-        weight_max: Optional[int] = None,
-        weight_min: Optional[int] = None,
-        lang: Optional[str] = None,
-        take_only: Optional[bool] = None,
-        is_handout: Optional[bool] = None,
+        postal_code1: int | None = None,
+        city_code1: int | None = None,
+        tipe: str | None = None,
+        country_code: str | None = None,
+        region_code: int | None = None,
+        have_cashless: bool | None = None,
+        have_cash: bool | None = None,
+        allowed_cod: bool | None = None,
+        is_dressing_room: bool | None = None,
+        weight_max: int | None = None,
+        weight_min: int | None = None,
+        lang: str | None = None,
+        take_only: bool | None = None,
+        is_handout: bool | None = None,
         raise_errors: bool = True,
         origin_response: bool = False,
-    ) -> Union[List[Dict], Response]:
+    ) -> list[dict] | Response:
         """
         Request delivery points
 
         https://apidoc.cdek.ru/#tag/delivery_point/operation/search
 
         Args:
-            postal_code1                Почтовый индекс города, для которого необходим список офисов        integer         нет
+            postal_code1                Почтовый индекс города, для которого необходим список офисов
+                                        integer         нет
             city_code1                  Код города по базе СДЭК             integer         нет
             tipe                        Тип офиса, может принимать значения:
                 «PVZ» - для отображения только складов СДЭК;
                 «POSTAMAT» - для отображения постаматов СДЭК;
                 «ALL» - для отображения всех ПВЗ независимо от их типа.
                 При отсутствии параметра принимается значение по умолчанию «ALL».       string(8)       нет
-            country_code                Код страны в формате ISO_3166-1_alpha-2 (см. “Общероссийский классификатор стран мира”)     string (2)  нет
+            country_code                Код страны в формате ISO_3166-1_alpha-2
+                                        (см. “Общероссийский классификатор стран мира”)
+                                        string (2)  нет
             region_code                 Код региона по базе СДЭК    integer
             have_cashless               Наличие терминала оплаты     boolean     нет
             have_cash                   Есть прием наличных     boolean     нет
             allowed_cod                 Разрешен наложенный платеж     boolean     нет
             is_dressing_room            Наличие примерочной     boolean     нет
-            weight_max                  Максимальный вес в кг, который может принять офис (значения больше 0 - передаются офисы, которые принимают этот вес; 0 - офисы с нулевым весом не передаются; значение не указано - все офисы). integer нет
-            weight_min                  Минимальный вес в кг, который принимает офис (при переданном значении будут выводиться офисы с минимальным весом до указанного значения)    integer нет
+            weight_max                  Максимальный вес в кг, который может принять офис (значения больше 0 -
+                                        передаются офисы, которые принимают этот вес; 0 - офисы с нулевым
+                                        весом не передаются; значение не указано - все офисы). integer нет
+            weight_min                  Минимальный вес в кг, который принимает офис (при переданном значении
+                                        будут выводиться офисы с минимальным весом до указанного значения)
+                                        integer нет
             lang                        Локализация офиса. По умолчанию "rus".  string(3)   нет
             take_only                   Является ли офис только пунктом выдачи     boolean     нет
             is_handout                  Является пунктом выдачи     boolean     нет

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # docs: https://apidoc.cdek.ru/#tag/common/Prilozheniya/Prilozhenie-14.-Kod-valyuty-dlya-metodov-rascheta-stoimosti
 #
 # created:   2022/04/14

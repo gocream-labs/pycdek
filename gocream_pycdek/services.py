@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # docs: https://apidoc.cdek.ru/#tag/common/Prilozheniya/Prilozhenie-6.-Dopolnitelnye-uslugi
 #
 # created:   2022/04/14

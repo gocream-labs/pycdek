@@ -3,8 +3,8 @@
 from pathlib import PureWindowsPath
 
 import pytest
-from requests import HTTPError
 import responses
+from requests import HTTPError
 
 from gocream_pycdek.exceptions import CdekRequestException
 

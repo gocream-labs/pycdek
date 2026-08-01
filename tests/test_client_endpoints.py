@@ -3,8 +3,8 @@
 import json
 
 import pytest
-from requests import HTTPError
 import responses
+from requests import HTTPError
 
 
 API_URL = "https://api.edu.cdek.ru/"

@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
-
 import hashlib
 
 
 def is_empty(value):
-    return not (isinstance(value, (int, float)) or not value in (None, (), {}, ""))
+    return not (isinstance(value, (int, float)) or value not in (None, (), {}, ""))
 
 
 def clear_dict(raw_dict, empty_data=is_empty):
@@ -19,7 +17,7 @@ def clear_dict(raw_dict, empty_data=is_empty):
         dict: Cleared dict
     """
 
-    new_dict = dict()
+    new_dict = {}
 
     for k, v in raw_dict.items():
         if isinstance(v, dict) and not empty_data(v):
@@ -35,5 +33,5 @@ def clear_dict(raw_dict, empty_data=is_empty):
 
 
 def get_secure(secure_password, date):
-    code = f"{date}&{secure_password}".encode("utf-8")
+    code = f"{date}&{secure_password}".encode()
     return hashlib.md5(code).hexdigest()
