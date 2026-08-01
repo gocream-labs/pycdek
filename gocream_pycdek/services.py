@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-# ru: https://api-docs.cdek.ru/29923926.html - Приложение 3. Дополнительные услуги
-# en: https://api-docs.cdek.ru/63347397.html - Appendix 3. Additional Services
+# docs: https://apidoc.cdek.ru/#tag/common/Prilozheniya/Prilozhenie-6.-Dopolnitelnye-uslugi
 #
 # created:   2022/04/14
 

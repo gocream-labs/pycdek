@@ -29,8 +29,7 @@ logger = logging.getLogger("gocream_pycdek")
 
 
 # Webhook Event Types
-# ru: https://api-docs.cdek.ru/29934408.html
-# en: https://api-docs.cdek.ru/33828888.html
+# docs: https://apidoc.cdek.ru/#tag/common/Opisanie-struktury-vebhukov
 WEBHOOK_EVENT_TYPE_ORDER = "ORDER_STATUS"  # событие по статусам
 WEBHOOK_EVENT_TYPE_PRINT = "PRINT_FORM"  # готовность печатной формы
 WEBHOOK_EVENT_TYPE_PHOTO = "DOWNLOAD_PHOTO"  # получение фото документов по заказам
@@ -218,7 +217,7 @@ class CDEKApiClient:
         The order type is specified in accordance with the contract type specified during client
         initialization.
 
-        https://api-docs.cdek.ru/29923926.html
+        https://apidoc.cdek.ru/#tag/order/operation/register_1
 
         Args:
             tariff_code (int): Код тарифа `tarrifs`_.
@@ -336,13 +335,13 @@ class CDEKApiClient:
             dict: Order dict
 
         .. _documentation:
-            https://api-docs.cdek.ru/63345430.html
+            https://apidoc.cdek.ru/#tag/order/operation/register_1
         .. _tarrifs:
-            https://api-docs.cdek.ru/63345430.html
+            https://apidoc.cdek.ru/#tag/common/Prilozheniya/Prilozhenie-4.-Tarify-SDEK
         .. _ownership form:
-            https://api-docs.cdek.ru/63345430.html
+            https://apidoc.cdek.ru/#tag/common/Prilozheniya/Prilozhenie-5.-Forma-sobstvennosti
         .. _extra services:
-            https://api-docs.cdek.ru/63345430.html
+            https://apidoc.cdek.ru/#tag/common/Prilozheniya/Prilozhenie-6.-Dopolnitelnye-uslugi
         """
 
         complete_data = clear_dict(
@@ -385,7 +384,8 @@ class CDEKApiClient:
         """
         Get order info
 
-        https://api-docs.cdek.ru/29923975.html
+        By CDEK/IM number: https://apidoc.cdek.ru/#tag/order/operation/get
+        By UUID: https://apidoc.cdek.ru/#tag/order/operation/get_2
 
         Args:
             uuid (str): CDEK order uuid
@@ -422,7 +422,7 @@ class CDEKApiClient:
         """
         Remove order
 
-        https://api-docs.cdek.ru/29924487.html
+        https://apidoc.cdek.ru/#tag/order/operation/delete
 
         Args:
             uuid (str): order cdek uuid
@@ -458,7 +458,7 @@ class CDEKApiClient:
         """
         Registrate intakes
 
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=29925274
+        https://apidoc.cdek.ru/#tag/intake/operation/create
 
         Args:
             intake_date (str): Дата ожидания курьера в формате (yyyy-MM-dd)
@@ -532,7 +532,7 @@ class CDEKApiClient:
         """
         Get intakes info
 
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=29948360
+        https://apidoc.cdek.ru/#tag/intake/operation/getByUuid
 
         Args:
             uuid (str): intakes cdek uuid
@@ -554,7 +554,7 @@ class CDEKApiClient:
         """
         Remove intakes
 
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=29948379
+        https://apidoc.cdek.ru/#tag/intake/operation/deleteByUuid
 
         Args:
             uuid (str): intakes cdek uuid
@@ -581,7 +581,7 @@ class CDEKApiClient:
         """
         Request regions
 
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=33829418
+        https://apidoc.cdek.ru/#tag/location/operation/regions
 
         Args:
             country_codes           Массив кодов стран в формате  ISO_3166-1_alpha-2    string(2) [ ]   нет
@@ -596,9 +596,6 @@ class CDEKApiClient:
 
         Returns:
             list: list of regions
-
-
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=33829418
         """
 
         complete_data = clear_dict(
@@ -657,7 +654,7 @@ class CDEKApiClient:
         """
         Request regions
 
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=33829437
+        https://apidoc.cdek.ru/#tag/location/operation/cities
 
         Args:
             country_codes           Массив кодов стран в формате  ISO_3166-1_alpha-2    string(2) [ ]   нет
@@ -748,7 +745,7 @@ class CDEKApiClient:
         Returns:
             dict: requested invoice dict
 
-        https://api-docs.cdek.ru/36967276.html
+        https://apidoc.cdek.ru/#tag/print/operation/waybillPrint
         """
 
         complete_data = clear_dict(
@@ -793,7 +790,7 @@ class CDEKApiClient:
         Returns:
             dict: requested invoice dict
 
-        https://api-docs.cdek.ru/36967295.html
+        https://apidoc.cdek.ru/#tag/print/operation/barcodePrint
         """
 
         complete_data = clear_dict(
@@ -824,7 +821,7 @@ class CDEKApiClient:
         Returns:
             dict: requested invoice dict
 
-        https://api-docs.cdek.ru/36967287.html
+        https://apidoc.cdek.ru/#tag/print/operation/waybillGet
         """
 
         response = self.send(Path(self.RESOURCE_RECEIPT) / Path(uuid), **kwargs)
@@ -845,7 +842,7 @@ class CDEKApiClient:
         Returns:
             dict: requested barcode dict
 
-        https://api-docs.cdek.ru/36967298.html
+        https://apidoc.cdek.ru/#tag/print/operation/barcodeGet
         """
 
         response = self.send(Path(self.RESOURCE_BARCODE) / Path(uuid), **kwargs)
@@ -903,7 +900,7 @@ class CDEKApiClient:
         """
 
         TODO:
-        * new method https://confluence.cdek.ru/pages/viewpage.action?pageId=63345430
+        * new method https://apidoc.cdek.ru/#tag/calculator/operation/tariff
 
         goods (dict): Габаритные характеристики упаковки:
             weight (float): Вес упаковки (в килограммах)
@@ -939,7 +936,7 @@ class CDEKApiClient:
         raise_errors (bool, optional): raise errors? (default: True)
         origin_response (bool, optional): return original response or only entity? (default: False)
 
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=15616129#id-Протоколобменаданными(v1.5)-4.13CalculatorКалькулятор
+        https://apidoc.cdek.ru/#tag/calculator/operation/tariff
         """
 
         complete_data = clear_dict(
@@ -1024,7 +1021,7 @@ class CDEKApiClient:
             parameter (string, optional): Параметр дополнительной услуги
         origin_response (bool, optional): return original response or only entity? (default: False)
 
-        https://api-docs.cdek.ru/63345430.html
+        https://apidoc.cdek.ru/#tag/calculator/operation/tariff
         """
 
         kwargs["data"] = clear_dict(
@@ -1050,7 +1047,7 @@ class CDEKApiClient:
         """
         Webhook subscribe
 
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=29934408#id-Подписканавебхуки(Webhooks)-1.Добавлениеподписки
+        https://apidoc.cdek.ru/#tag/webhook/operation/createWebhook
         """
 
         complete_data = clear_dict(
@@ -1071,7 +1068,7 @@ class CDEKApiClient:
         """
         information about all current subscriptions
 
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=29934408#id-Подписканавебхуки(Webhooks)-2.Информацияоподписке
+        https://apidoc.cdek.ru/#tag/webhook/operation/getAll
         """
 
         response = self.send(Path(self.RESOURCE_SUBSCRIPTION), method="get", raise_errors=raise_errors)
@@ -1085,7 +1082,7 @@ class CDEKApiClient:
         """
         subscription information, where uuid is the subscription identifier
 
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=29934408#id-Подписканавебхуки(Webhooks)-2.Информацияоподписке
+        https://apidoc.cdek.ru/#tag/webhook/operation/getById
         """
 
         response = self.send(Path(self.RESOURCE_SUBSCRIPTION) / Path(uuid), method="get", raise_errors=raise_errors)
@@ -1099,7 +1096,7 @@ class CDEKApiClient:
         """
         request to delete a subscription
 
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=29934408#id-Подписканавебхуки(Webhooks)-3.Удалениеподписки
+        https://apidoc.cdek.ru/#tag/webhook/operation/deleteById
         """
 
         response = self.send(Path(self.RESOURCE_SUBSCRIPTION) / Path(uuid), method="delete", raise_errors=raise_errors)
@@ -1131,7 +1128,7 @@ class CDEKApiClient:
         """
         Request delivery points
 
-        https://confluence.cdek.ru/pages/viewpage.action?pageId=36982648
+        https://apidoc.cdek.ru/#tag/delivery_point/operation/search
 
         Args:
             postal_code1                Почтовый индекс города, для которого необходим список офисов        integer         нет

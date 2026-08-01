@@ -3,8 +3,7 @@
 # created:   2022/04/20
 
 # Order statuses
-# ru: https://api-docs.cdek.ru/29923975.html - Приложение 1. Статусы заказов
-# en: https://api-docs.cdek.ru/33828849.html - Appendix 1. Order Statuses
+# docs: https://apidoc.cdek.ru/#tag/common/Prilozheniya/Prilozhenie-1.-Statusy-zakazov
 
 ORDER_ACCEPTED = "ACCEPTED"  # Принят
 # Заказ создан в информационной системе СДЭК, но требуются дополнительные валидации
@@ -84,8 +83,7 @@ ORDER_INVALID = "INVALID"  # Некорректный заказ
 
 
 # Webhook Order statuses
-# ru: https://api-docs.cdek.ru/29924139.html - Приложение 1. Статусы заказов
-# en: https://api-docs.cdek.ru/33828884.html - Appendix 1. Order Statuses
+# docs: https://apidoc.cdek.ru/#tag/common/Prilozheniya/Prilozhenie-1.-Statusy-zakazov
 
 WEBHOOK_ORDER_CREATED = 1  # Создан
 # Заказ зарегистрирован в базе данных СДЭК
@@ -160,12 +158,10 @@ WEBHOOK_ORDER_NOT_DELIVERED = 5  # Не вручен
 # Document statuses
 
 # квитанции | receipt
-# ru: https://api-docs.cdek.ru/36967287.html - Приложение 1. Статусы квитанции
-# en: https://api-docs.cdek.ru/36969694.html - Appendix 1. Receipt statuses
+# docs: https://apidoc.cdek.ru/#tag/common/Prilozheniya/Prilozhenie-10.-Statusy-kvitancii
 
 # ШК места | Barcode CP
-# ru: https://api-docs.cdek.ru/36967298.html - Приложение 1. Статусы ШК места
-# en: https://api-docs.cdek.ru/36969722.html - Appendix 1. Barcode CP statuses
+# docs: https://apidoc.cdek.ru/#tag/common/Prilozheniya/Prilozhenie-11.-Statusy-ShK-mesta
 
 DOCUMENT_ACCEPTED = "ACCEPTED"  # Принят | Запрос на формирование квитанции / ШК места принят
 DOCUMENT_PROCESSING = "PROCESSING"  # Формируется | Файл с квитанцией / ШК места формируется

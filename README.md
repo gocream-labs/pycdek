@@ -4,7 +4,7 @@
 
 Python-библиотека для CDEK API v2.0.
 
-Документация API: [на русском][api_url_ru] и [на английском][api_url_en].
+Документация API: [портал документации СДЭК][api_url].
 
 
 ## Installation
@@ -35,6 +35,5 @@ API текущей беты `2.0.0b9`, а версия 3.0.0 будет соде
 
 Проект распространяется по [лицензии MPL-2.0][mpl].
 
-[api_url_ru]: https://api-docs.cdek.ru/29923741.html
-[api_url_en]: https://api-docs.cdek.ru/33828739.html
+[api_url]: https://apidoc.cdek.ru/
 [mpl]: https://www.mozilla.org/MPL/2.0/

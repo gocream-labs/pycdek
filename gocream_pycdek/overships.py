@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-# ru: https://api-docs.cdek.ru/29923926.html - Приложение 2. Форма собственности
-# en: https://api-docs.cdek.ru/33828802.html - Appendix 3. Form of Ownership
+# docs: https://apidoc.cdek.ru/#tag/common/Prilozheniya/Prilozhenie-5.-Forma-sobstvennosti
 #
 # created:   2022/04/13
 

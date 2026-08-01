@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # See the full list of errors in the CDEK documentation:
-# ru: https://api-docs.cdek.ru/63344418.html
-# en: https://api-docs.cdek.ru/77695227.html
+# docs: https://apidoc.cdek.ru/#tag/common/Spisok-vozmozhnyh-oshibok
 #
 # created:   2022/04/15
 

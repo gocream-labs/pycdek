@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-# ru: https://api-docs.cdek.ru/29923926.html - Приложение 1. Валюты калькулятора
-# en: https://api-docs.cdek.ru/63347397.html - Appendix 1. Calculator currencies
+# docs: https://apidoc.cdek.ru/#tag/common/Prilozheniya/Prilozhenie-14.-Kod-valyuty-dlya-metodov-rascheta-stoimosti
 #
 # created:   2022/04/14
 
