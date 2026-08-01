@@ -1,0 +1,26 @@
+{
+  "entity": {
+    "copy_count": 2,
+    "orders": [
+      {
+        "order_uuid": "11111111-1111-4111-8111-111111111111"
+      }
+    ],
+    "statuses": [
+      {"code": "ACCEPTED", "date_time": "2026-08-01T14:34:39+0000", "name": "Принят"},
+      {"code": "PROCESSING", "date_time": "2026-08-01T14:34:39+0000", "name": "Формируется"},
+      {"code": "READY", "date_time": "2026-08-01T14:34:40+0000", "name": "Сформирован"}
+    ],
+    "url": "https://api.edu.cdek.ru/v2/print/orders/33333333-3333-4333-8333-333333333333.pdf",
+    "uuid": "33333333-3333-4333-8333-333333333333"
+  },
+  "related_entities": [],
+  "requests": [
+    {
+      "date_time": "2026-08-01T14:34:39+0000",
+      "request_uuid": "cccccccc-cccc-4ccc-8ccc-ccccccccccc1",
+      "state": "SUCCESSFUL",
+      "type": "CREATE"
+    }
+  ]
+}

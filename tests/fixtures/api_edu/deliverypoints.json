@@ -1,0 +1,58 @@
+[
+  {
+    "address_comment": "Тестовый комментарий к маршруту",
+    "allowed_cod": true,
+    "code": "MSK65",
+    "email": "office@example.test",
+    "fulfillment": false,
+    "have_cash": true,
+    "have_cashless": true,
+    "have_fast_payment_system": false,
+    "is_dressing_room": true,
+    "is_handout": true,
+    "is_ltl": false,
+    "is_reception": true,
+    "location": {
+      "address": "ул. Динамовская, 1А, 110а",
+      "address_full": "109044, Россия, Москва, Москва, ул. Динамовская, 1А, 110а",
+      "city": "Москва",
+      "city_code": 44,
+      "city_uuid": "7e8f36ba-d937-4ce4-8d53-e44177db6469",
+      "country_code": "RU",
+      "fias_guid": "0c5b2444-70a0-4932-980c-b4dc0d3f02b5",
+      "latitude": 55.732175,
+      "longitude": 37.66371,
+      "postal_code": "109044",
+      "region": "Москва",
+      "region_code": 81
+    },
+    "ltl_acceptance_partners": false,
+    "ltl_issuance_partners": false,
+    "name": "MSK65, Москва, ул. Динамовская",
+    "nearest_metro_station": "Пролетарская",
+    "nearest_station": "М. Пролетарская",
+    "note": "Тестовый комментарий к маршруту",
+    "office_image_list": [
+      {"url": "https://files.example/office-1.jpg"}
+    ],
+    "owner_code": "CDEK",
+    "phones": [
+      {"number": "+70000000000"}
+    ],
+    "status": "ACTIVE",
+    "take_only": false,
+    "type": "PVZ",
+    "uuid": "99999999-9999-4999-8999-999999999999",
+    "work_time": "Пн-Пт 10:00-20:00, Сб 10:00-16:00, Вс 10:00-16:00",
+    "work_time_exception_list": [],
+    "work_time_list": [
+      {"day": 1, "time": "10:00/20:00"},
+      {"day": 2, "time": "10:00/20:00"},
+      {"day": 3, "time": "10:00/20:00"},
+      {"day": 4, "time": "10:00/20:00"},
+      {"day": 5, "time": "10:00/20:00"},
+      {"day": 6, "time": "10:00/16:00"},
+      {"day": 7, "time": "10:00/16:00"}
+    ]
+  }
+]

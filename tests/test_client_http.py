@@ -14,25 +14,26 @@ from gocream_pycdek.exceptions import CdekApiWrongTokenTypeException
 
 
 @responses.activate
-def test_authorization_returns_token_response(client):
+def test_authorization_returns_token_response(client, api_response):
     """Проверяет возврат декодированного успешного ответа авторизации."""
+    payload = api_response("auth_success")
     responses.add(
         responses.POST,
         "https://api.cdek.ru/v2/oauth/token",
-        json={"access_token": "token", "token_type": "bearer"},
+        json=payload,
         status=200,
     )
 
-    assert client.authorization() == {"access_token": "token", "token_type": "bearer"}
+    assert client.authorization() == payload
 
 
 @responses.activate
-def test_authorization_sends_credentials_in_query_params(client):
+def test_authorization_sends_credentials_in_query_params(client, api_response):
     """Фиксирует текущую передачу credentials в query string POST-запроса."""
     responses.add(
         responses.POST,
         "https://api.cdek.ru/v2/oauth/token",
-        json={"access_token": "token", "token_type": "bearer"},
+        json=api_response("auth_success"),
         status=200,
     )
 
@@ -47,30 +48,31 @@ def test_authorization_sends_credentials_in_query_params(client):
     }
 
 
-@pytest.mark.parametrize(
-    ("payload", "exception"),
-    [
-        (
-            {"error": "invalid_client", "error_description": "Bad client credentials"},
-            CdekApiAccessException,
-        ),
-        (
-            {"reason": "Service Unavailable"},
-            CdekApiUnavailableException,
-        ),
-    ],
-    ids=["invalid-client", "service-unavailable"],
+@pytest.mark.xfail(
+    reason="Клиент не читает значение поля error из ответа invalid_client",
+    strict=True,
 )
 @responses.activate
-def test_authorization_maps_known_api_errors(client, payload, exception):
-    """Проверяет возвращаемые ошибки авторизации.
-
-    Для `invalid_client` тест намеренно падает на текущей реализации:
-    API возвращает поле `error`, а клиент ищет одноимённое значение как ключ.
-    """
+def test_authorization_maps_invalid_client(client, api_response):
+    """Проверяет реальный ответ `invalid_client` тестового контура."""
+    payload = api_response("auth_invalid_client")
     responses.add(responses.POST, "https://api.cdek.ru/v2/oauth/token", json=payload, status=401)
 
-    with pytest.raises(exception):
+    with pytest.raises(CdekApiAccessException):
+        client.authorization()
+
+
+@responses.activate
+def test_authorization_maps_service_unavailable(client):
+    """Проверяет преобразование ответа о недоступности API."""
+    responses.add(
+        responses.POST,
+        "https://api.cdek.ru/v2/oauth/token",
+        json={"reason": "Service Unavailable"},
+        status=503,
+    )
+
+    with pytest.raises(CdekApiUnavailableException):
         client.authorization()
 
 

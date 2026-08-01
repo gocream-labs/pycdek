@@ -1,0 +1,28 @@
+{
+  "entity": {
+    "copy_count": 1,
+    "format": "A6",
+    "lang": "RUS",
+    "orders": [
+      {
+        "order_uuid": "11111111-1111-4111-8111-111111111111"
+      }
+    ],
+    "statuses": [
+      {"code": "ACCEPTED", "date_time": "2026-08-01T14:34:39+0000", "name": "Принят"},
+      {"code": "PROCESSING", "date_time": "2026-08-01T14:34:39+0000", "name": "Формируется"},
+      {"code": "READY", "date_time": "2026-08-01T14:34:40+0000", "name": "Сформирован"}
+    ],
+    "url": "https://api.edu.cdek.ru/v2/print/barcodes/44444444-4444-4444-8444-444444444444.pdf",
+    "uuid": "44444444-4444-4444-8444-444444444444"
+  },
+  "related_entities": [],
+  "requests": [
+    {
+      "date_time": "2026-08-01T14:34:39+0000",
+      "request_uuid": "dddddddd-dddd-4ddd-8ddd-ddddddddddd1",
+      "state": "SUCCESSFUL",
+      "type": "CREATE"
+    }
+  ]
+}

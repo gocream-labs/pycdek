@@ -1,0 +1,148 @@
+{
+  "entity": {
+    "calls": {},
+    "cdek_number": "1100000001",
+    "delivery_detail": {
+      "delivery_discount_percent": 0,
+      "delivery_discount_sum": 0.0,
+      "delivery_sum": 590.0,
+      "delivery_vat_rate": 20.0,
+      "delivery_vat_sum": 118.0,
+      "payment_info": [],
+      "total_sum": 708.9
+    },
+    "delivery_mode": "4",
+    "delivery_point": "NSK23",
+    "delivery_recipient_cost": {
+      "value": 0.0
+    },
+    "from_location": {
+      "address": "Россия, Москва, Москва, ул. Динамовская, 1А, 110а",
+      "city": "Москва",
+      "city_uuid": "7e8f36ba-d937-4ce4-8d53-e44177db6469",
+      "code": 44,
+      "country": "Россия",
+      "country_code": "RU",
+      "latitude": 55.732175,
+      "longitude": 37.66371,
+      "postal_code": "109044",
+      "region": "Москва",
+      "region_code": 81
+    },
+    "has_reverse_order": false,
+    "is_client_return": false,
+    "is_return": false,
+    "is_reverse": false,
+    "items_cost_currency": "RUB",
+    "number": "fixture-order-1",
+    "packages": [
+      {
+        "barcode": "1100000001",
+        "comment": "приложена опись",
+        "height": 10,
+        "items": [
+          {
+            "amount": 1,
+            "cost": 100.0,
+            "delivery_amount": 0,
+            "excise": false,
+            "name": "Тестовый товар",
+            "payment": {
+              "value": 0.0
+            },
+            "return_item_detail": {},
+            "ware_key": "fixture-item",
+            "weight": 100,
+            "weight_gross": 100
+          }
+        ],
+        "length": 10,
+        "number": "1",
+        "package_id": "66666666-6666-4666-8666-666666666666",
+        "weight": 100,
+        "weight_calc": 200,
+        "weight_volume": 200,
+        "width": 10
+      }
+    ],
+    "recipient": {
+      "company": "Тестовый получатель",
+      "name": "Тестовый получатель",
+      "passport_requirements_satisfied": false,
+      "phones": [
+        {
+          "number": "+70000000001"
+        }
+      ]
+    },
+    "recipient_currency": "RUB",
+    "seller": {
+      "name": "Тестовый магазин"
+    },
+    "sender": {
+      "company": "Тестовый магазин",
+      "contragent_type": "LEGAL_ENTITY",
+      "name": "Тестовый отправитель",
+      "passport_requirements_satisfied": false,
+      "phones": [
+        {
+          "number": "+70000000000"
+        }
+      ]
+    },
+    "services": [
+      {
+        "code": "INSURANCE",
+        "discount_percent": 0,
+        "discount_sum": 0.0,
+        "parameter": "100.00",
+        "sum": 0.75,
+        "total_sum": 0.9,
+        "vat_rate": 20.0,
+        "vat_sum": 0.15
+      }
+    ],
+    "shipment_point": "MSK65",
+    "statuses": [
+      {
+        "city": "Офис СДЭК",
+        "code": "CREATED",
+        "date_time": "2026-08-01T14:34:18+0000",
+        "deleted": false,
+        "name": "Создан"
+      },
+      {
+        "city": "Офис СДЭК",
+        "code": "ACCEPTED",
+        "date_time": "2026-08-01T14:34:17+0000",
+        "deleted": false,
+        "name": "Принят"
+      }
+    ],
+    "tariff_code": 136,
+    "to_location": {
+      "address": "Россия, Новосибирская область, Новосибирск, мрн Горский, 53",
+      "city": "Новосибирск",
+      "city_uuid": "4e938d63-e189-454d-bb5c-54bfb2f1e4e2",
+      "code": 270,
+      "country": "Россия",
+      "country_code": "RU",
+      "latitude": 54.9936104,
+      "longitude": 82.899826,
+      "postal_code": "630032",
+      "region": "Новосибирская область",
+      "region_code": 23
+    },
+    "type": 1,
+    "uuid": "11111111-1111-4111-8111-111111111111"
+  },
+  "related_entities": [],
+  "requests": [
+    {
+      "date_time": "2026-08-01T14:34:18+0000",
+      "request_uuid": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1",
+      "state": "SUCCESSFUL",
+      "type": "CREATE"
+    }
+  ]
+}

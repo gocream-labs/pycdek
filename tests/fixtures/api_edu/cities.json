@@ -1,0 +1,31 @@
+[
+  {
+    "city": "Москва",
+    "city_uuid": "7e8f36ba-d937-4ce4-8d53-e44177db6469",
+    "code": 44,
+    "country": "Россия",
+    "country_code": "RU",
+    "fias_guid": "0c5b2444-70a0-4932-980c-b4dc0d3f02b5",
+    "latitude": 55.75222,
+    "longitude": 37.61556,
+    "payment_limit": -1.0,
+    "region": "Москва",
+    "region_code": 81,
+    "sub_region": "Москва",
+    "time_zone": "Europe/Moscow"
+  },
+  {
+    "city": "Москва",
+    "city_uuid": "07a9bf54-dc8e-437e-9d39-01ffc7daa423",
+    "code": 464830,
+    "country": "Польша",
+    "country_code": "PL",
+    "latitude": 51.815809,
+    "longitude": 19.657368,
+    "payment_limit": 0.0,
+    "region": "Лодзинское воеводство",
+    "region_code": 558,
+    "sub_region": "Восточно-Лодзинский повят",
+    "time_zone": "Europe/Warsaw"
+  }
+]

@@ -40,6 +40,17 @@ def test_clear_dict_removes_empty_values_recursively():
     ) == {"keep": 0, "nested": {"keep": "value"}}
 
 
+@pytest.mark.xfail(
+    reason="clear_dict не обрабатывает словари внутри списков",
+    strict=True,
+)
+def test_clear_dict_cleans_dicts_inside_lists():
+    """Проверяет очистку необязательных полей элемента массива API."""
+
+    value = {"items": [{"keep": 1, "empty": ""}]}
+    assert clear_dict(value) == {"items": [{"keep": 1}]}
+
+
 def test_get_secure_matches_v1_signature():
     """Фиксирует точный MD5-контракт устаревшего калькулятора v1."""
 

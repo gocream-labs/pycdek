@@ -1,0 +1,15 @@
+{
+  "requests": [
+    {
+      "date_time": "2026-08-01T14:45:17+0000",
+      "errors": [
+        {
+          "code": "v2_too_many_webhooks",
+          "message": "Too many active webhooks. Maximum allowed is 2"
+        }
+      ],
+      "state": "INVALID",
+      "type": "CREATE"
+    }
+  ]
+}

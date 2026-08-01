@@ -1,0 +1,25 @@
+{
+  "calendar_max": 1,
+  "calendar_min": 0,
+  "currency": "RUB",
+  "delivery_date_range": {
+    "max": "2026-08-02",
+    "min": "2026-08-01"
+  },
+  "delivery_sum": 590.0,
+  "period_max": 1,
+  "period_min": 0,
+  "services": [
+    {
+      "code": "INSURANCE",
+      "discount_percent": 0,
+      "discount_sum": 0.0,
+      "sum": 0.0,
+      "total_sum": 0.0,
+      "vat_rate": 20.0,
+      "vat_sum": 0.0
+    }
+  ],
+  "total_sum": 708.0,
+  "weight_calc": 200
+}

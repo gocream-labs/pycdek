@@ -1,0 +1,12 @@
+[
+  {
+    "type": "ORDER_STATUS",
+    "url": "https://webhook.invalid/cdek-1",
+    "uuid": "55555555-5555-4555-8555-555555555551"
+  },
+  {
+    "type": "ORDER_STATUS",
+    "url": "https://webhook.invalid/cdek-2",
+    "uuid": "55555555-5555-4555-8555-555555555552"
+  }
+]

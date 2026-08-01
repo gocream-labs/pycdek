@@ -1,0 +1,14 @@
+{
+  "entity": {
+    "uuid": "11111111-1111-4111-8111-111111111111"
+  },
+  "related_entities": [],
+  "requests": [
+    {
+      "date_time": "2026-08-01T14:34:18+0000",
+      "request_uuid": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1",
+      "state": "ACCEPTED",
+      "type": "CREATE"
+    }
+  ]
+}
