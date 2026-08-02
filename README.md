@@ -27,6 +27,8 @@ API текущей беты `2.0.0b9`, а версия 3.0.0 будет соде
 
 - [План работ](ROADMAP.md)
 - [Известные проблемы](docs/known-issues.md)
+- [Документация](https://gocream.github.io/pycdek/)
+- [История изменений](CHANGELOG.md)
 - [Руководство для контрибьюторов](CONTRIBUTING.md)
 - [Процесс релиза и версионирования](docs/releasing.md)
 

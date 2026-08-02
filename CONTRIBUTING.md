@@ -16,8 +16,12 @@ hatch run lint:fmt-check   # проверка форматирования
 hatch run lint:format      # автоисправление и форматирование
 hatch run test:check       # тесты с покрытием
 hatch run mtest:check      # матрица Python 3.10–3.14
+hatch run docs:build       # строгая сборка документации
+hatch run docs:links       # проверка внутренних ссылок
+hatch run docs:serve       # локальный сервер документации
+hatch run docs:versions    # список опубликованных версий документации
 hatch version              # текущая версия
-hatch build                # sdist + wheel
+hatch build --clean        # чистая сборка sdist + wheel
 ```
 
 
@@ -49,7 +53,8 @@ Ruff проверяет staged Python-файлы перед коммитом, а
 заголовка коммита.
 
 !!! note
-    для тестов удобно использовать [gitmoji-cli](https://github.com/carloscuesta/gitmoji-cli)
+	Для создания сообщений коммитов удобно использовать
+    [gitmoji-cli](https://github.com/carloscuesta/gitmoji-cli).
 
 
 ## Important Considerations

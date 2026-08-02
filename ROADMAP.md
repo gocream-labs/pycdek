@@ -39,8 +39,8 @@
 
 ## 3. Documentation, Reference Data and Links
 
-- [ ] Настроить сайт документации на Material for MkDocs.
-- [ ] Подключить `mkdocstrings-python` и явно выбрать `docstring_style: google`.
+- [x] Настроить сайт документации на Material for MkDocs.
+- [x] Подключить `mkdocstrings-python` и явно выбрать `docstring_style: google`.
 - [ ] Привести публичные docstring к Google-style и Markdown-разметке.
 - [ ] Сверить тарифы, услуги, статусы, валюты и формы собственности с API.
 - [ ] Устранить дублирование и расхождения статусов.

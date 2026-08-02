@@ -40,14 +40,11 @@ dependencies = [
 dynamic = ["version"]
 
 [project.urls]
-Homepage = "https://gitlab.com/gocream/pycdek-2"
-Repository = "https://gitlab.com/gocream/pycdek-2"
-# Раскомментировать после переезда на GitHub и публикации документации.
-# Багтрекер намеренно не привязан к GitLab - заводить его там, чтобы через
-# месяц переносить, смысла нет.
-# Documentation = "https://dd.github.io/pycdek-2"
-# Changelog = "https://github.com/dd/pycdek-2/blob/master/CHANGELOG.md"
-# "Bug Tracker" = "https://github.com/dd/pycdek-2/issues"
+Homepage = "https://gocream.github.io/pycdek/"
+Documentation = "https://gocream.github.io/pycdek/"
+Repository = "https://github.com/gocream/pycdek"
+Changelog = "https://github.com/gocream/pycdek/blob/master/CHANGELOG.md"
+"Bug Tracker" = "https://github.com/gocream/pycdek/issues"
 
 
 [tool.hatch.version]
@@ -58,10 +55,12 @@ path = "gocream_pycdek/__init__.py"
 # в sdist принудительно, чтобы пересборка из него отбирала ровно те же файлы.
 # Проверено - `exclude` его не убирает.
 [tool.hatch.build]
+skip-excluded-dirs = true
 exclude = [
-	"dist",
-	".editorconfig",
-	".mailmapx",
+	"/dist",
+	"/site",
+	"/.editorconfig",
+	"/.mailmap",
 ]
 
 # Остальное hatchling берёт по умолчанию: всё, что под контролем VCS.
@@ -71,6 +70,15 @@ packages = ["gocream_pycdek"]
 
 
 [dependency-groups]
+docs = [
+	"mkdocs-material==9.7.7",
+	"mkdocstrings-python==2.0.5",
+	"mkdocs-git-revision-date-localized-plugin==1.5.3",
+	"mkdocs-git-authors-plugin==0.10.0",
+	"mike==2.2.0",
+	"linkchecker==10.6.0",
+	"ruff==0.15.14",
+]
 lint = [
 	"pre-commit==4.6.0",
 	"ruff==0.15.14",
@@ -137,6 +145,22 @@ dependency-groups = ["release"]
 [tool.hatch.envs.release.scripts]
 preview = "semantic-release --noop version --print"
 changelog = "semantic-release changelog"
+
+
+[tool.hatch.envs.docs]
+description = "Documentation environment"
+python = "3.14"
+dependency-groups = ["docs"]
+
+[tool.hatch.envs.docs.scripts]
+build = "mkdocs build --strict {args}"
+serve = "mkdocs serve {args}"
+links = "linkchecker --config .linkcheckerrc {args:site/index.html}"
+links-external = "linkchecker --config .linkcheckerrc --check-extern {args:https://gocream.github.io/pycdek/}"
+versions = "mike list {args}"
+deploy = "mike deploy --update-aliases {args}"
+set-default = "mike set-default {args}"
+serve-versions = "mike serve {args}"
 
 
 [tool.hatch.envs.mtest]
