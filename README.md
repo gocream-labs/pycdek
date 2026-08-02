@@ -16,14 +16,21 @@ pip install gocream-pycdek
 Импорт в Python выполняется через `gocream_pycdek`:
 
 ```python
-from gocream_pycdek.client import CDEKApiClient
+from gocream_pycdek import CdekClient
+from gocream_pycdek import ContractType
+
+client = CdekClient(
+    "client-id",
+    "client-secret",
+    contract_type=ContractType.ONLINE_STORE,
+)
 ```
 
 
 ## Project Status
 
-Библиотека находится в процессе актуализации. Версия 2.0.0 сохраняет публичное
-API текущей беты `2.0.0b9`, а версия 3.0.0 будет содержать ломающие изменения.
+Библиотека находится в процессе актуализации. До выхода стабильной версии 2.0.0
+публичный API бета-версий может изменяться.
 
 - [План работ](ROADMAP.md)
 - [Известные проблемы](docs/known-issues.md)

@@ -8,32 +8,33 @@ from pathlib import Path
 
 import pytest
 
-from gocream_pycdek.client import CDEKApiClient
+from gocream_pycdek import TEST_API_URL
+from gocream_pycdek import CdekClient
+from gocream_pycdek import ContractType
 
 
 @pytest.fixture
 def client():
     """Клиент интернет-магазина с тестовыми credentials и production URL."""
-    return CDEKApiClient("client-id", "client-secret", is_shop=True)
-
-
-@pytest.fixture
-def delivery_client():
-    """Клиент договора доставки для проверки development URL."""
-    return CDEKApiClient("client-id", "client-secret", is_shop=False, production=False)
+    return CdekClient("client-id", "client-secret", contract_type=ContractType.ONLINE_STORE)
 
 
 @pytest.fixture
 def test_client():
     """Клиент интернет-магазина с URL тестового контура CDEK."""
-    return CDEKApiClient("client-id", "client-secret", is_shop=True, production=False)
+    return CdekClient(
+        "client-id",
+        "client-secret",
+        contract_type=ContractType.ONLINE_STORE,
+        base_url=TEST_API_URL,
+    )
 
 
 @pytest.fixture
 def authorized_client(client):
     """Клиент с действующим тестовым токеном для endpoint-level HTTP-тестов."""
     client._token = "token"
-    client._token_exp = datetime.now() + timedelta(hours=1)
+    client._token_expires_at = datetime.now() + timedelta(hours=1)
     return client
 
 
@@ -41,7 +42,7 @@ def authorized_client(client):
 def authorized_test_client(test_client):
     """Клиент тестового контура с действующим тестовым токеном."""
     test_client._token = "token"
-    test_client._token_exp = datetime.now() + timedelta(hours=1)
+    test_client._token_expires_at = datetime.now() + timedelta(hours=1)
     return test_client
 
 

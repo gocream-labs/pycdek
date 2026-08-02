@@ -1,8 +1,10 @@
 import datetime as dt
 import logging
 from copy import deepcopy
+from enum import IntEnum
 from io import BytesIO
 from pathlib import Path
+from pathlib import PurePath
 
 import jwt
 import requests
@@ -20,6 +22,15 @@ from gocream_pycdek.utils import get_secure
 logger = logging.getLogger("gocream_pycdek")
 
 
+PRODUCTION_API_URL = "https://api.cdek.ru"
+TEST_API_URL = "https://api.edu.cdek.ru"
+
+
+class ContractType(IntEnum):
+    ONLINE_STORE = 1
+    DELIVERY = 2
+
+
 # Webhook Event Types
 # docs: https://apidoc.cdek.ru/#tag/common/Opisanie-struktury-vebhukov
 WEBHOOK_EVENT_TYPE_ORDER = "ORDER_STATUS"  # событие по статусам
@@ -27,16 +38,10 @@ WEBHOOK_EVENT_TYPE_PRINT = "PRINT_FORM"  # готовность печатной
 WEBHOOK_EVENT_TYPE_PHOTO = "DOWNLOAD_PHOTO"  # получение фото документов по заказам
 
 
-class CDEKApiClient:
+class CdekClient:
     """
     Client for cdek api
     """
-
-    PRODUCTION_API_URL = "api.cdek.ru/"
-    DEVELOPMENT_API_URL = "api.edu.cdek.ru/"
-
-    CONTRACT_TYPE_SHOP = "shop"
-    CONTRACT_TYPE_DELIVERY = "delivery"
 
     RESOURCE_AUTH_TOKEN = "v2/oauth/token"
     RESOURCE_ORDER = "v2/orders"
@@ -50,22 +55,28 @@ class CDEKApiClient:
     RESOURCE_CALCULATOR_TARIFF = "v2/calculator/tariff"
     RESOURCE_CALCULATOR_URL = "calculator/calculate_price_by_json.php"
 
-    def __init__(self, id, secret, is_shop, production=True):
+    def __init__(
+        self,
+        client_id: str,
+        client_secret: str,
+        *,
+        contract_type: ContractType,
+        base_url: str = PRODUCTION_API_URL,
+    ) -> None:
         """
         Args:
-            id (str): cdek client_id
-            secret (str): cdek client_secret
-            is_shop (bool): cdek contract type
-            production (bool, optional): prodaction or development api use. Default True.
+            client_id: CDEK client ID.
+            client_secret: CDEK client secret.
+            contract_type: Type of contract with CDEK.
+            base_url: Base URL of the CDEK API.
         """
 
-        self.id = id
-        self.secret = secret
-        self.contract_type = self.CONTRACT_TYPE_SHOP if is_shop else self.CONTRACT_TYPE_DELIVERY
-        self.production = production
-
-    _token = None
-    _token_exp = None
+        self.client_id = client_id
+        self._client_secret = client_secret
+        self.contract_type = ContractType(contract_type)
+        self.base_url = base_url.rstrip("/")
+        self._token: str | None = None
+        self._token_expires_at: dt.datetime | None = None
 
     @property
     def token(self):
@@ -75,12 +86,12 @@ class CDEKApiClient:
 
         # for safe add 5 minutes
         now = dt.timedelta(minutes=5) + dt.datetime.now()
-        if not self._token or self._token_exp <= now:
+        if not self._token or self._token_expires_at <= now:
             # token not getted or expired -> response
             response = self.authorization()
             self._token = response["access_token"]
             token_data = jwt.decode(response["access_token"], options={"verify_signature": False})
-            self._token_exp = dt.datetime.fromtimestamp(token_data["exp"])
+            self._token_expires_at = dt.datetime.fromtimestamp(token_data["exp"])
 
         return self._token
 
@@ -93,8 +104,8 @@ class CDEKApiClient:
             self.get_url(self.RESOURCE_AUTH_TOKEN),
             params={
                 "grant_type": "client_credentials",
-                "client_id": self.id,
-                "client_secret": self.secret,
+                "client_id": self.client_id,
+                "client_secret": self._client_secret,
             },
         )
 
@@ -133,11 +144,11 @@ class CDEKApiClient:
         make request url
         """
 
-        if str(resource).startswith("http"):
+        resource = resource.as_posix() if isinstance(resource, PurePath) else str(resource)
+        if resource.startswith(("http://", "https://")):
             return resource
 
-        api = self.PRODUCTION_API_URL if self.production else self.DEVELOPMENT_API_URL
-        return f"https://{Path(api) / Path(resource)}"
+        return f"{self.base_url}/{resource.lstrip('/')}"
 
     def get_headers(self):
         """
@@ -349,7 +360,7 @@ class CDEKApiClient:
 
         complete_data = clear_dict(
             {
-                "type": 1 if self.contract_type == self.CONTRACT_TYPE_SHOP else 2,
+                "type": self.contract_type.value,
                 "tariff_code": tariff_code,
                 "recipient": recipient,
                 "packages": packages,
@@ -973,14 +984,14 @@ class CDEKApiClient:
         )
 
         if auth:
-            if not self.id or not self.secret:
+            if not self.client_id or not self._client_secret:
                 raise CdekNoAuthClientException("Has no provide auth information")
 
             if "dateExecute" not in complete_data:
                 complete_data["dateExecute"] = dt.date.today().isoformat()
 
-            complete_data["authLogin"] = self.id
-            complete_data["secure"] = get_secure(self.secret, complete_data["dateExecute"])
+            complete_data["authLogin"] = self.client_id
+            complete_data["secure"] = get_secure(self._client_secret, complete_data["dateExecute"])
 
         kwargs["raise_errors"] = raise_errors
         kwargs["data"] = complete_data
@@ -1035,7 +1046,7 @@ class CDEKApiClient:
 
         kwargs["data"] = clear_dict(
             {
-                "type": 1 if self.contract_type == self.CONTRACT_TYPE_SHOP else 2,
+                "type": self.contract_type.value,
                 "tariff_code": tariff_code,
                 "from_location": from_location,
                 "to_location": to_location,

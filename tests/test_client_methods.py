@@ -1,4 +1,4 @@
-"""Контрактные тесты публичных методов `CDEKApiClient` без реальной сети."""
+"""Контрактные тесты публичных методов `CdekClient` без реальной сети."""
 
 from io import BytesIO
 from pathlib import Path
@@ -7,7 +7,8 @@ from unittest.mock import call
 
 import pytest
 
-from gocream_pycdek.client import CDEKApiClient
+from gocream_pycdek import CdekClient
+from gocream_pycdek import ContractType
 from gocream_pycdek.exceptions import CdekNoAuthClientException
 
 
@@ -220,7 +221,7 @@ def test_shipping_cost_adds_auth_fields(client, monkeypatch):
 def test_shipping_cost_requires_credentials_when_auth_enabled():
     """Проверяет ошибку legacy-калькулятора при включённой auth без credentials."""
 
-    client = CDEKApiClient(None, None, is_shop=True)
+    client = CdekClient("", "", contract_type=ContractType.ONLINE_STORE)
     with pytest.raises(CdekNoAuthClientException):
         client.get_shipping_cost({}, auth=True)
 
