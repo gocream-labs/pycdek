@@ -2,6 +2,7 @@ site_name: GoCream PyCDEK
 site_description: Python-библиотека для CDEK API v2.0
 site_url: https://gocream.github.io/pycdek/
 site_dir: site
+strict: true
 site_author: Dmitriy Dobrynin (aka dd) <dd@tovarisch.engineer>
 copyright: Copyright &copy; 2019 - present <a href="https://gocream.com/" target="_blank" rel="noopener" >GoCream</a>
 
@@ -40,7 +41,7 @@ nav:
   - Известные проблемы: known-issues.md
   - План развития: roadmap.md
   - Участие в разработке: contributing.md
-  - Выпуск версий: releasing.md
+  - Releasing: releasing.md
 
 plugins:
   - search:
@@ -101,7 +102,7 @@ extra:
     provider: mike
     default:
       - latest
-      - dev
+      - next
     alias: true
   social:
     - icon: fontawesome/brands/github

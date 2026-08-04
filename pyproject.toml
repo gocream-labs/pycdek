@@ -144,6 +144,7 @@ dependency-groups = ["release"]
 
 [tool.hatch.envs.release.scripts]
 preview = "semantic-release --noop version --print"
+beta-preview = "semantic-release --noop version --as-prerelease --prerelease-token b --print"
 changelog = "semantic-release changelog"
 
 
@@ -252,11 +253,10 @@ testpaths = ["tests"]
 addopts = "--disable-socket"
 
 
-# Релизы: версия и CHANGELOG считаются из gitmoji в коммитах.
+# Релизы: версия и CHANGELOG считаются по emoji-маркерам в коммитах.
 # Проверить, что получится, не записывая ничего: `hatch run release:preview`.
 [tool.semantic_release]
-build_command = "hatch build"
-commit_message = "🔖 (release): Release {version} [skip ci]"
+commit_message = "🔖 (release): Release {version}"
 commit_parser = "emoji"
 version_variables = ["gocream_pycdek/__init__.py:__version__"]
 tag_format = "{version}"
@@ -271,8 +271,16 @@ match = "next"
 prerelease = true
 prerelease_token = "rc"
 
+# Ручные beta-релизы можно выпускать из любой рабочей ветки. `master` и
+# `next` обрабатываются более специфичными правилами выше.
+[tool.semantic_release.branches.beta]
+match = "^(?!master$|next$).+"
+prerelease = true
+prerelease_token = "b"
+
 [tool.semantic_release.changelog]
 mode = "update"
+insertion_flag = "<!-- version list -->"
 
 [tool.semantic_release.commit_parser_options]
 ignore_merge_commits = true

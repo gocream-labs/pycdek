@@ -15,25 +15,32 @@ hatch run lint:check       # статический анализ
 hatch run lint:fmt-check   # проверка форматирования
 hatch run lint:format      # автоисправление и форматирование
 hatch run test:check       # тесты с покрытием
-hatch run mtest:check      # матрица Python 3.10–3.14
+hatch run mtest:check      # матрица тестов Python 3.10–3.14
 hatch run docs:build       # строгая сборка документации
-hatch run docs:links       # проверка внутренних ссылок
+hatch run docs:links       # проверка внутренних ссылок в документации
 hatch run docs:serve       # локальный сервер документации
 hatch run docs:versions    # список опубликованных версий документации
-hatch version              # текущая версия
+hatch version              # текущая версия пакета
 hatch build --clean        # чистая сборка sdist + wheel
 ```
 
 
-## Branches and Pull Requests
+## Branches
 
-Используется [GitHub Flow][github_flow]: одна основная долгоживущая ветка,
-изменения вносятся через pull request. Перед отправкой PR:
+В проекте две долгоживущие ветки:
 
-1. Опишите, что изменилось и зачем.
-2. Добавьте или обновите тесты.
-3. Запустите проверки из раздела выше.
-4. Отдельно отметьте изменения публичного API и совместимости.
+- `next` - основная ветка разработки, RC-релизов и предварительной документации;
+- `master` - ветка стабильных релизов.
+
+Рабочую ветку создавайте от актуальной `next`:
+
+```sh
+git switch next
+git pull --ff-only
+git switch -c feature/order-update
+```
+
+Для названия используйте короткий префикс по типу изменения, например `feature/`, `fix/`, `docs/` или `refactor/`. Готовые изменения возвращаются в `next` через pull request; напрямую в `master` они не отправляются. При необходимости beta-версию можно вручную выпустить из рабочей ветки до её merge в `next`.
 
 
 ## Commits
@@ -46,23 +53,26 @@ hatch build --clean        # чистая сборка sdist + wheel
 🎨 (style): Format code with Ruff
 ```
 
-Формат влияет на версию следующего релиза и CHANGELOG. Поэтому сообщения
-коммитов должны соответствовать ему; `🎨` и `:art:` допустимы для
-форматирования и не повышают версию. `hatch run init` устанавливает хуки:
-Ruff проверяет staged Python-файлы перед коммитом, а gitlint проверяет форму
-заголовка коммита.
+Формат влияет на версию следующего релиза и CHANGELOG. Поэтому сообщения коммитов должны соответствовать ему; `🎨` и `:art:` допустимы для форматирования и не повышают версию. `hatch run init` устанавливает хуки: Ruff проверяет staged Python-файлы перед коммитом, а gitlint проверяет форму заголовка коммита.
+
+Полный список emoji-маркеров, изменяющих версию, находится в секции `[tool.semantic_release.commit_parser_options]` файла `pyproject.toml`.
 
 !!! note
-	Для создания сообщений коммитов удобно использовать
-    [gitmoji-cli](https://github.com/carloscuesta/gitmoji-cli).
+    Для создания сообщений коммитов удобно использовать [gitmoji-cli](https://github.com/carloscuesta/gitmoji-cli).
 
 
-## Important Considerations
+## Pull Requests
 
-До релиза 2.0.0 сначала фиксируем текущее поведение тестами, даже если оно
-кажется ошибочным. Исправления, меняющие публичный контракт или данные,
-отправляемые в API, относятся к плану 3.0.0 и должны быть явно описаны в PR.
+Обычные изменения отправляются pull request в `next`. Pull request в `master` создаётся только для стабильного релиза; имя исходной ветки не ограничено, а предварительный beta- или RC-релиз необязателен.
+
+Перед отправкой PR:
+
+1. Опишите, что изменилось и зачем.
+2. Добавьте или обновите тесты.
+3. Запустите проверки из раздела **Local Setup**.
+4. Отдельно отметьте изменения публичного API и совместимости.
+
+После успешного CI pull request должен пройти review. Дальнейшие шаги для beta и стабильной версии описаны в разделе документации [**Releasing**](https://gocream.github.io/pycdek/next/releasing/).
 
 
 [hatch]: https://hatch.pypa.io/
-[github_flow]: https://docs.github.com/en/get-started/using-github/github-flow

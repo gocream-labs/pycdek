@@ -9,6 +9,8 @@
 
 ## [Unreleased]
 
+<!-- version list -->
+
 ## [2.0.0b9] - 2022-04-18
 
 ### Added
