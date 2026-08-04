@@ -9,9 +9,15 @@
 |---|---|---|---|
 | Beta | Любая рабочая ветка, кроме `master` и `next` | Ручной запуск **Prerelease** | `2.0.0-b.N` |
 | RC | `next` | Push с изменением версии | `2.0.0-rc.N` |
-| Stable | Любая ветка | Merge pull request в `master` | `2.0.0` |
+| Stable | `master` | Merge pull request в `master` из любой ветки | `2.0.0` |
 
 Необходимость новой версии и её уровень определяются по emoji-маркерам в коммитах. Если после предыдущего релиза нет подходящего маркера, workflow завершится без публикации. Правила описаны в разделе [Commits](contributing.md#commits).
+
+Перед первым запуском убедитесь, что на GitHub есть:
+
+- ветка `next` - без неё workflow **Prerelease** не с чего запускать;
+- теги предыдущих релизов в формате `tag_format`: `1.3.0` … `1.4.5` и `2.0.0-b.9`. Версию считает Python Semantic Release по тегам в удалённом репозитории, а не по `__version__`. Уровень бампа отсчитывается от последнего **стабильного** тега, поэтому без `1.4.5` на origin `💥` даёт не `2.0.0-rc.1`, а `1.0.0-rc.1`. Локальных тегов недостаточно: CI делает чистый checkout;
+- ветка `gh-pages` как источник GitHub Pages. Саму ветку Mike создаёт при первом deploy, но источник нужно выбрать в настройках репозитория вручную.
 
 Для публикации в PyPI настройте environment `pypi` в GitHub и два Trusted Publisher с одинаковыми owner `gocream`, repository `pycdek` и environment `pypi`:
 
@@ -22,7 +28,7 @@
 
 Для stable-релиза установите в репозиторий отдельный GitHub App с разрешением `Contents: Read and write`. Добавьте App в bypass list ruleset ветки `master` с режимом `Always allow`, чтобы только release-автоматизация могла отправить version/changelog commit напрямую в защищённую ветку. В настройках репозитория сохраните:
 
-- App ID как Actions variable `RELEASE_APP_ID`;
+- Client ID как Actions variable `RELEASE_APP_CLIENT_ID`;
 - private key как Actions secret `RELEASE_APP_PRIVATE_KEY`.
 
 Workflow создаёт временный installation token непосредственно перед checkout и передаёт его в Python Semantic Release. После завершения job токен автоматически отзывается.
@@ -70,14 +76,14 @@ Workflow создаст beta-тег на выбранном коммите, оп
 2.0.0-b.10 → 2.0.0-rc.1 → 2.0.0-rc.2
 ```
 
-RC публикуется в PyPI и как GitHub prerelease. Версия и changelog не коммитятся в `next`. Если коммиты не требуют изменения версии, публикации не будет.
+RC публикуется в PyPI и как GitHub prerelease - двумя независимыми jobs из одного собранного комплекта. Ошибка одного направления не отменяет другое, но весь workflow остаётся неуспешным, пока проблема не исправлена. Версия и changelog не коммитятся в `next`. Если коммиты не требуют изменения версии, публикации не будет.
 
 Сборка документации и выпуск RC используют один проверенный commit из `next`, но после тестов выполняются независимо: отсутствие новой версии не мешает обновить документацию, а ошибка одного направления не отменяет уже начавшееся второе.
 
 
 ## Stable Release
 
-Stable-релиз запускается после merge любого pull request в `master`. Beta и RC перед ним необязательны: если prerelease существует, workflow финализирует его базовую версию; иначе следующая stable-версия вычисляется непосредственно по emoji-маркерам коммитов. Если релизных изменений нет, публикации не будет.
+Stable-релиз запускается при push в `master` - на практике это merge pull request. Release-коммит, который создаёт сам workflow, повторного запуска не вызывает: он меняет только `CHANGELOG.md` и `gocream_pycdek/__init__.py`, а они исключены фильтром `paths-ignore`. Beta и RC перед ним необязательны: если prerelease существует, workflow финализирует его базовую версию; иначе следующая stable-версия вычисляется непосредственно по emoji-маркерам коммитов. Если релизных изменений нет, публикации не будет.
 
 1. При необходимости предварительно выпустите и проверьте beta или RC в реальном проекте или приложении.
 2. Создайте pull request в `master`.
@@ -122,6 +128,7 @@ Workflow **Release** сначала вызывает общий набор пр�
 - каждый успешный после тестов push в `next` обновляет документацию с алиасом `next`;
 - stable-релиз публикует версию `major.minor` и переводит на неё алиас `latest`;
 - ранее опубликованные версии сохраняются;
+- алиас `latest` и стартовая страница сайта появляются только после первого stable-релиза: до него опубликована лишь версия `next`, а корень сайта отдаёт 404;
 - опубликованный сайт и внешние ссылки при необходимости проверяются вручную.
 
 Локальные команды:
@@ -135,7 +142,7 @@ hatch run docs:serve-versions
 hatch run docs:links-external
 ```
 
-Строгая сборка документации и проверка внутренних ссылок выполняются в CI для pull request в `master`. Workflow **Documentation** используется только для публикации версий `next` и `stable`.
+Строгая сборка документации и проверка внутренних ссылок выполняются в CI для pull request в `master` и `next`. Workflow **Documentation** используется только для публикации версий `next` и `stable`.
 
 
 ## Troubleshooting
@@ -143,10 +150,11 @@ hatch run docs:links-external
 | Symptom | What to check |
 |---|---|
 | Релиз не создан | Emoji-маркеры после последнего тега и результат `hatch run release:preview` |
-| Beta рассчитана неверно | Наличие канонического тега `2.0.0-b.9` |
+| Версия рассчитана неверно | Наличие на origin тегов предыдущих релизов: последнего стабильного `1.4.5` и канонического `2.0.0-b.9` |
+| Workflow упал на push коммита или тега | Не ушла ли ветка вперёд после старта: релиз готовится на зафиксированном `github.sha`, и push отклоняется как non-fast-forward |
 | Публикация ожидает подтверждения | Required reviewer у environment `pypi` |
 | PyPI отклоняет публикацию | Поля Trusted Publisher и environment `pypi` |
-| Workflow не может создать тег или commit | Установка GitHub App, его `Contents` permission, bypass ruleset, `RELEASE_APP_ID` и `RELEASE_APP_PRIVATE_KEY` |
+| Workflow не может создать тег или commit | Установка GitHub App, его `Contents` permission, bypass ruleset, `RELEASE_APP_CLIENT_ID` и `RELEASE_APP_PRIVATE_KEY` |
 | Новый stable сообщает о незавершённом релизе | Наличие GitHub Release предыдущей версии; при его отсутствии повторный запуск упавших publication jobs |
 | `docs:links-external` возвращает 404 | Выполнен ли первый deploy сайта; локальные ссылки проверяет `docs:links` |
 

@@ -133,19 +133,19 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-  publish:
-    name: Publish prerelease to PyPI & GitHub Release
+  publish-pypi:
+    name: Publish prerelease to PyPI
     needs: build
     if: needs.build.outputs.released == 'true'
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: write
-      id-token: write
-
     environment:
       name: pypi
       url: "https://pypi.org/project/gocream-pycdek/${{ needs.build.outputs.version }}/"
+
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Action | Download artifacts
@@ -157,8 +157,25 @@ jobs:
       - name: Publish | Upload to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
 
+  publish-github:
+    name: Publish prerelease to GitHub Release
+    needs: build
+    if: needs.build.outputs.released == 'true'
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Action | Download artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: prerelease-distributions
+          path: dist/
+
       - name: Publish | Upload to GitHub Release Assets
         env:
+          GH_REPO: "${{ github.repository }}"
           GH_TOKEN: "${{ github.token }}"
           RELEASE_NOTES: "${{ needs.build.outputs.release_notes }}"
           RELEASE_TAG: "${{ needs.build.outputs.tag }}"

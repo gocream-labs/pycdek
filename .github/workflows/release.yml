@@ -56,7 +56,7 @@ jobs:
         id: release-token
         uses: actions/create-github-app-token@v3
         with:
-          app-id: "${{ vars.RELEASE_APP_ID }}"
+          client-id: "${{ vars.RELEASE_APP_CLIENT_ID }}"
           private-key: "${{ secrets.RELEASE_APP_PRIVATE_KEY }}"
 
       - name: Setup | Checkout Repository
@@ -159,6 +159,7 @@ jobs:
 
       - name: Publish | Upload to GitHub Release Assets
         env:
+          GH_REPO: "${{ github.repository }}"
           GH_TOKEN: "${{ github.token }}"
           RELEASE_NOTES: "${{ needs.build.outputs.release_notes }}"
           RELEASE_TAG: "${{ needs.build.outputs.tag }}"
