@@ -12,13 +12,11 @@
         <meta name="author" content="Dmitriy Dobrynin (aka dd) <dd@tovarisch.engineer>">
       
       
-        <link rel="canonical" href="https://gocream-labs.github.io/pycdek/next/contributing/">
+        <link rel="canonical" href="https://gocream-labs.github.io/pycdek/next/changelog/">
       
       
-        <link rel="prev" href="../roadmap/">
+        <link rel="prev" href="../releasing/">
       
-      
-        <link rel="next" href="../releasing/">
       
       
         
@@ -29,7 +27,7 @@
     
     
       
-        <title>Участие в разработке - Gocream / PyCDEK</title>
+        <title>История изменений - Gocream / PyCDEK</title>
       
     
     
@@ -82,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#contributing" class="md-skip">
+        <a href="#changelog" class="md-skip">
           Перейти к содержанию
         </a>
       
@@ -122,7 +120,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Участие в разработке
+              История изменений
             
           </span>
         </div>
@@ -375,37 +373,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Участие в разработке
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
         
   
   
@@ -421,70 +392,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Содержание">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Содержание
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#local-setup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Local Setup
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#branches" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Branches
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#commits" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Commits
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pull-requests" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Pull Requests
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -520,10 +427,37 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../changelog/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    История изменений
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -539,6 +473,159 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Содержание">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Содержание
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v200-rc1-2026-08-04" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.0.0-rc.1 (2026-08-04)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v2.0.0-rc.1 (2026-08-04)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breaking-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Breaking Changes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#licensing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Licensing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#refactoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Refactoring
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build System
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v200-b9-2022-04-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.0.0-b.9 (2022-04-18)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v2.0.0-b.9 (2022-04-18)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -570,46 +657,135 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#local-setup" class="md-nav__link">
+  <a href="#v200-rc1-2026-08-04" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Local Setup
+        v2.0.0-rc.1 (2026-08-04)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v2.0.0-rc.1 (2026-08-04)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breaking-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Breaking Changes
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#branches" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#licensing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Branches
+        Licensing
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#commits" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#refactoring" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Commits
+        Refactoring
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#pull-requests" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#tests" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pull Requests
+        Tests
       
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build System
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v200-b9-2022-04-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.0.0-b.9 (2022-04-18)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v2.0.0-b.9 (2022-04-18)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -633,138 +809,130 @@
   
 
 
-<h1 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Permanent link">&para;</a></h1>
-<p>Раздел описывает работу над библиотекой: настройку окружения, ветки, формат коммитов и оформление pull request. Выпуск и публикация версий описаны отдельно, в разделе документации <a href="https://gocream-labs.github.io/pycdek/next/releasing/"><strong>Releasing</strong></a>.</p>
-<p>Общий порядок работы:</p>
-<ol>
-<li>создайте рабочую ветку от актуальной <code>next</code>;</li>
-<li>внесите изменения и покройте их тестами;</li>
-<li>оформите коммиты в формате gitmoji со скоупом;</li>
-<li>прогоните локальные проверки;</li>
-<li>отправьте pull request в <code>next</code> и дождитесь CI и review.</li>
-</ol>
-<h2 id="local-setup">Local Setup<a class="headerlink" href="#local-setup" title="Permanent link">&para;</a></h2>
-<p>Проект использует <a href="https://hatch.pypa.io/">Hatch</a>: окружения создаются автоматически при первом запуске команды, отдельно устанавливать зависимости не нужно.</p>
-<p>Настройка локального репозитория:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>hatch<span class="w"> </span>run<span class="w"> </span>init
-</code></pre></div>
-<p>Команда подключает <code>.git-blame-ignore-revs</code> к <code>git blame</code> и устанавливает git-хуки: перед коммитом запускается статический анализ Ruff, а gitlint проверяет форму заголовка сообщения. Отменяет настройку <code>hatch run remove</code>.</p>
-<p>Код и тесты:</p>
-<table>
-<thead>
-<tr>
-<th>Команда</th>
-<th>Назначение</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>hatch run lint:check</code></td>
-<td>статический анализ</td>
-</tr>
-<tr>
-<td><code>hatch run lint:fmt-check</code></td>
-<td>проверка форматирования</td>
-</tr>
-<tr>
-<td><code>hatch run lint:format</code></td>
-<td>автоисправление и форматирование</td>
-</tr>
-<tr>
-<td><code>hatch run test:check</code></td>
-<td>тесты с покрытием на основной версии Python</td>
-</tr>
-<tr>
-<td><code>hatch run mtest:check</code></td>
-<td>матрица тестов Python 3.10–3.14, отчёт <code>coverage.xml</code> для Codecov</td>
-</tr>
-</tbody>
-</table>
-<p>Документация:</p>
-<table>
-<thead>
-<tr>
-<th>Команда</th>
-<th>Назначение</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>hatch run docs:build</code></td>
-<td>строгая сборка документации</td>
-</tr>
-<tr>
-<td><code>hatch run docs:links</code></td>
-<td>проверка внутренних ссылок в собранном сайте</td>
-</tr>
-<tr>
-<td><code>hatch run docs:serve</code></td>
-<td>локальный сервер документации</td>
-</tr>
-<tr>
-<td><code>hatch run docs:versions</code></td>
-<td>список опубликованных версий документации</td>
-</tr>
-</tbody>
-</table>
-<p>Пакет:</p>
-<table>
-<thead>
-<tr>
-<th>Команда</th>
-<th>Назначение</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>hatch version</code></td>
-<td>текущая версия пакета</td>
-</tr>
-<tr>
-<td><code>hatch build --clean</code></td>
-<td>чистая сборка sdist + wheel</td>
-</tr>
-</tbody>
-</table>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p><code>docs:links</code> проверяет уже собранный сайт в каталоге <code>site/</code>, поэтому запускайте её после <code>docs:build</code>.</p>
-</div>
-<h2 id="branches">Branches<a class="headerlink" href="#branches" title="Permanent link">&para;</a></h2>
-<p>В проекте две долгоживущие ветки:</p>
+<h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<p>Все заметные изменения проекта документируются в этом файле. Версии следуют <a href="https://semver.org/lang/ru/">Semantic Versioning</a>.</p>
+<!--
+    Файл ведёт python-semantic-release: при выпуске он вставляет новый раздел сразу под маркером ниже. Маркер не удалять - без него обновление молча не произойдёт. Формат разделов и правила ручной правки - в docs/releasing.md.
+-->
+
+<!-- version list -->
+
+<h2 id="v200-rc1-2026-08-04">v2.0.0-rc.1 (2026-08-04)<a class="headerlink" href="#v200-rc1-2026-08-04" title="Permanent link">&para;</a></h2>
+<h3 id="breaking-changes">Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>next</code> - ветка для RC-релизов и соответствующей документации;</li>
-<li><code>master</code> - ветка стабильных релизов.</li>
+<li>💥 <strong>release</strong>: Commit to break version for PSR
+    (<a href="https://github.com/gocream-labs/pycdek/commit/9816b1cba73cc44fab91b0a4cd4a56964cd4ce33"><code>9816b1c</code></a>)</li>
 </ul>
-<p>Рабочую ветку создавайте от актуальной <code>next</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>git<span class="w"> </span>switch<span class="w"> </span>next
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>git<span class="w"> </span>pull<span class="w"> </span>--ff-only
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>git<span class="w"> </span>switch<span class="w"> </span>-c<span class="w"> </span>feature/order-update
-</code></pre></div>
-<p>Для названия используйте короткий префикс по типу изменения, например <code>feature/</code>, <code>fix/</code>, <code>docs/</code> или <code>refactor/</code>.</p>
-<p>Готовые изменения возвращаются в <code>next</code> через pull request; напрямую в <code>master</code> они не отправляются. При необходимости beta-версию можно вручную выпустить из рабочей ветки до её merge в <code>next</code>.</p>
-<h2 id="commits">Commits<a class="headerlink" href="#commits" title="Permanent link">&para;</a></h2>
-<p>Заголовок коммита состоит из emoji-маркера <a href="https://gitmoji.dev/">gitmoji</a>, скоупа и краткого описания:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>✨ (client): Add order update method
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>🐛 (utils): Fix clear_dict on nested lists
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>🎨 (style): Format code with Ruff
-</code></pre></div>
-<p>Формат обязателен: по маркеру определяются версия следующего релиза и раздел в <code>CHANGELOG.md</code>. Маркеры <code>🎨</code> (форматирование), <code>🧪</code> (тесты) и <code>📄</code> (лицензия) попадают в changelog, но версию не повышают.</p>
-<p>Полный список маркеров, изменяющих версию, находится в секции <code>[tool.semantic_release.commit_parser_options]</code> файла <code>pyproject.toml</code>. Маркер вне этого списка попадёт в раздел <code>Other</code>; как добавить новый, описано в разделе документации <a href="https://gocream-labs.github.io/pycdek/next/releasing/#changelog"><strong>Releasing</strong></a>.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Для создания сообщений коммитов удобно использовать <a href="https://github.com/carloscuesta/gitmoji-cli">gitmoji-cli</a>.</p>
-</div>
-<h2 id="pull-requests">Pull Requests<a class="headerlink" href="#pull-requests" title="Permanent link">&para;</a></h2>
-<p>Обычные изменения отправляются pull request в <code>next</code>. Pull request в <code>master</code> создаётся только для стабильного релиза; имя исходной ветки не ограничено, а предварительный beta- или RC-релиз необязателен.</p>
-<p>Перед отправкой PR:</p>
-<ol>
-<li>Запустите проверки из раздела <strong>Local Setup</strong>: как минимум <code>lint:check</code>, <code>lint:fmt-check</code> и <code>test:check</code>, а при правках документации - <code>docs:build</code> и <code>docs:links</code>.</li>
-<li>Добавьте или обновите тесты.</li>
-<li>Опишите, что изменилось и зачем.</li>
-<li>Отдельно отметьте изменения публичного API и совместимости.</li>
-</ol>
-<p>После успешного CI pull request должен пройти review. Дальнейшие шаги для beta и стабильной версии описаны в разделе документации <a href="https://gocream-labs.github.io/pycdek/next/releasing/"><strong>Releasing</strong></a>.</p>
+<h3 id="licensing">Licensing<a class="headerlink" href="#licensing" title="Permanent link">&para;</a></h3>
+<ul>
+<li>📄 <strong>project</strong>: Change license GPLv3 -&gt; MPL-2.0
+    (<a href="https://github.com/gocream-labs/pycdek/commit/952100544c5c83d99867cddc429b2232471af1c2"><code>9521005</code></a>)</li>
+</ul>
+<h3 id="refactoring">Refactoring<a class="headerlink" href="#refactoring" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>🎨 <strong>git</strong>: Ignore formatting commit in blame
+    (<a href="https://github.com/gocream-labs/pycdek/commit/04d14e1461a869b8c4b23fd73a65b56647507c50"><code>04d14e1</code></a>)</p>
+</li>
+<li>
+<p>🎨 <strong>poject</strong>: Update lint config and code style
+    (<a href="https://github.com/gocream-labs/pycdek/commit/3fa42b69e8deb15c41bd42982baf2bd407fc3826"><code>3fa42b6</code></a>)</p>
+</li>
+<li>
+<p>⚰️ <strong>project</strong>: Remove unnecessary comments
+    (<a href="https://github.com/gocream-labs/pycdek/commit/e94f8b8c591bbed0a6a287ea2be949cb8169f9e8"><code>e94f8b8</code></a>)</p>
+</li>
+<li>
+<p>🎨 <strong>style</strong>: Format code with Ruff
+    (<a href="https://github.com/gocream-labs/pycdek/commit/3eb1d31f81c5d9ec70a4a0b0db783a70fb9cda70"><code>3eb1d31</code></a>)</p>
+</li>
+</ul>
+<h3 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h3>
+<ul>
+<li>🧪 <strong>tests</strong>: Add tests
+    (<a href="https://github.com/gocream-labs/pycdek/commit/48d7ee3a551bbc474e1f0acaa04c7b0d397c5ccc"><code>48d7ee3</code></a>,<a href="https://github.com/gocream-labs/pycdek/commit/c4be23835a875e4cefd79addc0e2b3aa033658fd"><code>c4be238</code></a>)</li>
+</ul>
+<h3 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>📝 <strong>docs</strong>: Add mkdocs
+    (<a href="https://github.com/gocream-labs/pycdek/commit/54d00e6af4df97cc97151e923b7fecfccd9c2b27"><code>54d00e6</code></a>)</p>
+</li>
+<li>
+<p>📝 <strong>docs</strong>: Big update docs
+    (<a href="https://github.com/gocream-labs/pycdek/commit/16342fe5ef0a35c6343153bafd5dec0a346a225b"><code>16342fe</code></a>)</p>
+</li>
+<li>
+<p>📝 <strong>docs</strong>: Update api links
+    (<a href="https://github.com/gocream-labs/pycdek/commit/974dea91642de0b55774ac724b3555096206d7e6"><code>974dea9</code></a>)</p>
+</li>
+<li>
+<p>📝 <strong>docs</strong>: Update Contributing
+    (<a href="https://github.com/gocream-labs/pycdek/commit/52a77bf9532aec81b4d688988638456a7fd29dcb"><code>52a77bf</code></a>)</p>
+</li>
+<li>
+<p>📝 <strong>readme</strong>: Back to work
+    (<a href="https://github.com/gocream-labs/pycdek/commit/a18bade40a60fa159d4c4fb1718e2d02917f1e52"><code>a18bade</code></a>)</p>
+</li>
+</ul>
+<h3 id="build-system">Build System<a class="headerlink" href="#build-system" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>🧱 <strong>project</strong>: Add lint commit script
+    (<a href="https://github.com/gocream-labs/pycdek/commit/f5f8c874a7e1bc4560310f314c56d16fb9bddb6c"><code>f5f8c87</code></a>)</p>
+</li>
+<li>
+<p>🏗️ <strong>project</strong>: Big reconfigure of project
+    (<a href="https://github.com/gocream-labs/pycdek/commit/763fb207abf91ab4b10516700ee2a18b23295c8c"><code>763fb20</code></a>)</p>
+</li>
+<li>
+<p>🏗️ <strong>project</strong>: Configure lints
+    (<a href="https://github.com/gocream-labs/pycdek/commit/3f94d163b32d085d3fc155ff49d06d8fea121f9c"><code>3f94d16</code></a>)</p>
+</li>
+<li>
+<p>🏗️ <strong>project</strong>: Rename for deploy on PyPI
+    (<a href="https://github.com/gocream-labs/pycdek/commit/3596e8fafcc2cf65913ad94202c288dcfea2f98c"><code>3596e8f</code></a>)</p>
+</li>
+<li>
+<p>🏗️ <strong>project</strong>: Update authors
+    (<a href="https://github.com/gocream-labs/pycdek/commit/f4f492d4cb7da384c565e40419962a32ad73ebf4"><code>f4f492d</code></a>)</p>
+</li>
+<li>
+<p>🏗️ <strong>project</strong>: Update gitignore
+    (<a href="https://github.com/gocream-labs/pycdek/commit/21506e26ced561d9e0d34922d68278d7348e5282"><code>21506e2</code></a>)</p>
+</li>
+<li>
+<p>🏗️ <strong>project</strong>: Update python versions
+    (<a href="https://github.com/gocream-labs/pycdek/commit/34bf61c99b24c22996a41ad136d943d08a8cd685"><code>34bf61c</code></a>)</p>
+</li>
+<li>
+<p>🏗️ <strong>release</strong>: Bootstrap release workflows
+    (<a href="https://github.com/gocream-labs/pycdek/commit/ea8bf0a261864a63ac99ad74020797774443741d"><code>ea8bf0a</code></a>, <a href="https://github.com/gocream-labs/pycdek/commit/1ca90d57adfc8f25b1955965b0b22c99ca32517c"><code>1ca90d5</code></a>)</p>
+</li>
+</ul>
+<h3 id="other">Other<a class="headerlink" href="#other" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Update statuses
+    (<a href="https://github.com/gocream-labs/pycdek/commit/f51d49431dea22e7bd4b42fb06ab9e2f18501f6c"><code>f51d494</code></a>)</li>
+</ul>
+<h2 id="v200-b9-2022-04-18">v2.0.0-b.9 (2022-04-18)<a class="headerlink" href="#v200-b9-2022-04-18" title="Permanent link">&para;</a></h2>
+<p><em>Эта и более ранние версии восстановлены в сокращённом виде: коммиты того времени не соответствуют текущему gitmoji-формату и не могут быть надёжно разобраны генератором.</em></p>
+<h3 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p>Поддержка дополнительных статусов заказов СДЭК
+    (<a href="https://github.com/gocream-labs/pycdek/commit/fcf93933e7c5b306c39b1160ddfdb8530089cf32"><code>fcf9393</code></a>)</p>
+</li>
+<li>
+<p>Ошибка <code>ERR_INVALID_TARIFF_WITH_DATETIMEORDERSEND</code> для устаревшего калькулятора
+    (<a href="https://github.com/gocream-labs/pycdek/commit/f5e6c06d47a3a2dab53645d91e953b31865b9e98"><code>f5e6c06</code></a>)</p>
+</li>
+</ul>
+<h3 id="documentation_1">Documentation<a class="headerlink" href="#documentation_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Обновлены ссылки на документацию API СДЭК
+    (<a href="https://github.com/gocream-labs/pycdek/commit/3566220cc3346b7c771e49c129467d1d2c8ff51e"><code>3566220</code></a>)</li>
+</ul>
 
 
 
@@ -772,6 +940,52 @@
 
 
 
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Последнее обновление">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="5 августа 2026 г. 15:37:23 MSK">5 августа 2026 г.</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Дата создания">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="5 августа 2026 г. 15:37:23 MSK">5 августа 2026 г.</span>
+  </span>
+
+    
+    
+      
+  
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Участники">
+      
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4"/></svg>
+      
+    </span>
+    <nav>
+      Dmitry Dobrynin
+    </nav>
+  </span>
+
+    
+    
+  </aside>
 
 
 
@@ -800,7 +1014,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Нижний колонтитул" >
         
           
-          <a href="../roadmap/" class="md-footer__link md-footer__link--prev" aria-label="Назад: План развития">
+          <a href="../releasing/" class="md-footer__link md-footer__link--prev" aria-label="Назад: Процесс релиза и версионирования">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -810,27 +1024,11 @@
                 Назад
               </span>
               <div class="md-ellipsis">
-                План развития
-              </div>
-            </div>
-          </a>
-        
-        
-          
-          <a href="../releasing/" class="md-footer__link md-footer__link--next" aria-label="Вперед: Процесс релиза и версионирования">
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Вперед
-              </span>
-              <div class="md-ellipsis">
                 Процесс релиза и версионирования
               </div>
             </div>
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
-            </div>
           </a>
+        
         
       </nav>
     
