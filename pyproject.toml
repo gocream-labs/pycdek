@@ -40,11 +40,11 @@ dependencies = [
 dynamic = ["version"]
 
 [project.urls]
-Homepage = "https://gocream.github.io/pycdek/"
-Documentation = "https://gocream.github.io/pycdek/"
-Repository = "https://github.com/gocream/pycdek"
-Changelog = "https://github.com/gocream/pycdek/blob/master/CHANGELOG.md"
-"Bug Tracker" = "https://github.com/gocream/pycdek/issues"
+Homepage = "https://gocream-labs.github.io/pycdek/"
+Documentation = "https://gocream-labs.github.io/pycdek/"
+Repository = "https://github.com/gocream-labs/pycdek"
+Changelog = "https://github.com/gocream-labs/pycdek/blob/master/CHANGELOG.md"
+"Bug Tracker" = "https://github.com/gocream-labs/pycdek/issues"
 
 
 [tool.hatch.version]
@@ -157,7 +157,7 @@ dependency-groups = ["docs"]
 build = "mkdocs build --strict {args}"
 serve = "mkdocs serve {args}"
 links = "linkchecker --config .linkcheckerrc {args:site/index.html}"
-links-external = "linkchecker --config .linkcheckerrc --check-extern {args:https://gocream.github.io/pycdek/}"
+links-external = "linkchecker --config .linkcheckerrc --check-extern {args:https://gocream-labs.github.io/pycdek/}"
 versions = "mike list {args}"
 deploy = "mike deploy --update-aliases {args}"
 set-default = "mike set-default {args}"
@@ -281,6 +281,10 @@ prerelease_token = "b"
 [tool.semantic_release.changelog]
 mode = "update"
 insertion_flag = "<!-- version list -->"
+# Штатные шаблоны PSR печатают заголовком раздела сам emoji-маркер ("### 🏗️"),
+# поэтому в `templates/` лежат свои. Если каталог непустой, PSR берёт только
+# его, штатные шаблоны в рендеринге не участвуют.
+template_dir = "templates"
 
 [tool.semantic_release.commit_parser_options]
 ignore_merge_commits = true
@@ -296,6 +300,8 @@ patch_tags = [
 	"🔒️", ":lock:",	# безопасность
 	"♻️", ":recycle:",	# рефакторинг
 	"🗑️", ":wastebasket:",	# пометка устаревшего
+	"⚰️", ":coffin:",	# удаление мёртвого кода
+	"🧱", ":bricks:",	# инфраструктура и оснастка
 	"👽️", ":alien:",	# правки под изменения внешнего API
 	"🏷️", ":label:",	# типы
 	"📝", ":memo:",	# документация
@@ -309,4 +315,43 @@ patch_tags = [
 	"✏️", ":pencil2:",	# опечатки
 	"⏪️", ":rewind:",	# откат изменений
 ]
-other_allowed_tags = ["🎨", ":art:"]
+other_allowed_tags = [
+	"🎨", ":art:",	# форматирование и стиль
+	"🧪", ":test_tube:",	# тесты
+	"📄", ":page_facing_up:",	# лицензия
+]
+
+# Продублировать полный список обязательно. Поле `allowed_tags` в
+# EmojiParserOptions вычисляется из значений по умолчанию на этапе объявления
+# dataclass и не пересобирается из переопределённых списков выше. Регулярное
+# выражение парсера строится именно по нему, а уровень версии - по спискам
+# выше. Из-за этого без `allowed_tags` маркеры, объявленные только в
+# `other_allowed_tags`, не распознаются и уезжают в раздел "Other".
+allowed_tags = [
+	"💥", ":boom:",
+	"✨", ":sparkles:",
+	"⚡️", ":zap:",
+	"🐛", ":bug:",
+	"🩹", ":adhesive_bandage:",
+	"🚑️", ":ambulance:",
+	"🔒️", ":lock:",
+	"♻️", ":recycle:",
+	"🗑️", ":wastebasket:",
+	"⚰️", ":coffin:",
+	"🧱", ":bricks:",
+	"👽️", ":alien:",
+	"🏷️", ":label:",
+	"📝", ":memo:",
+	"🔧", ":wrench:",
+	"🏗️", ":building_construction:",
+	"⬆️", ":arrow_up:",
+	"⬇️", ":arrow_down:",
+	"➕", ":heavy_plus_sign:",
+	"➖", ":heavy_minus_sign:",
+	"🌐", ":globe_with_meridians:",
+	"✏️", ":pencil2:",
+	"⏪️", ":rewind:",
+	"🎨", ":art:",
+	"🧪", ":test_tube:",
+	"📄", ":page_facing_up:",
+]

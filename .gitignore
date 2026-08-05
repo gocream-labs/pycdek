@@ -18,6 +18,8 @@
 !.git-blame-ignore-revs
 !.linkcheckerrc
 !.mailmap
+!templates/.components/
+!templates/.release_notes.md.j2
 
 __pycache__
 dist

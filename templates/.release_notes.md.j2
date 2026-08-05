@@ -1,0 +1,21 @@
+{#-
+	Текст GitHub Release. Те же разделы, что и в CHANGELOG.md, плюс ссылка
+	на диапазон коммитов от предыдущей версии.
+
+	Ширина строки взята с запасом: переносить будет сам GitHub.
+-#}
+{%- import '.components/sections.md.j2' as fmt with context -%}
+{%- set width = 1000 -%}
+{%- set releases = context.history.released.values() | list -%}
+{%- set index = releases.index(release) -%}
+{%- set out = [fmt.version(release, width)] -%}
+
+{%- if 'compare_url' is filter and index + 1 < releases | length -%}
+	{%- set previous = releases[index + 1].version.as_tag() -%}
+	{%- set current = release.version.as_tag() -%}
+	{%- set _ = out.append('\n---\n\n**Detailed Changes**: [%s...%s](%s)' | format(
+		previous, current, previous | compare_url(current)
+	)) -%}
+{%- endif -%}
+
+{{- out | join('') -}}

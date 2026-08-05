@@ -1,0 +1,201 @@
+{#-
+	Разбор gitmoji-коммита и вёрстка разделов версии.
+
+	Зачем вообще свои шаблоны: заголовком раздела PSR печатает категорию
+	коммита, а у emoji-парсера категория - сам маркер, то есть "### 🏗️".
+	Плюс парсер не разбирает скоуп: его регулярное выражение ждёт скобку
+	вплотную к маркеру, а формат проекта - "✨ (client): Add method",
+	с пробелом. Поэтому и маркер, и скоуп снимаются здесь вручную.
+
+	Точка в имени каталога - признак для PSR: такой шаблон только
+	подключается и в отдельный файл не рендерится.
+
+	Каждый макрос собирает текст в список строк и печатает его одним
+	выражением в конце. Так шаблон не зависит от того, обрезает ли Jinja
+	переводы строк после тегов: CHANGELOG.md и текст GitHub Release
+	рендерятся разными окружениями с разными настройками.
+-#}
+
+{%- set SECTION_TITLES = {
+		'💥': 'Breaking Changes', ':boom:': 'Breaking Changes',
+		'✨': 'Features', ':sparkles:': 'Features',
+		'🐛': 'Bug Fixes', ':bug:': 'Bug Fixes',
+		'🩹': 'Bug Fixes', ':adhesive_bandage:': 'Bug Fixes',
+		'🚑️': 'Bug Fixes', ':ambulance:': 'Bug Fixes',
+		'🔒️': 'Security', ':lock:': 'Security',
+		'📄': 'Licensing', ':page_facing_up:': 'Licensing',
+		'⚡️': 'Performance', ':zap:': 'Performance',
+		'🗑️': 'Deprecations', ':wastebasket:': 'Deprecations',
+		'👽️': 'External API Changes', ':alien:': 'External API Changes',
+		'♻️': 'Refactoring', ':recycle:': 'Refactoring',
+		'🎨': 'Refactoring', ':art:': 'Refactoring',
+		'⚰️': 'Refactoring', ':coffin:': 'Refactoring',
+		'🏷️': 'Type Hints', ':label:': 'Type Hints',
+		'🧪': 'Tests', ':test_tube:': 'Tests',
+		'📝': 'Documentation', ':memo:': 'Documentation',
+		'✏️': 'Documentation', ':pencil2:': 'Documentation',
+		'🌐': 'Localization', ':globe_with_meridians:': 'Localization',
+		'⬆️': 'Dependencies', ':arrow_up:': 'Dependencies',
+		'⬇️': 'Dependencies', ':arrow_down:': 'Dependencies',
+		'➕': 'Dependencies', ':heavy_plus_sign:': 'Dependencies',
+		'➖': 'Dependencies', ':heavy_minus_sign:': 'Dependencies',
+		'🔧': 'Build System', ':wrench:': 'Build System',
+		'🏗️': 'Build System', ':building_construction:': 'Build System',
+		'🧱': 'Build System', ':bricks:': 'Build System',
+		'⏪️': 'Reverts', ':rewind:': 'Reverts'
+	} -%}
+
+{#-	Маркеры перечислены в обеих формах: парсер кладёт в категорию ровно то,
+	что стоит в заголовке коммита. Список синхронизирован с `allowed_tags`
+	в pyproject.toml - незнакомый маркер уедет в раздел "Other", который
+	идёт последним. Раздел без коммитов не печатается. -#}
+
+{%- set SECTION_ORDER = [
+		'Breaking Changes', 'Features', 'Bug Fixes', 'Security', 'Licensing',
+		'Performance', 'Deprecations', 'External API Changes', 'Refactoring',
+		'Type Hints', 'Tests', 'Documentation', 'Localization', 'Dependencies',
+		'Build System', 'Reverts', 'Other'
+	] -%}
+
+
+{#-	Заголовок коммита без маркера и без скоупа. -#}
+{%- macro subject(commit) -%}
+	{%- set text = commit.descriptions[0] | trim -%}
+	{%- if commit.type != 'Other' and text.startswith(commit.type) -%}
+		{%- set text = text[commit.type | length:] | trim -%}
+	{%- endif -%}
+	{%- if not commit.scope and text.startswith('(') and '): ' in text -%}
+		{%- set text = text.split('): ', 1)[1] -%}
+	{%- endif -%}
+	{{- (text[0] | upper) ~ text[1:] -}}
+{%- endmacro -%}
+
+
+{#-	Скоуп: разобранный парсером либо снятый с заголовка вручную. -#}
+{%- macro scope(commit) -%}
+	{%- if commit.scope -%}
+		{{- commit.scope -}}
+	{%- else -%}
+		{%- set text = commit.descriptions[0] | trim -%}
+		{%- if commit.type != 'Other' and text.startswith(commit.type) -%}
+			{%- set text = text[commit.type | length:] | trim -%}
+		{%- endif -%}
+		{%- if text.startswith('(') and '): ' in text -%}
+			{{- text[1:].split('): ', 1)[0] -}}
+		{%- endif -%}
+	{%- endif -%}
+{%- endmacro -%}
+
+
+{#-	Строка списка: "- 🐛 **scope**: Subject ([PR](url), [`hash`](url))".
+
+	Маркер оставлен намеренно: в один раздел сходится несколько маркеров, и
+	только они различают, например, 🩹 и 🚑️ внутри "Bug Fixes". Печатается
+	то, что стоит в заголовке коммита, - если это шорткод, шорткод и будет.
+	В `subject` маркер снимается, здесь ставится обратно уже перед скоупом. -#}
+{%- macro bullet(commit) -%}
+	{%- set links = [] -%}
+	{%- if commit.linked_merge_request -%}
+		{%- set _ = links.append('[%s](%s)' | format(
+			commit.linked_merge_request,
+			commit.linked_merge_request | pull_request_url
+		)) -%}
+	{%- endif -%}
+	{%- set _ = links.append('[`%s`](%s)' | format(
+		commit.short_hash, commit.hexsha | commit_hash_url
+	)) -%}
+	{%- set text = subject(commit) | trim -%}
+	{%- set prefix = scope(commit) | trim -%}
+	{%- if prefix -%}
+		{%- set text = '**%s**: %s' | format(prefix, text) -%}
+	{%- endif -%}
+	{%- if commit.type != 'Other' -%}
+		{%- set text = '%s %s' | format(commit.type, text) -%}
+	{%- endif -%}
+	{{- '- %s (%s)' | format(text, links | join(', ')) -}}
+{%- endmacro -%}
+
+
+{#-	Абзацы тела коммита отдельными пунктами: тело 💥-коммита PSR отдаёт
+	не в описании, а отдельным полем. -#}
+{%- macro paragraphs(commit, attribute) -%}
+	{%- set parts = [] -%}
+	{%- for text in commit | attr(attribute) if text | trim -%}
+		{%- set text = text | trim -%}
+		{%- set _ = parts.append((text[0] | upper) ~ text[1:]) -%}
+	{%- endfor -%}
+	{%- set text = parts | join('\n\n- ') -%}
+	{%- set prefix = scope(commit) | trim -%}
+	{%- if prefix -%}
+		{{- '- **%s**: %s' | format(prefix, text) -}}
+	{%- else -%}
+		{{- '- %s' | format(text) -}}
+	{%- endif -%}
+{%- endmacro -%}
+
+
+{#-	Все разделы одной версии.
+
+	`commits` - список пар (категория, коммиты) из `release.elements`.
+
+	Пункты сортируются по отдельному ключу "скоуп + заголовок", а не по
+	готовой строке: строка начинается с emoji-маркера, и сортировка по ней
+	выстроила бы список по кодовым точкам эмодзи. -#}
+{%- macro changes(commits, width) -%}
+	{%- set out = [] -%}
+	{%- set valid = commits | rejectattr('0', 'equalto', 'unknown') | list -%}
+	{%- for section in SECTION_ORDER -%}
+		{%- set lines = [] -%}
+		{%- for category, category_commits in valid
+				if SECTION_TITLES.get(category, 'Other') == section -%}
+			{%- for commit in category_commits if commit.error is undefined -%}
+				{%- set _ = lines.append({
+					'key': '%s %s' | format(
+						scope(commit) | trim, subject(commit) | trim
+					) | trim,
+					'text': bullet(commit) | string | autofit_text_width(width, 2)
+				}) -%}
+			{%- endfor -%}
+		{%- endfor -%}
+		{%- if lines -%}
+			{%- set _ = out.append('\n### %s\n\n%s\n' | format(
+				section,
+				lines | sort(attribute='key') | map(attribute='text')
+					| unique | join('\n\n')
+			)) -%}
+		{%- endif -%}
+	{%- endfor -%}
+	{%- set breaking = valid | map(attribute='1.0')
+		| rejectattr('error', 'defined')
+		| selectattr('breaking_descriptions.0') | list -%}
+	{%- if breaking -%}
+		{%- set lines = [] -%}
+		{%- for commit in breaking -%}
+			{%- set _ = lines.append(
+				paragraphs(commit, 'breaking_descriptions')
+					| string | autofit_text_width(width, 2)
+			) -%}
+		{%- endfor -%}
+		{%- set _ = out.append('\n### Breaking Change Details\n\n%s\n' | format(
+			lines | unique | sort | join('\n\n')
+		)) -%}
+	{%- endif -%}
+	{{- out | join('') -}}
+{%- endmacro -%}
+
+
+{#-	Заголовок версии и её разделы. Строка про лицензию появляется только
+	в тексте GitHub Release: в CHANGELOG.md `license_name` не передаётся. -#}
+{%- macro version(release, width) -%}
+	{%- set out = ['## %s (%s)\n' | format(
+		release.version.as_semver_tag(),
+		release.tagged_date.strftime('%Y-%m-%d')
+	)] -%}
+	{%- if license_name is defined and license_name -%}
+		{%- set _ = out.append(
+			'\n_This release is published under the %s License._\n' | format(license_name)
+		) -%}
+	{%- endif -%}
+	{%- set _ = out.append(changes(release.elements | dictsort, width)) -%}
+	{{- out | join('') -}}
+{%- endmacro -%}

@@ -18,18 +18,18 @@
 | [`utils.py:10`][utils-10] | `clear_dict` не обрабатывает списки словарей. |
 | [`exceptions.py:71`][exceptions-71] | `CdekRequestException` объявлен, но нигде не используется. |
 
-[client-219]: https://github.com/gocream/pycdek/blob/master/gocream_pycdek/client.py#L219
-[client-206]: https://github.com/gocream/pycdek/blob/master/gocream_pycdek/client.py#L206
-[client-489]: https://github.com/gocream/pycdek/blob/master/gocream_pycdek/client.py#L489
-[client-251]: https://github.com/gocream/pycdek/blob/master/gocream_pycdek/client.py#L251
-[client-281]: https://github.com/gocream/pycdek/blob/master/gocream_pycdek/client.py#L281
-[client-529]: https://github.com/gocream/pycdek/blob/master/gocream_pycdek/client.py#L529
-[client-671]: https://github.com/gocream/pycdek/blob/master/gocream_pycdek/client.py#L671
-[client-76]: https://github.com/gocream/pycdek/blob/master/gocream_pycdek/client.py#L76
-[statuses-15]: https://github.com/gocream/pycdek/blob/master/gocream_pycdek/statuses.py#L15
-[client-83]: https://github.com/gocream/pycdek/blob/master/gocream_pycdek/client.py#L83
-[statuses-56]: https://github.com/gocream/pycdek/blob/master/gocream_pycdek/statuses.py#L56
-[client-997]: https://github.com/gocream/pycdek/blob/master/gocream_pycdek/client.py#L997
-[client-1299]: https://github.com/gocream/pycdek/blob/master/gocream_pycdek/client.py#L1299
-[utils-10]: https://github.com/gocream/pycdek/blob/master/gocream_pycdek/utils.py#L10
-[exceptions-71]: https://github.com/gocream/pycdek/blob/master/gocream_pycdek/exceptions.py#L71
+[client-219]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L219
+[client-206]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L206
+[client-489]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L489
+[client-251]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L251
+[client-281]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L281
+[client-529]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L529
+[client-671]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L671
+[client-76]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L76
+[statuses-15]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/statuses.py#L15
+[client-83]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L83
+[statuses-56]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/statuses.py#L56
+[client-997]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L997
+[client-1299]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L1299
+[utils-10]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/utils.py#L10
+[exceptions-71]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/exceptions.py#L71
