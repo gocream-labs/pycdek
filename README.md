@@ -22,9 +22,6 @@
 	<a href="https://github.com/gocream-labs/pycdek/actions/workflows/ci.yml" >
 		<img src="https://img.shields.io/github/actions/workflow/status/gocream-labs/pycdek/ci.yml?branch=master&logo=github&label=tests" alt="Tests - Running" />
 	</a>
-	<a href="https://github.com/gocream-labs/pycdek/actions/workflows/release.yml" >
-		<img src="https://img.shields.io/github/actions/workflow/status/gocream-labs/pycdek/release.yml?logo=github&label=release" alt="Release - Running" />
-	</a>
 	<a href="https://codecov.io/gh/gocream-labs/pycdek" >
 		<img src="https://img.shields.io/codecov/c/github/gocream-labs/pycdek?logo=codecov&logoColor=white&label=coverage" alt="Coverage" />
 	</a>
