@@ -1,0 +1,44 @@
+{#-
+	CHANGELOG.md.
+
+	Режим `mode = "update"`: файл делится по маркеру вставки, между
+	половинами печатаются невыпущенные коммиты и последняя версия, если её
+	там ещё нет. Проверка идёт по заголовку "## vX.Y.Z ", поэтому руками
+	историю нужно оформлять ровно так же - иначе версия продублируется.
+
+	Вторая ветка - файл без маркера: он потерян или содержимое чужое.
+	Тогда PSR ничего не меняет. Третья - файла нет вовсе, changelog
+	собирается заново по всем тегам.
+-#}
+{%- import '.components/sections.md.j2' as fmt with context -%}
+{%- set width = 100 -%}
+{%- set flag = ctx.changelog_insertion_flag -%}
+{%- set releases = ctx.history.released.values() | list -%}
+{%- set unreleased = ctx.history.unreleased | dictsort -%}
+{%- set parts = (ctx.prev_changelog_file | read_file).split(flag, 1) -%}
+{%- set out = [] -%}
+
+{%- if parts | length == 2 -%}
+	{%- set _ = out.append('%s\n\n%s\n' | format(parts[0] | trim, flag)) -%}
+	{%- if unreleased -%}
+		{%- set _ = out.append('\n## Unreleased\n%s\n' | format(
+			fmt.changes(unreleased, width)
+		)) -%}
+	{%- endif -%}
+	{%- set latest = releases[0] if releases else none -%}
+	{%- if latest and '## ' ~ latest.version.as_semver_tag() ~ ' ' not in parts[1] -%}
+		{%- set _ = out.append('\n%s\n' | format(fmt.version(latest, width))) -%}
+	{%- endif -%}
+	{%- if parts[1] | trim -%}
+		{%- set _ = out.append('\n%s\n' | format(parts[1] | trim)) -%}
+	{%- endif -%}
+{%- elif parts[0] | trim -%}
+	{%- set _ = out.append(parts[0]) -%}
+{%- else -%}
+	{%- set _ = out.append('# Changelog\n\n%s\n' | format(flag)) -%}
+	{%- for release in releases -%}
+		{%- set _ = out.append('\n%s\n' | format(fmt.version(release, width))) -%}
+	{%- endfor -%}
+{%- endif -%}
+
+{{- out | join('') -}}

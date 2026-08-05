@@ -40,14 +40,11 @@ dependencies = [
 dynamic = ["version"]
 
 [project.urls]
-Homepage = "https://gitlab.com/gocream/pycdek-2"
-Repository = "https://gitlab.com/gocream/pycdek-2"
-# Раскомментировать после переезда на GitHub и публикации документации.
-# Багтрекер намеренно не привязан к GitLab - заводить его там, чтобы через
-# месяц переносить, смысла нет.
-# Documentation = "https://dd.github.io/pycdek-2"
-# Changelog = "https://github.com/dd/pycdek-2/blob/master/CHANGELOG.md"
-# "Bug Tracker" = "https://github.com/dd/pycdek-2/issues"
+Homepage = "https://gocream-labs.github.io/pycdek/"
+Documentation = "https://gocream-labs.github.io/pycdek/"
+Repository = "https://github.com/gocream-labs/pycdek"
+Changelog = "https://github.com/gocream-labs/pycdek/blob/master/CHANGELOG.md"
+"Bug Tracker" = "https://github.com/gocream-labs/pycdek/issues"
 
 
 [tool.hatch.version]
@@ -58,10 +55,12 @@ path = "gocream_pycdek/__init__.py"
 # в sdist принудительно, чтобы пересборка из него отбирала ровно те же файлы.
 # Проверено - `exclude` его не убирает.
 [tool.hatch.build]
+skip-excluded-dirs = true
 exclude = [
-	"dist",
-	".editorconfig",
-	".mailmapx",
+	"/dist",
+	"/site",
+	"/.editorconfig",
+	"/.mailmap",
 ]
 
 # Остальное hatchling берёт по умолчанию: всё, что под контролем VCS.
@@ -71,6 +70,15 @@ packages = ["gocream_pycdek"]
 
 
 [dependency-groups]
+docs = [
+	"mkdocs-material==9.7.7",
+	"mkdocstrings-python==2.0.5",
+	"mkdocs-git-revision-date-localized-plugin==1.5.3",
+	"mkdocs-git-authors-plugin==0.10.0",
+	"mike==2.2.0",
+	"linkchecker==10.6.0",
+	"ruff==0.15.14",
+]
 lint = [
 	"pre-commit==4.6.0",
 	"ruff==0.15.14",
@@ -136,7 +144,24 @@ dependency-groups = ["release"]
 
 [tool.hatch.envs.release.scripts]
 preview = "semantic-release --noop version --print"
+beta-preview = "semantic-release --noop version --as-prerelease --prerelease-token b --print"
 changelog = "semantic-release changelog"
+
+
+[tool.hatch.envs.docs]
+description = "Documentation environment"
+python = "3.14"
+dependency-groups = ["docs"]
+
+[tool.hatch.envs.docs.scripts]
+build = "mkdocs build --strict {args}"
+serve = "mkdocs serve {args}"
+links = "linkchecker --config .linkcheckerrc {args:site/index.html}"
+links-external = "linkchecker --config .linkcheckerrc --check-extern {args:https://gocream-labs.github.io/pycdek/}"
+versions = "mike list {args}"
+deploy = "mike deploy --update-aliases {args}"
+set-default = "mike set-default {args}"
+serve-versions = "mike serve {args}"
 
 
 [tool.hatch.envs.mtest]
@@ -144,7 +169,7 @@ description = "Test matrix environment"
 dependency-groups = ["test"]
 
 [tool.hatch.envs.mtest.scripts]
-check = "pytest {args:-q}"
+check = "pytest {args:-q --cov=gocream_pycdek --cov-report=xml}"
 
 [[tool.hatch.envs.mtest.matrix]]
 python = ["3.10", "3.11", "3.12", "3.13", "3.14"]
@@ -215,6 +240,9 @@ indent-style = "space"
 [tool.coverage.run]
 source = ["gocream_pycdek"]
 omit = ["*/tests/*"]
+# Пути в отчётах относительные: иначе в coverage.xml попадает абсолютный путь
+# рабочей директории и Codecov не находит файлы в репозитории.
+relative_files = true
 
 [tool.coverage.report]
 exclude_lines = [
@@ -228,11 +256,10 @@ testpaths = ["tests"]
 addopts = "--disable-socket"
 
 
-# Релизы: версия и CHANGELOG считаются из gitmoji в коммитах.
+# Релизы: версия и CHANGELOG считаются по emoji-маркерам в коммитах.
 # Проверить, что получится, не записывая ничего: `hatch run release:preview`.
 [tool.semantic_release]
-build_command = "hatch build"
-commit_message = "🔖 (release): Release {version} [skip ci]"
+commit_message = "🔖 (release): Release {version}"
 commit_parser = "emoji"
 version_variables = ["gocream_pycdek/__init__.py:__version__"]
 tag_format = "{version}"
@@ -247,8 +274,20 @@ match = "next"
 prerelease = true
 prerelease_token = "rc"
 
+# Ручные beta-релизы можно выпускать из любой рабочей ветки. `master` и
+# `next` обрабатываются более специфичными правилами выше.
+[tool.semantic_release.branches.beta]
+match = "^(?!master$|next$).+"
+prerelease = true
+prerelease_token = "b"
+
 [tool.semantic_release.changelog]
 mode = "update"
+insertion_flag = "<!-- version list -->"
+# Штатные шаблоны PSR печатают заголовком раздела сам emoji-маркер ("### 🏗️"),
+# поэтому в `templates/` лежат свои. Если каталог непустой, PSR берёт только
+# его, штатные шаблоны в рендеринге не участвуют.
+template_dir = "templates"
 
 [tool.semantic_release.commit_parser_options]
 ignore_merge_commits = true
@@ -264,6 +303,8 @@ patch_tags = [
 	"🔒️", ":lock:",	# безопасность
 	"♻️", ":recycle:",	# рефакторинг
 	"🗑️", ":wastebasket:",	# пометка устаревшего
+	"⚰️", ":coffin:",	# удаление мёртвого кода
+	"🧱", ":bricks:",	# инфраструктура и оснастка
 	"👽️", ":alien:",	# правки под изменения внешнего API
 	"🏷️", ":label:",	# типы
 	"📝", ":memo:",	# документация
@@ -277,4 +318,43 @@ patch_tags = [
 	"✏️", ":pencil2:",	# опечатки
 	"⏪️", ":rewind:",	# откат изменений
 ]
-other_allowed_tags = ["🎨", ":art:"]
+other_allowed_tags = [
+	"🎨", ":art:",	# форматирование и стиль
+	"🧪", ":test_tube:",	# тесты
+	"📄", ":page_facing_up:",	# лицензия
+]
+
+# Продублировать полный список обязательно. Поле `allowed_tags` в
+# EmojiParserOptions вычисляется из значений по умолчанию на этапе объявления
+# dataclass и не пересобирается из переопределённых списков выше. Регулярное
+# выражение парсера строится именно по нему, а уровень версии - по спискам
+# выше. Из-за этого без `allowed_tags` маркеры, объявленные только в
+# `other_allowed_tags`, не распознаются и уезжают в раздел "Other".
+allowed_tags = [
+	"💥", ":boom:",
+	"✨", ":sparkles:",
+	"⚡️", ":zap:",
+	"🐛", ":bug:",
+	"🩹", ":adhesive_bandage:",
+	"🚑️", ":ambulance:",
+	"🔒️", ":lock:",
+	"♻️", ":recycle:",
+	"🗑️", ":wastebasket:",
+	"⚰️", ":coffin:",
+	"🧱", ":bricks:",
+	"👽️", ":alien:",
+	"🏷️", ":label:",
+	"📝", ":memo:",
+	"🔧", ":wrench:",
+	"🏗️", ":building_construction:",
+	"⬆️", ":arrow_up:",
+	"⬇️", ":arrow_down:",
+	"➕", ":heavy_plus_sign:",
+	"➖", ":heavy_minus_sign:",
+	"🌐", ":globe_with_meridians:",
+	"✏️", ":pencil2:",
+	"⏪️", ":rewind:",
+	"🎨", ":art:",
+	"🧪", ":test_tube:",
+	"📄", ":page_facing_up:",
+]

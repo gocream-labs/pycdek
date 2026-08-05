@@ -16,12 +16,18 @@
 !.github/
 !.pre-commit-config.yaml
 !.git-blame-ignore-revs
+!.linkcheckerrc
 !.mailmap
+!templates/.components/
+!templates/.release_notes.md.j2
 
 __pycache__
+coverage.xml
+htmlcov
 dist
 /venv
 /env
 /build
+/site
 /share
 /stuff
