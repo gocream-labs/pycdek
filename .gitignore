@@ -22,6 +22,8 @@
 !templates/.release_notes.md.j2
 
 __pycache__
+coverage.xml
+htmlcov
 dist
 /venv
 /env

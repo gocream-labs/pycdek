@@ -169,7 +169,7 @@ description = "Test matrix environment"
 dependency-groups = ["test"]
 
 [tool.hatch.envs.mtest.scripts]
-check = "pytest {args:-q}"
+check = "pytest {args:-q --cov=gocream_pycdek --cov-report=xml}"
 
 [[tool.hatch.envs.mtest.matrix]]
 python = ["3.10", "3.11", "3.12", "3.13", "3.14"]
@@ -240,6 +240,9 @@ indent-style = "space"
 [tool.coverage.run]
 source = ["gocream_pycdek"]
 omit = ["*/tests/*"]
+# Пути в отчётах относительные: иначе в coverage.xml попадает абсолютный путь
+# рабочей директории и Codecov не находит файлы в репозитории.
+relative_files = true
 
 [tool.coverage.report]
 exclude_lines = [

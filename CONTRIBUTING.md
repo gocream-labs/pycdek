@@ -31,7 +31,7 @@ hatch run init
 | `hatch run lint:fmt-check` | проверка форматирования |
 | `hatch run lint:format` | автоисправление и форматирование |
 | `hatch run test:check` | тесты с покрытием на основной версии Python |
-| `hatch run mtest:check` | матрица тестов Python 3.10–3.14 |
+| `hatch run mtest:check` | матрица тестов Python 3.10–3.14, отчёт `coverage.xml` для Codecov |
 
 Документация:
 

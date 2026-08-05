@@ -18,6 +18,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Push в next даёт rc, ручной запуск из рабочей ветки - beta.
   setup:
     name: Select prerelease channel
     runs-on: ubuntu-latest
@@ -48,6 +49,7 @@ jobs:
           echo "channel=$CHANNEL" >> "$GITHUB_OUTPUT"
           echo "Prerelease channel: $CHANNEL"
 
+  # Гейт для rc: через workflow_call, потому что результат нужен джобе build.
   tests:
     name: Test prerelease candidate
     needs: setup
@@ -58,9 +60,13 @@ jobs:
       run_package: false
       run_lint: false
       run_docs: false
+    secrets:
+      CODECOV_TOKEN: "${{ secrets.CODECOV_TOKEN }}"
     permissions:
       contents: read
 
+  # Версия и тег предрелиза без коммита в ветку: что бы не создавать лишние коммиты и незагрязнять
+  # рабочую ветку.
   build:
     name: Build, Version & Tag [Prerelease]
     needs:
@@ -133,6 +139,7 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+  # Публикация в PyPI через trusted publishing, без токенов.
   publish-pypi:
     name: Publish prerelease to PyPI
     needs: build
@@ -157,6 +164,7 @@ jobs:
       - name: Publish | Upload to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
 
+  # GitHub Release с пометкой prerelease, чтобы не подменять latest.
   publish-github:
     name: Publish prerelease to GitHub Release
     needs: build
@@ -186,6 +194,7 @@ jobs:
           --title "$RELEASE_TAG"
           --notes "$RELEASE_NOTES"
 
+  # Ветка next получает свою версию доков; только для rc, beta их не трогает.
   documentation:
     name: Deploy next documentation
     needs:

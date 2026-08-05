@@ -25,20 +25,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  checks:
-    name: Check stable candidate
-    uses: ./.github/workflows/ci.yml
-    with:
-      run_tests: true
-      run_package: true
-      run_lint: false
-      run_docs: false
-    permissions:
-      contents: read
-
+  # Считает версию по коммитам, пишет CHANGELOG, ставит тег и собирает дистрибутивы.
   build:
     name: Build, Version, Commit & Tag [Stable]
-    needs: checks
     runs-on: ubuntu-latest
 
     permissions:
@@ -66,7 +55,7 @@ jobs:
           fetch-depth: 0
           token: "${{ steps.release-token.outputs.token }}"
 
-      - name: Setup | Pin master to the tested commit
+      - name: Setup | Pin master to the triggering commit
         env:
           RELEASE_SHA: "${{ github.sha }}"
         run: git reset --hard "$RELEASE_SHA"
@@ -117,6 +106,27 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+  # Тесты по актуальному head master - ради бейджей, публикацию не гейтит.
+  # Отдельным run'ом, а не workflow_call: только у него есть свой статус.
+  checks:
+    name: Run CI on master head
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      actions: write
+
+    steps:
+      # GITHUB_TOKEN тут работает: workflow_dispatch - исключение из правила
+      # "события от токена не запускают воркфлоу". Ref по ветке, не по тегу,
+      # иначе отчёт Codecov уедет на тег вместо master.
+      - name: Action | Trigger CI for the current master head
+        env:
+          GH_REPO: "${{ github.repository }}"
+          GH_TOKEN: "${{ github.token }}"
+        run: gh workflow run ci.yml --ref master -f run_tests=true
+
+  # Публикация в PyPI через trusted publishing, без токенов.
   publish-pypi:
     name: Publish stable distributions to PyPI
     needs: build
@@ -141,6 +151,7 @@ jobs:
       - name: Publish | Upload to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
 
+  # GitHub Release по уже созданному тегу, с дистрибутивами в ассетах.
   publish-github:
     name: Publish stable to GitHub Release
     needs: build
@@ -169,6 +180,7 @@ jobs:
           --title "$RELEASE_TAG"
           --notes "$RELEASE_NOTES"
 
+  # Деплой версии документации через mike с переносом алиаса latest.
   documentation:
     name: Deploy stable documentation
     needs: build
