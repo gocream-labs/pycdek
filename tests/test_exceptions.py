@@ -1,5 +1,7 @@
 """Проверки публичного контракта исключений библиотеки."""
 
+from types import SimpleNamespace
+
 import pytest
 from requests import RequestException
 
@@ -35,3 +37,25 @@ def test_request_exception_is_a_requests_exception():
 
     error = CdekRequestException()
     assert isinstance(error, RequestException)
+    assert error.response is None
+    assert error.request is None
+
+
+def test_request_exception_carries_response_and_request():
+    """Проверяет, что обёртка отдаёт ответ и запрос как обычное исключение `requests`."""
+
+    response = SimpleNamespace(status_code=503, request="request-object")
+    error = CdekRequestException("503 Server Error", response=response)
+
+    assert error.response is response
+    assert error.request == "request-object"
+    assert str(error) == "Error cdek_request_exception: 503 Server Error"
+
+
+def test_request_exception_prefers_explicit_request():
+    """Проверяет приоритет явно переданного запроса над запросом из ответа."""
+
+    response = SimpleNamespace(status_code=503, request="from-response")
+    error = CdekRequestException(response=response, request="explicit")
+
+    assert error.request == "explicit"

@@ -10,11 +10,14 @@ from unittest.mock import MagicMock
 import jwt
 import pytest
 import responses
+from requests import HTTPError
+from requests import RequestException
 
 from gocream_pycdek import PRODUCTION_API_URL
 from gocream_pycdek import TEST_API_URL
 from gocream_pycdek import CdekClient
 from gocream_pycdek import ContractType
+from gocream_pycdek.exceptions import CdekRequestException
 
 
 def stub_authorization(client, expires_at):
@@ -176,28 +179,157 @@ def test_get_headers_authorizes_when_token_is_missing(client):
     client.authorization.assert_called_once_with()
 
 
-@pytest.mark.parametrize("method", ["get", "post", "delete"])
+@pytest.mark.parametrize("method", ["get", "post", "delete", "put", "patch"])
 @responses.activate
-def test_send_dispatches_supported_http_methods(client, method):
-    """Проверяет отправку каждого поддерживаемого HTTP-метода."""
-    client._token = "token"
-    client._token_expires_at = datetime.now() + timedelta(hours=1)
+def test_send_dispatches_any_http_method(authorized_client, method):
+    """Проверяет отправку произвольного HTTP-метода, а не только трёх зашитых."""
+
     responses.add(method.upper(), "https://api.cdek.ru/v2/orders", json={"ok": True}, status=200)
 
-    assert client.send("v2/orders", method=method).json() == {"ok": True}
+    assert authorized_client.send("v2/orders", method=method).json() == {"ok": True}
+    assert responses.calls[0].request.method == method.upper()
+
+
+def test_send_requires_explicit_method(authorized_client):
+    """Проверяет, что HTTP-метод обязателен и не подставляется по умолчанию."""
+
+    with pytest.raises(TypeError):
+        authorized_client.send("v2/orders")
 
 
 @responses.activate
-def test_send_passes_common_request_options(client):
+def test_send_passes_common_request_options(authorized_client):
     """Проверяет JSON, query-параметры, Bearer-заголовок и timeout запроса."""
-    client._token = "token"
-    client._token_expires_at = datetime.now() + timedelta(hours=1)
+
     responses.add(responses.POST, "https://api.cdek.ru/v2/orders", json={"ok": True}, status=200)
 
-    client.send("v2/orders", method="post", data={"x": 1}, params={"page": 2})
+    authorized_client.send("v2/orders", method="post", data={"x": 1}, params={"page": 2})
 
     request = responses.calls[0].request
     assert request.body == json.dumps({"x": 1}).encode()
     assert request.params == {"page": "2"}
-    assert responses.calls[0].request.headers["Authorization"] == "Bearer token"
+    assert request.headers["Authorization"] == "Bearer token"
     assert request.req_kwargs["timeout"] == (3, 7)
+
+
+@responses.activate
+def test_send_replaces_headers_entirely(authorized_client):
+    """Проверяет, что свой набор заголовков вытесняет умолчания, включая `Authorization`."""
+
+    responses.add(responses.GET, "https://api.cdek.ru/v2/orders", json={"ok": True}, status=200)
+
+    authorized_client.send("v2/orders", method="get", headers={"Authorization": "Basic custom"})
+
+    assert responses.calls[0].request.headers["Authorization"] == "Basic custom"
+
+
+@responses.activate
+def test_send_makes_anonymous_request_without_authorizing(client):
+    """Проверяет анонимный запрос: пустые заголовки и ни одного похода за токеном.
+
+    Токен здесь не подставлен намеренно: `authorization` замокан и покажет обращение,
+    если клиент всё-таки полезет за ним. Раньше полез бы - `get_headers()` вычислялся
+    как аргумент `setdefault` независимо от переданных заголовков.
+    """
+
+    stub_authorization(client, datetime.now() + timedelta(hours=1))
+    responses.add(responses.GET, "https://api.cdek.ru/v2/orders", json={"ok": True}, status=200)
+
+    client.send("v2/orders", method="get", headers={})
+
+    assert "Authorization" not in responses.calls[0].request.headers
+    client.authorization.assert_not_called()
+
+
+@responses.activate
+def test_send_allows_overriding_timeout(authorized_client):
+    """Проверяет, что переданный timeout вытесняет `DEFAULT_TIMEOUT`."""
+
+    responses.add(responses.GET, "https://api.cdek.ru/v2/orders", json={"ok": True}, status=200)
+
+    authorized_client.send("v2/orders", method="get", timeout=42)
+
+    assert responses.calls[0].request.req_kwargs["timeout"] == 42
+
+
+@responses.activate
+def test_send_wraps_error_status_in_cdek_exception(authorized_client):
+    """Проверяет обёртку ошибочного статуса в `CdekRequestException` с исходным ответом."""
+
+    responses.add(
+        responses.GET,
+        "https://api.cdek.ru/v2/orders",
+        json={"errors": [{"code": "service_unavailable"}]},
+        status=503,
+    )
+
+    with pytest.raises(CdekRequestException) as error:
+        authorized_client.send("v2/orders", method="get")
+
+    assert isinstance(error.value, RequestException)
+    assert error.value.response.status_code == 503
+    assert error.value.response.json() == {"errors": [{"code": "service_unavailable"}]}
+    assert isinstance(error.value.__cause__, HTTPError)
+
+
+@responses.activate
+def test_send_returns_error_response_when_errors_are_not_raised(authorized_client):
+    """Проверяет возврат ответа с ошибочным статусом при `raise_errors=False`."""
+
+    responses.add(responses.GET, "https://api.cdek.ru/v2/orders", json={"reason": "nope"}, status=404)
+
+    response = authorized_client.send("v2/orders", method="get", raise_errors=False)
+
+    assert response.status_code == 404
+    assert response.json() == {"reason": "nope"}
+
+
+@responses.activate
+def test_send_goes_through_client_session(authorized_client):
+    """Проверяет отправку через сессию клиента: её настройки видны в запросе."""
+
+    authorized_client._session.headers["X-Session-Marker"] = "shared"
+    responses.add(responses.GET, "https://api.cdek.ru/v2/orders", json={"ok": True}, status=200)
+
+    authorized_client.send("v2/orders", method="get")
+
+    assert responses.calls[0].request.headers["X-Session-Marker"] == "shared"
+
+
+def test_close_releases_session(client):
+    """Проверяет освобождение соединений сессии по `close`."""
+
+    session = client._session = MagicMock()
+    client.close()
+
+    session.close.assert_called_once_with()
+
+
+@responses.activate
+def test_client_stays_usable_after_close(authorized_client):
+    """Проверяет, что закрытый клиент открывает соединение заново, а не ломается."""
+
+    responses.add(responses.GET, "https://api.cdek.ru/v2/orders", json={"ok": True}, status=200)
+
+    authorized_client.send("v2/orders", method="get")
+    authorized_client.close()
+
+    assert authorized_client.send("v2/orders", method="get").json() == {"ok": True}
+
+
+def test_close_is_idempotent(authorized_client):
+    """Проверяет, что повторное закрытие не выбрасывает ошибку."""
+
+    authorized_client.close()
+    authorized_client.close()
+
+
+def test_client_closes_session_on_context_exit(client):
+    """Проверяет закрытие сессии при выходе из контекстного менеджера."""
+
+    session = client._session = MagicMock()
+
+    with client as entered:
+        assert entered is client
+
+    session.close.assert_called_once_with()

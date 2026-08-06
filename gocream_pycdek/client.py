@@ -8,6 +8,7 @@ from pathlib import PurePath
 
 import jwt
 import requests
+from requests import HTTPError
 from requests import Response
 
 from gocream_pycdek.exceptions import CdekApiAccessException
@@ -15,6 +16,7 @@ from gocream_pycdek.exceptions import CdekApiException
 from gocream_pycdek.exceptions import CdekApiUnavailableException
 from gocream_pycdek.exceptions import CdekApiWrongTokenTypeException
 from gocream_pycdek.exceptions import CdekNoAuthClientException
+from gocream_pycdek.exceptions import CdekRequestException
 from gocream_pycdek.utils import clear_dict
 from gocream_pycdek.utils import get_secure
 
@@ -42,11 +44,29 @@ class CdekClient:
     """
     Client for cdek api
 
+    Клиент держит открытую HTTP-сессию, поэтому у него есть время жизни. Соединение
+    переиспользуется между запросами, и это тем выгоднее, чем дольше живёт экземпляр -
+    один клиент на приложение предпочтительнее клиента на запрос.
+
+    Освобождать соединения нужно явно, через `close` или блок `with`:
+
+    ```python
+    with CdekClient("id", "secret", contract_type=ContractType.ONLINE_STORE) as client:
+        regions = client.get_regions()
+    ```
+
+    Без этого сокеты остаются открытыми, пока на клиента есть хоть одна ссылка.
+    Сборщик мусора их в итоге доберёт, но предупреждения при этом не будет,
+    так что накопление дескрипторов легко не заметить.
+
     Attributes:
         TOKEN_REFRESH_MARGIN: Насколько раньше срока клиент идёт за новым токеном. Запас
             нужен на расхождение часов с СДЭК и на время запроса, который этим токеном
             уйдёт. СДЭК выдаёт токен на час, так что пять минут стоят примерно 8% срока
             жизни.
+        DEFAULT_TIMEOUT: Таймаут запроса как пара `(connect, read)` в секундах. Отдельный
+            атрибут, а не литерал в `send`, чтобы значение переопределялось наследником
+            или на экземпляре, без правки вызовов.
     """
 
     RESOURCE_AUTH_TOKEN = "v2/oauth/token"
@@ -62,6 +82,7 @@ class CdekClient:
     RESOURCE_CALCULATOR_URL = "calculator/calculate_price_by_json.php"
 
     TOKEN_REFRESH_MARGIN: dt.timedelta = dt.timedelta(minutes=5)
+    DEFAULT_TIMEOUT: tuple[float, float] = (3, 7)
 
     def __init__(
         self,
@@ -85,6 +106,34 @@ class CdekClient:
         self.base_url = base_url.rstrip("/")
         self._token: str | None = None
         self._token_expires_at: dt.datetime | None = None
+
+        # Сессия держит TCP-соединение открытым между запросами. На пагинации
+        # `get_all_cities` это разница между одним handshake и сотнями.
+        self._session = requests.Session()
+
+    def __enter__(self):
+        """
+        Enter runtime context and return the client itself
+        """
+
+        return self
+
+    def __exit__(self, *exc_info):
+        """
+        Leave runtime context, closing the client and releasing its connections
+        """
+
+        self.close()
+
+    def close(self) -> None:
+        """
+        Close underlying HTTP session and release pooled connections
+
+        Вызывается автоматически при выходе из блока `with`. Клиент после закрытия
+        остаётся работоспособным: следующий запрос откроет соединение заново.
+        """
+
+        self._session.close()
 
     @property
     def token(self) -> str:
@@ -111,13 +160,14 @@ class CdekClient:
         request jwt token for use in api requests
         """
 
-        response = requests.post(
+        response = self._session.post(
             self.get_url(self.RESOURCE_AUTH_TOKEN),
             params={
                 "grant_type": "client_credentials",
                 "client_id": self.client_id,
                 "client_secret": self._client_secret,
             },
+            timeout=self.DEFAULT_TIMEOUT,
         )
 
         if response.status_code != 200:
@@ -168,36 +218,48 @@ class CdekClient:
 
         return {"Authorization": f"Bearer {self.token}"}
 
-    def send(self, resource, method="get", data=None, params=None, raise_errors=True, **kwargs):
+    def send(self, resource, method, *, data=None, params=None, raise_errors=True, **kwargs):
         """
-        Send request and add token to headers
+        Send authorized request to the API
 
         Args:
-            resource (str|Path): resource path
-            data (dict, optional): dictionary of request data used in json. Default to None.
-            method (str, optional): request method (default: get)
-            raise_errors (bool, optional): raise errors? (default: True)
+            resource (str|PurePath): Resource path or an absolute url.
+            method (str): HTTP method, e.g. `get`, `post` or `delete`.
+            data (dict, optional): Request body, sent as json. Defaults to None.
+            params (dict, optional): Query string parameters. Defaults to None.
+            raise_errors (bool, optional): Raise `CdekRequestException` on error status.
+                Defaults to True.
+            **kwargs: Passed to `requests.Session.request` as is. Свой `headers` заменяет
+                набор целиком, а не дополняет его: так подменяется `Authorization` или
+                отправляется анонимный запрос, если передать `headers={}`.
 
         Returns:
-            dict: request returned data
+            Response: Response as returned by `requests`.
+
+        Raises:
+            CdekRequestException: Ответ с ошибочным статусом при `raise_errors=True`.
         """
 
-        kwargs.setdefault("headers", self.get_headers())
-        kwargs.setdefault("timeout", (3, 7))
-        kwargs["json"] = data
-        kwargs["params"] = params
+        # Не `setdefault`: его аргумент вычисляется всегда, поэтому анонимный запрос всё
+        # равно успевал сходить за токеном. Здесь `get_headers` зовётся, только если своих
+        # заголовков не передали.
+        headers = kwargs.pop("headers", None)
+        if headers is None:
+            headers = self.get_headers()
 
-        if method == "get":
-            response = requests.get(self.get_url(resource), **kwargs)
+        kwargs.setdefault("timeout", self.DEFAULT_TIMEOUT)
 
-        elif method == "post":
-            response = requests.post(self.get_url(resource), **kwargs)
+        url = self.get_url(resource)
+        response = self._session.request(method, url, json=data, params=params, headers=headers, **kwargs)
 
-        elif method == "delete":
-            response = requests.delete(self.get_url(resource), **kwargs)
+        logger.debug("%s %s responded %s", method.upper(), url, response.status_code)
 
         if raise_errors:
-            response.raise_for_status()
+            try:
+                response.raise_for_status()
+
+            except HTTPError as error:
+                raise CdekRequestException(str(error), response=response) from error
 
         return response
 
@@ -436,7 +498,7 @@ class CdekClient:
         elif im_number:
             kwargs["params"] = {"im_number": im_number}
 
-        response = self.send(url, **kwargs)
+        response = self.send(url, method="get", **kwargs)
 
         if not origin_response:
             response = response.json()["entity"]
@@ -570,7 +632,7 @@ class CdekClient:
             dict: intakes info
         """
 
-        response = self.send(Path(self.RESOURCE_INTAKES) / Path(uuid), raise_errors=raise_errors)
+        response = self.send(Path(self.RESOURCE_INTAKES) / Path(uuid), method="get", raise_errors=raise_errors)
 
         if not origin_response:
             response = response.json()["entity"]
@@ -637,7 +699,7 @@ class CdekClient:
             }
         )
 
-        response = self.send(Path(self.RESOURCE_REGIONS), params=complete_data, raise_errors=raise_errors)
+        response = self.send(Path(self.RESOURCE_REGIONS), method="get", params=complete_data, raise_errors=raise_errors)
 
         if not origin_response:
             response = response.json()
@@ -724,7 +786,7 @@ class CdekClient:
             }
         )
 
-        response = self.send(Path(self.RESOURCE_CITIES), params=complete_data, raise_errors=raise_errors)
+        response = self.send(Path(self.RESOURCE_CITIES), method="get", params=complete_data, raise_errors=raise_errors)
 
         if not origin_response:
             response = response.json()
@@ -852,7 +914,7 @@ class CdekClient:
         https://apidoc.cdek.ru/#tag/print/operation/waybillGet
         """
 
-        response = self.send(Path(self.RESOURCE_RECEIPT) / Path(uuid), **kwargs)
+        response = self.send(Path(self.RESOURCE_RECEIPT) / Path(uuid), method="get", **kwargs)
 
         if not origin_response:
             response = response.json()["entity"]
@@ -873,7 +935,7 @@ class CdekClient:
         https://apidoc.cdek.ru/#tag/print/operation/barcodeGet
         """
 
-        response = self.send(Path(self.RESOURCE_BARCODE) / Path(uuid), **kwargs)
+        response = self.send(Path(self.RESOURCE_BARCODE) / Path(uuid), method="get", **kwargs)
 
         if not origin_response:
             response = response.json()["entity"]
@@ -888,7 +950,7 @@ class CdekClient:
             url (str): cdek url
             origin_response (bool, optional): return original response or only entity? (default: False)
         """
-        response = self.send(url, **kwargs)
+        response = self.send(url, method="get", **kwargs)
 
         if origin_response:
             return response
@@ -1007,7 +1069,7 @@ class CdekClient:
         kwargs["raise_errors"] = raise_errors
         kwargs["data"] = complete_data
 
-        response = self.send(self.RESOURCE_CALCULATOR_URL, **kwargs)
+        response = self.send(self.RESOURCE_CALCULATOR_URL, method="post", **kwargs)
 
         if not origin_response:
             response = response.json()
@@ -1214,7 +1276,9 @@ class CdekClient:
             }
         )
 
-        response = self.send(Path(self.RESOURCE_DELIVERYPOINTS), params=complete_data, raise_errors=raise_errors)
+        response = self.send(
+            Path(self.RESOURCE_DELIVERYPOINTS), method="get", params=complete_data, raise_errors=raise_errors
+        )
 
         if not origin_response:
             response = response.json()

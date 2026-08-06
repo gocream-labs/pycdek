@@ -2,6 +2,10 @@ site_name: Gocream / PyCDEK
 site_description: Python-библиотека для CDEK API v2.0
 site_url: https://gocream-labs.github.io/pycdek/
 site_dir: site
+
+# Файл навигации literate-nav не должен становиться страницей сайта.
+exclude_docs: |
+  SUMMARY.md
 strict: true
 site_author: Dmitriy Dobrynin (aka dd) <dd@tovarisch.engineer>
 copyright: Copyright &copy; 2019 - present <a href="https://gocream.com/" target="_blank" rel="noopener" >GoCream</a>
@@ -18,6 +22,7 @@ theme:
     - content.code.annotate
     - navigation.footer
     - navigation.sections
+    - navigation.tabs
     - navigation.tracking
     - navigation.top
     - search.highlight
@@ -35,16 +40,10 @@ theme:
         icon: material/brightness-4
         name: Включить светлую тему
 
-nav:
-  - Главная: index.md
-  - Справочник API: api.md
-  - Известные проблемы: known-issues.md
-  - План развития: roadmap.md
-  - Участие в разработке: contributing.md
-  - Процесс релиза и версионирования: releasing.md
-  - История изменений: changelog.md
-
 plugins:
+  # Навигация описана в `docs/SUMMARY.md`, а не здесь.
+  - literate-nav:
+      nav_file: SUMMARY.md
   - search:
       lang:
         - ru

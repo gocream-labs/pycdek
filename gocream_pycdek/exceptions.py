@@ -79,3 +79,20 @@ class CdekRequestException(BaseCdekException, RequestException):
 
     default_message = "CDEK request exception."
     default_code = "cdek_request_exception"
+
+    def __init__(self, message=None, code=None, *, response=None, request=None):
+        """
+        Args:
+            message: Human readable description, `default_message` if omitted.
+            code: Machine readable code, `default_code` if omitted.
+            response: Response that caused the error, if there was one.
+            request: Request that caused the error, taken from `response` if omitted.
+        """
+
+        # `RequestException.__init__` перетирает `response` и `request` тем, что найдёт в
+        # своих kwargs, а `BaseCdekException` зовёт его через `super()` со строкой. Поэтому
+        # атрибуты выставляются после родителя, иначе они молча обнулятся.
+        super().__init__(message, code)
+
+        self.response = response
+        self.request = request if request is not None else getattr(response, "request", None)

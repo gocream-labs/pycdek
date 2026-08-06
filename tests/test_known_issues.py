@@ -1,8 +1,9 @@
 """Регрессионные тесты наблюдаемого поведения из списка известных проблем."""
 
+from pathlib import PurePosixPath
+
 import pytest
 import responses
-from requests import HTTPError
 
 from gocream_pycdek.exceptions import CdekRequestException
 
@@ -17,27 +18,17 @@ def test_get_order_does_not_forward_raise_errors(authorized_client):
         status=404,
     )
 
-    with pytest.raises(HTTPError):
+    with pytest.raises(CdekRequestException):
         authorized_client.get_order(uuid="order-uuid", raise_errors=False)
 
 
-def test_send_with_unsupported_method_raises_unbound_local_error(authorized_client):
-    """Фиксирует текущую ошибку `send()` для неподдерживаемого HTTP-метода."""
-    with pytest.raises(UnboundLocalError):
-        authorized_client.send("v2/orders", method="patch")
+def test_get_url_mangles_absolute_url_passed_as_path(client):
+    """Фиксирует порчу абсолютной ссылки, переданной как `PurePath`.
 
+    `as_posix()` схлопывает `//` в схеме до одного слэша, проверка на `https://`
+    не срабатывает, и ссылка молча приклеивается к базовому адресу CDEK.
+    """
 
-@responses.activate
-def test_send_exposes_requests_http_error_instead_of_wrapper(authorized_client):
-    """Фиксирует, что объявленный `CdekRequestException` не используется."""
-    responses.add(
-        responses.GET,
-        "https://api.cdek.ru/v2/orders",
-        json={"errors": [{"code": "service_unavailable"}]},
-        status=503,
-    )
+    result = client.get_url(PurePosixPath("https://files.example/waybill.pdf"))
 
-    with pytest.raises(HTTPError) as error:
-        authorized_client.send("v2/orders")
-
-    assert not isinstance(error.value, CdekRequestException)
+    assert result == "https://api.cdek.ru/https:/files.example/waybill.pdf"

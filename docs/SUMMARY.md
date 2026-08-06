@@ -1,0 +1,19 @@
+- [Главная](index.md)
+- Справочник
+    - [Клиент](reference/index.md)
+    - [Заказы](reference/orders.md)
+    - [Заявки на забор](reference/intakes.md)
+    - [Регионы и города](reference/location.md)
+    - [Печатные формы](reference/documents.md)
+    - [Калькулятор](reference/calculator.md)
+    - [Вебхуки](reference/webhooks.md)
+    - [Пункты выдачи](reference/deliverypoints.md)
+    - [Исключения](reference/exceptions.md)
+    - [Вспомогательные функции](reference/utils.md)
+- Проект
+    - [Известные проблемы](known-issues.md)
+    - [План развития](roadmap.md)
+    - [История изменений](changelog.md)
+- Разработка
+    - [Участие в разработке](contributing.md)
+    - [Процесс релиза и версионирования](releasing.md)

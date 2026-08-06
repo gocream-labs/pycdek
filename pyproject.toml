@@ -75,6 +75,10 @@ docs = [
 	"mkdocstrings-python==2.0.5",
 	"mkdocs-git-revision-date-localized-plugin==1.5.3",
 	"mkdocs-git-authors-plugin==0.10.0",
+	# 0.6.3 закрепляет `mkdocs<=1.6.1` и тянет форк `properdocs`: автор плагина, как и
+	# команда Material, не переходит на MkDocs 2.0. Нам это по пути - material 9.7.7
+	# тоже живёт на 1.6.1.
+	"mkdocs-literate-nav==0.6.3",
 	"mike==2.2.0",
 	"linkchecker==10.6.0",
 	"ruff==0.15.14",

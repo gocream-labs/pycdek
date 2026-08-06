@@ -96,6 +96,36 @@ regions = client.get_regions()
 Параметр `production=False` переключает клиент на тестовый контур СДЭК.
 
 
+## Жизненный цикл клиента
+
+Клиент держит открытую HTTP-сессию и переиспользует соединение между запросами.
+Поэтому один долгоживущий клиент на приложение выгоднее, чем новый клиент на
+каждый запрос, — и поэтому же его нужно закрывать.
+
+Для короткоживущего клиента достаточно блока `with`:
+
+```python
+with CdekClient("client-id", "client-secret", contract_type=ContractType.ONLINE_STORE) as client:
+    regions = client.get_regions()
+```
+
+Клиент, живущий всё время работы приложения, закрывается явно при завершении:
+
+```python
+client = CdekClient("client-id", "client-secret", contract_type=ContractType.ONLINE_STORE)
+try:
+    regions = client.get_regions()
+finally:
+    client.close()
+```
+
+Если не закрыть, сокеты остаются открытыми, пока на клиента есть хоть одна ссылка.
+Сборщик мусора их в итоге освободит, но предупреждения при этом не будет, так что
+накопление дескрипторов легко пропустить — особенно если клиенты создаются на каждый
+запрос и оседают в кэше или контейнере зависимостей. После `close()` клиент остаётся
+рабочим: следующий запрос откроет соединение заново.
+
+
 ## Статус проекта
 
 Библиотека находится в процессе актуализации. До выхода стабильной версии 2.0.0
@@ -104,7 +134,7 @@ regions = client.get_regions()
 
 ## Дополнительные материалы
 
-- [Справочник публичного API](https://gocream-labs.github.io/pycdek/latest/api/)
+- [Справочник публичного API](https://gocream-labs.github.io/pycdek/latest/reference/)
 - [Известные проблемы](https://gocream-labs.github.io/pycdek/latest/known-issues/)
 - [План развития](https://gocream-labs.github.io/pycdek/latest/roadmap/)
 - [Участие в разработке](https://gocream-labs.github.io/pycdek/latest/contributing/)
