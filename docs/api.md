@@ -2,7 +2,7 @@
 
 ## Клиент
 
-::: gocream_pycdek.client.CDEKApiClient
+::: gocream_pycdek.client.CdekClient
 
 ## Исключения
 

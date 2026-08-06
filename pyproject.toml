@@ -228,6 +228,13 @@ lines-after-imports = 2
 [tool.ruff.lint.flake8-import-conventions.extend-aliases]
 datetime = "dt"
 
+# Docstring - Google-style: из них mkdocstrings собирает справочник API
+# (`docstring_style: google` в `mkdocs.yml`). Группа `D` включится, когда старые
+# докстринги будут приведены к формату; convention задана заранее, чтобы
+# включение было одной строкой в `select`, а не сменой стиля разом.
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401", "F403"]
 "tests/*" = ["S101", "PLR2004"]

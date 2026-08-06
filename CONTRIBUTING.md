@@ -53,6 +53,33 @@ hatch run init
 	`docs:links` проверяет уже собранный сайт в каталоге `site/`, поэтому запускайте её после `docs:build`.
 
 
+## Docstrings
+
+Docstring пишутся в [Google-style][google-style] на русском языке. Справочник API собирается из них автоматически: `mkdocstrings-python` настроен на `docstring_style: google` в `mkdocs.yml`, страница [**Справочник API**](https://gocream-labs.github.io/pycdek/next/api/) содержит только директивы `:::`, а текст берётся из кода.
+
+Разделы - стандартные Google-секции `Args:`, `Returns:`, `Raises:`, `Yields:`, `Examples:`, а для атрибутов класса - `Attributes:` в его docstring (`Args:` там означала бы параметры конструктора, а они описываются в `__init__`). Типы в секциях не дублируются: они берутся из аннотаций. Внутри docstring работает Markdown-разметка Material for MkDocs - списки, ссылки, `admonition`, блоки кода:
+
+```python
+def get_order(self, order_uuid: str) -> dict:
+	"""Возвращает заказ по идентификатору CDEK.
+
+	Args:
+		order_uuid: Идентификатор заказа в системе CDEK.
+
+	Returns:
+		Ответ API с данными заказа.
+
+	Raises:
+		CdekRequestException: Если API вернул ошибку.
+	"""
+```
+
+Ссылки на другие объекты библиотеки и на стандартную библиотеку Python оформляются как `[CdekRequestException][gocream_pycdek.exceptions.CdekRequestException]` - перекрёстные ссылки включены (`signature_crossrefs`), inventory Python подключён.
+
+!!! note
+	Старые docstring приводятся к Google-style постепенно, отдельным этапом роадмапа, поэтому предупреждения парсера в `mkdocs.yml` пока отключены (`docstring_options.warnings: false`). Новый и изменяемый код пишется сразу в целевом формате.
+
+
 ## Branches
 
 В проекте две долгоживущие ветки:
@@ -106,3 +133,4 @@ git switch -c feature/order-update
 
 
 [hatch]: https://hatch.pypa.io/
+[google-style]: https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
