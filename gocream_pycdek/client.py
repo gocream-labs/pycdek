@@ -41,6 +41,12 @@ WEBHOOK_EVENT_TYPE_PHOTO = "DOWNLOAD_PHOTO"  # получение фото до�
 class CdekClient:
     """
     Client for cdek api
+
+    Attributes:
+        TOKEN_REFRESH_MARGIN: Насколько раньше срока клиент идёт за новым токеном. Запас
+            нужен на расхождение часов с СДЭК и на время запроса, который этим токеном
+            уйдёт. СДЭК выдаёт токен на час, так что пять минут стоят примерно 8% срока
+            жизни.
     """
 
     RESOURCE_AUTH_TOKEN = "v2/oauth/token"
@@ -54,6 +60,8 @@ class CdekClient:
     RESOURCE_DELIVERYPOINTS = "v2/deliverypoints"
     RESOURCE_CALCULATOR_TARIFF = "v2/calculator/tariff"
     RESOURCE_CALCULATOR_URL = "calculator/calculate_price_by_json.php"
+
+    TOKEN_REFRESH_MARGIN: dt.timedelta = dt.timedelta(minutes=5)
 
     def __init__(
         self,
@@ -79,18 +87,21 @@ class CdekClient:
         self._token_expires_at: dt.datetime | None = None
 
     @property
-    def token(self):
+    def token(self) -> str:
         """
         request token if needed and return token
         """
 
-        # for safe add 5 minutes
-        now = dt.timedelta(minutes=5) + dt.datetime.now()
-        if not self._token or self._token_expires_at <= now:
-            # token not getted or expired -> response
+        deadline = dt.datetime.now() + self.TOKEN_REFRESH_MARGIN
+        is_expired = self._token_expires_at is None or self._token_expires_at <= deadline
+
+        if self._token is None or is_expired:
+            # token not getted or expired -> request a new one
             response = self.authorization()
-            self._token = response["access_token"]
-            token_data = jwt.decode(response["access_token"], options={"verify_signature": False})
+            token: str = response["access_token"]
+            token_data = jwt.decode(token, options={"verify_signature": False})
+
+            self._token = token
             self._token_expires_at = dt.datetime.fromtimestamp(token_data["exp"])
 
         return self._token
