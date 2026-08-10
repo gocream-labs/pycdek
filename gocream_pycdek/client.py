@@ -18,6 +18,7 @@ from gocream_pycdek.exceptions import CdekApiWrongTokenTypeException
 from gocream_pycdek.exceptions import CdekNoAuthClientException
 from gocream_pycdek.exceptions import CdekRequestException
 from gocream_pycdek.utils import clear_dict
+from gocream_pycdek.utils import drop_none
 from gocream_pycdek.utils import get_secure
 
 
@@ -29,6 +30,19 @@ TEST_API_URL = "https://api.edu.cdek.ru"
 
 
 class ContractType(IntEnum):
+    """
+    Type of the order, as sent in the `type` field
+
+    Указывается в каждом заказе, а не в клиенте: тип — свойство заказа, а не учётной
+    записи. `DELIVERY` доступен любому договору, `ONLINE_STORE` — только договору
+    с интернет-магазином, поэтому одна и та же учётная запись может отправлять оба
+    типа.
+
+    Attributes:
+        ONLINE_STORE: Заказ «интернет-магазин».
+        DELIVERY: Заказ «доставка».
+    """
+
     ONLINE_STORE = 1
     DELIVERY = 2
 
@@ -51,7 +65,7 @@ class CdekClient:
     Освобождать соединения нужно явно, через `close` или блок `with`:
 
     ```python
-    with CdekClient("id", "secret", contract_type=ContractType.ONLINE_STORE) as client:
+    with CdekClient("id", "secret") as client:
         regions = client.get_regions()
     ```
 
@@ -89,20 +103,17 @@ class CdekClient:
         client_id: str,
         client_secret: str,
         *,
-        contract_type: ContractType,
         base_url: str = PRODUCTION_API_URL,
     ) -> None:
         """
         Args:
             client_id: CDEK client ID.
             client_secret: CDEK client secret.
-            contract_type: Type of contract with CDEK.
             base_url: Base URL of the CDEK API.
         """
 
         self.client_id = client_id
         self._client_secret = client_secret
-        self.contract_type = ContractType(contract_type)
         self.base_url = base_url.rstrip("/")
         self._token: str | None = None
         self._token_expires_at: dt.datetime | None = None
@@ -268,6 +279,8 @@ class CdekClient:
         tariff_code,
         recipient,
         packages,
+        *,
+        contract_type,
         number=None,
         comment=None,
         developer_key=None,
@@ -288,152 +301,69 @@ class CdekClient:
         **kwargs,
     ):
         """
-        Registrate order.
+        Register an order
 
-        The order type is specified in accordance with the contract type specified during client
-        initialization.
+        Параметры повторяют поля тела запроса, поэтому состав вложенных структур —
+        `recipient`, `packages`, адресов и прочих — здесь не дублируется. Он описан
+        по полям в
+        [документации CDEK](https://apidoc.cdek.ru/#tag/order/operation/register_1)
+        и остаётся источником истины: там же видно, какие поля обязательны для
+        конкретного типа заказа.
 
-        https://apidoc.cdek.ru/#tag/order/operation/register_1
+        В тело запроса попадают только переданные параметры: непереданные остаются
+        равными `None` и отбрасываются. Всё остальное уходит как есть — пустая строка
+        для СДЭК осмысленное значение, а не отсутствие поля.
+
+        Даты передаются строками в формате `yyyy-MM-dd`: тело сериализуется штатным
+        JSON-энкодером `requests`, и объект `datetime.date` вызовет `TypeError`.
 
         Args:
-            tariff_code (int): Код тарифа `tarrifs`_.
-            recipient (dict): Получатель:
-                name (str): ФИО контактного лица
-                phones (list of dict): Список телефонов:
-                    number (str): Номер телефона. Должен передаваться в международном формате:
-                        код страны (для России +7) и сам номер (10 и более цифр)
-                    additional (str, optional): Дополнительная информация (доп. номер)
-                company (str, optional): Название компании
-                passport_series (str, optional): Серия паспорта
-                passport_number (str, optional): Номер паспорта
-                passport_date_of_issue (str, optional): Дата выдачи паспорта в формате 'yyyy-MM-dd'
-                passport_organization (str, optional): Орган выдачи паспорта
-                tin (str, optional): ИНН
-                passport_date_of_birth (date, optional): Дата рождения в формате 'yyyy-MM-dd'
-                email (str, optional): Эл. адрес
-            packages (dict): Список информации по местам (упаковкам)
-                number (str): Номер упаковки (можно использовать порядковый номер упаковки заказа или
-                    номер заказа), уникален в пределах заказа. Идентификатор заказа в ИС Клиента
-                weight (int): Общий вес (в граммах)
-                length (int, optioanl): Габариты упаковки. Длина (в сантиметрах)
-                width (int, optioanl): Габариты упаковки. Ширина (в сантиметрах)
-                height (int, optioanl): Габариты упаковки. Высота (в сантиметрах)
-                comment (str, optioanl): Комментарий к упаковке
-                items (list of dict, optioanl): Позиции товаров в упаковке:
-                    name (str): Наименование товара (может также содержать описание товара: размер, цвет)
-                    ware_key (str): Идентификатор/артикул товара
-                    payment (dict): Оплата за товар при получении (за единицу товара в указанной валюте,
-                        значение >=0) — наложенный платеж, в случае предоплаты значение = 0:
-                        value (float): Сумма дополнительного сбора
-                        vat_sum (float, optional): Сумма НДС
-                        vat_rate (int, optional): Ставка НДС (значение - 0, 10, 18, 20 и т.п. , null - нет НДС)
-                    cost (float): Объявленная стоимость товара (за единицу товара в указанной валюте,
-                        значение >=0). С данного значения рассчитывается страховка
-                    weight (int): Вес (за единицу товара, в граммах)
-                    weight_gross (int, optional): Вес брутто
-                    amount (int): Количество единиц товара (в штуках)
-                    name_i18n (str, optional): Наименование на иностранном языке
-                    brand (str, optional): Бренд на иностранном языке
-                    country_code (str, optional): Код страны в формате  ISO_3166-1_alpha-2
-                    material (str, optional): Код материала
-                    wifi_gsm (bool, optional): Содержит wifi/gsm
-                    url (str, optional): Ссылка на сайт интернет-магазина с описанием товара
-
-            number (str, optional): Номер заказа в ИС Клиента (если не передан, будет присвоен номер
-                заказа в ИС СДЭК - uuid). Только для заказов "интернет-магазин".
+            tariff_code (int): Код тарифа, см.
+                [приложение 4](https://apidoc.cdek.ru/#tag/common/Prilozheniya/Prilozhenie-4.-Tarify-SDEK).
+            recipient (dict): Получатель.
+            packages (list of dict): Места (упаковки) заказа вместе с товарами.
+            contract_type (ContractType): Тип заказа. Уходит в поле `type`.
+            number (str, optional): Номер заказа в ИС клиента. Только для заказов
+                «интернет-магазин». Если не передан, СДЭК присвоит собственный uuid.
             comment (str, optional): Комментарий к заказу.
-            developer_key (str, optional): Ключ разработчика (для разработчиков модулей).
-            shipment_point (str, optional): Код ПВЗ СДЭК, на который будет производится забор отправления,
-                либо самостоятельный привоз клиентом.
-            delivery_point (str, optional): Код ПВЗ СДЭК, на который будет доставлена посылка.
-            date_invoice (date, optional): Дата инвойса.
+            developer_key (str, optional): Ключ разработчика, для разработчиков модулей.
+            shipment_point (str, optional): Код ПВЗ СДЭК, откуда забирают отправление
+                либо куда клиент привозит его сам.
+            delivery_point (str, optional): Код ПВЗ СДЭК, куда доставить посылку.
+            date_invoice (str, optional): Дата инвойса в формате `yyyy-MM-dd`.
             shipper_name (str, optional): Грузоотправитель.
             shipper_address (str, optional): Адрес грузоотправителя.
-            delivery_recipient_cost (dict, optional): Доп. сбор за доставку, которую ИМ берет с получателя.
-                Валюта сбора должна совпадать с валютой наложенного платежа:
-                value (float): Сумма дополнительного сбора
-                vat_sum (float, optional): Сумма НДС
-                vat_rate (int, optional): Ставка НДС (значение - 0, 10, 18, 20 и т.п. , null - нет НДС)
-            delivery_recipient_cost_adv (list of dict, optional): Доп. сбор за доставку (которую ИМ берет
-                с получателя) в зависимости от суммы заказа:
-                threshold (int): Порог стоимости товара (действует по условию меньше или равно) в целых единицах валюты
-                sum (float): Доп. сбор за доставку товаров, общая стоимость которых попадает в интервал
-                vat_sum (float, optional): Сумма НДС, включённая в доп. сбор за доставку
-                vat_rate (int, optional): Ставка НДС (значение - 0, 10, 18, 20 и т.п. , null - нет НДС)
-            sender (dict, optional): Отправитель:
-                company (str, optional): Название компании.
-                name (str, optional): ФИО контактного лица.
-                email (str, optional): Эл. адрес.
-                passport_series (str, optional): Серия паспорта
-                passport_number (str, optional): Номер паспорта
-                passport_date_of_issue (str, optional): Дата выдачи паспорта
-                passport_organization (str, optional): Орган выдачи паспорта
-                tin (str, optional): ИНН
-                passport_date_of_birth (str, optional): Дата рождения
-                phones (list of dict, optional): Список телефонов:
-                    number (str): Номер телефона. Должен передаваться в международном формате:
-                        код страны (для России +7) и сам номер (10 и более цифр).
-                    additional (str, optional): Дополнительная информация (доп. номер).
-            seller (dict, optional): Реквизиты реального продавца:
-                name (str, optional): Наименование истинного продавца.
-                inn (str, optional): ИНН истинного продавца.
-                phone (str, optional): Телефон истинного продавца.
-                ownership_form (int, optional): Код формы собственности `ownership form`_.
-                address (str, optional): Адрес истинного продавца. Используется при печати инвойсов
-                    для отображения адреса настоящего продавца товара, либо торгового названия.
-            from_location (dict): Адрес отправления:
-                address (str): Строка адреса
-                code (int, optional): Код локации (справочник СДЭК)
-                fias_guid (str, optional): Уникальный идентификатор ФИАС (UUID)
-                postal_code (str, optional): Почтовый индекс
-                longitude (float, optional): Долгота
-                latitude (float, optional): Широта
-                country_code (str, optional): Код страны в формате ISO_3166-1_alpha-2
-                region (str, optional): Название региона
-                region_code (int, optional): Код региона СДЭК
-                sub_region (str, optional): Название района региона
-                city (str, optional): Название города
-                kladr_code (str, optional): Код КЛАДР
-            to_location (dict): Адрес получения:
-                address (str): Строка адреса
-                code (int, optional): Код локации (справочник СДЭК)
-                fias_guid (str, optional): Уникальный идентификатор ФИАС (UUID)
-                postal_code (str, optional): Почтовый индекс
-                longitude (float, optional): Долгота
-                latitude (float, optional): Широта
-                country_code (str, optional): Код страны в формате ISO_3166-1_alpha-2
-                region (str, optional): Название региона
-                region_code (int, optional): Код региона СДЭК
-                sub_region (str, optional): Название района региона
-                city (str, optional): Название города
-                kladr_code (str, optional): Код КЛАДР
-            services (dict, optional): Дополнительные услуги:
-                code (int): Тип дополнительной услуги `extra services`_.
-                parameter (int, optional): Параметр дополнительной услуги:
-                    * количество упаковок для услуги "Упаковка 1" (для всех типов заказа)
-                    * объявленная стоимость заказа для услуги "Страхование" (только для заказов с типом "доставка")
-            request_print (str, optional): Необходимость сформировать печатную форму по заказу.
-                Может принимать значения:
-                * barcode - ШК мест (число копий - 1)
-                * waybill - квитанция (число копий - 2)
-            origin_response (bool, optional): return original response or only entity? (default: False)
+            delivery_recipient_cost (dict, optional): Доп. сбор за доставку, который
+                интернет-магазин берёт с получателя. Валюта сбора должна совпадать
+                с валютой наложенного платежа.
+            delivery_recipient_cost_adv (list of dict, optional): Доп. сбор за доставку
+                в зависимости от суммы заказа.
+            sender (dict, optional): Отправитель.
+            seller (dict, optional): Реквизиты истинного продавца. Код формы
+                собственности см. в
+                [приложении 5](https://apidoc.cdek.ru/#tag/common/Prilozheniya/Prilozhenie-5.-Forma-sobstvennosti).
+            from_location (dict, optional): Адрес отправления. Не нужен, если задан
+                `shipment_point`.
+            to_location (dict, optional): Адрес получения. Не нужен, если задан
+                `delivery_point`.
+            services (list of dict, optional): Дополнительные услуги, см.
+                [приложение 6](https://apidoc.cdek.ru/#tag/common/Prilozheniya/Prilozhenie-6.-Dopolnitelnye-uslugi).
+            request_print (str, optional): Печатная форма, которую нужно сформировать по
+                заказу: `barcode` — ШК мест, `waybill` — квитанция. Уходит в поле `print`.
+            origin_response (bool, optional): Вернуть ответ целиком вместо созданного
+                заказа. Defaults to False.
+            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
 
         Returns:
-            dict: Order dict
+            dict | Response: Созданный заказ, а при `origin_response=True` — ответ целиком.
 
-        .. _documentation:
-            https://apidoc.cdek.ru/#tag/order/operation/register_1
-        .. _tarrifs:
-            https://apidoc.cdek.ru/#tag/common/Prilozheniya/Prilozhenie-4.-Tarify-SDEK
-        .. _ownership form:
-            https://apidoc.cdek.ru/#tag/common/Prilozheniya/Prilozhenie-5.-Forma-sobstvennosti
-        .. _extra services:
-            https://apidoc.cdek.ru/#tag/common/Prilozheniya/Prilozhenie-6.-Dopolnitelnye-uslugi
+        Raises:
+            CdekRequestException: Ответ с ошибочным статусом.
         """
 
-        complete_data = clear_dict(
+        payload = drop_none(
             {
-                "type": self.contract_type.value,
+                "type": ContractType(contract_type).value,
                 "tariff_code": tariff_code,
                 "recipient": recipient,
                 "packages": packages,
@@ -456,9 +386,7 @@ class CdekClient:
             }
         )
 
-        kwargs["data"] = complete_data
-
-        response = self.send(self.RESOURCE_ORDER, method="post", **kwargs)
+        response = self.send(self.RESOURCE_ORDER, method="post", data=payload, **kwargs)
 
         if not origin_response:
             response = response.json()["entity"]
@@ -1082,6 +1010,8 @@ class CdekClient:
         from_location,
         to_location,
         packages,
+        *,
+        contract_type,
         date=None,
         currency=None,
         services=None,
@@ -1107,6 +1037,8 @@ class CdekClient:
             length (int, optional): Габариты упаковки. Длина (в сантиметрах)
             width (int, optional):  Габариты упаковки. Ширина (в сантиметрах)
             height (int, optional): Габариты упаковки. Высота (в сантиметрах)
+        contract_type (ContractType): Тип заказа, от него зависят доступные тарифы.
+            Уходит в поле `type`.
         date (str, optional): Дата и время планируемой передачи заказа. По умолчанию - текущая.
         currency (int, optional): Валюта, в которой необходимо произвести расчет. По умолчанию - валюта договора
         services (list of dict, optional): Дополнительные услуги
@@ -1119,7 +1051,7 @@ class CdekClient:
 
         kwargs["data"] = clear_dict(
             {
-                "type": self.contract_type.value,
+                "type": ContractType(contract_type).value,
                 "tariff_code": tariff_code,
                 "from_location": from_location,
                 "to_location": to_location,

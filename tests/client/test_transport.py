@@ -16,8 +16,8 @@ from requests import RequestException
 from gocream_pycdek import PRODUCTION_API_URL
 from gocream_pycdek import TEST_API_URL
 from gocream_pycdek import CdekClient
-from gocream_pycdek import ContractType
 from gocream_pycdek.exceptions import CdekRequestException
+from tests.helpers import only_request
 
 
 def stub_authorization(client, expires_at):
@@ -116,12 +116,7 @@ def test_token_is_requested_when_expiration_is_unknown(client):
 def test_get_url_uses_base_url(base_url, expected_url):
     """Проверяет сборку относительного URL для разных API endpoints."""
 
-    client = CdekClient(
-        "client-id",
-        "client-secret",
-        contract_type=ContractType.ONLINE_STORE,
-        base_url=base_url,
-    )
+    client = CdekClient("client-id", "client-secret", base_url=base_url)
 
     assert client.get_url("v2/orders") == expected_url
 
@@ -134,12 +129,7 @@ def test_get_url_uses_base_url(base_url, expected_url):
 def test_get_url_preserves_absolute_url(url):
     """Проверяет, что абсолютная ссылка не дополняется адресом CDEK API."""
 
-    client = CdekClient(
-        "client-id",
-        "client-secret",
-        contract_type=ContractType.ONLINE_STORE,
-        base_url="https://unused.example.test",
-    )
+    client = CdekClient("client-id", "client-secret", base_url="https://unused.example.test")
 
     assert client.get_url(url) == url
 
@@ -152,12 +142,7 @@ def test_get_url_preserves_absolute_url(url):
 def test_get_url_normalizes_resource(resource):
     """Проверяет, что путь ресурса приводится к URL-виду независимо от формы записи."""
 
-    client = CdekClient(
-        "client-id",
-        "client-secret",
-        contract_type=ContractType.ONLINE_STORE,
-        base_url="https://cdek.example.test/api",
-    )
+    client = CdekClient("client-id", "client-secret", base_url="https://cdek.example.test/api")
 
     assert client.get_url(resource) == "https://cdek.example.test/api/v2/orders"
 
@@ -187,7 +172,10 @@ def test_send_dispatches_any_http_method(authorized_client, method):
     responses.add(method.upper(), "https://api.cdek.ru/v2/orders", json={"ok": True}, status=200)
 
     assert authorized_client.send("v2/orders", method=method).json() == {"ok": True}
-    assert responses.calls[0].request.method == method.upper()
+
+    sent = only_request(responses.calls)
+
+    assert sent.method == method.upper()
 
 
 def test_send_requires_explicit_method(authorized_client):
@@ -205,11 +193,12 @@ def test_send_passes_common_request_options(authorized_client):
 
     authorized_client.send("v2/orders", method="post", data={"x": 1}, params={"page": 2})
 
-    request = responses.calls[0].request
-    assert request.body == json.dumps({"x": 1}).encode()
-    assert request.params == {"page": "2"}
-    assert request.headers["Authorization"] == "Bearer token"
-    assert request.req_kwargs["timeout"] == (3, 7)
+    sent = only_request(responses.calls)
+
+    assert sent.body == json.dumps({"x": 1}).encode()
+    assert sent.params == {"page": "2"}
+    assert sent.headers["Authorization"] == "Bearer token"
+    assert sent.req_kwargs["timeout"] == (3, 7)
 
 
 @responses.activate
@@ -220,7 +209,9 @@ def test_send_replaces_headers_entirely(authorized_client):
 
     authorized_client.send("v2/orders", method="get", headers={"Authorization": "Basic custom"})
 
-    assert responses.calls[0].request.headers["Authorization"] == "Basic custom"
+    sent = only_request(responses.calls)
+
+    assert sent.headers["Authorization"] == "Basic custom"
 
 
 @responses.activate
@@ -237,7 +228,9 @@ def test_send_makes_anonymous_request_without_authorizing(client):
 
     client.send("v2/orders", method="get", headers={})
 
-    assert "Authorization" not in responses.calls[0].request.headers
+    sent = only_request(responses.calls)
+
+    assert "Authorization" not in sent.headers
     client.authorization.assert_not_called()
 
 
@@ -249,7 +242,9 @@ def test_send_allows_overriding_timeout(authorized_client):
 
     authorized_client.send("v2/orders", method="get", timeout=42)
 
-    assert responses.calls[0].request.req_kwargs["timeout"] == 42
+    sent = only_request(responses.calls)
+
+    assert sent.req_kwargs["timeout"] == 42
 
 
 @responses.activate
@@ -293,7 +288,9 @@ def test_send_goes_through_client_session(authorized_client):
 
     authorized_client.send("v2/orders", method="get")
 
-    assert responses.calls[0].request.headers["X-Session-Marker"] == "shared"
+    sent = only_request(responses.calls)
+
+    assert sent.headers["X-Session-Marker"] == "shared"
 
 
 def test_close_releases_session(client):

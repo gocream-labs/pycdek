@@ -6,6 +6,8 @@ import responses
 from gocream_pycdek.exceptions import CdekApiAccessException
 from gocream_pycdek.exceptions import CdekApiUnavailableException
 from gocream_pycdek.exceptions import CdekApiWrongTokenTypeException
+from tests.helpers import only_request
+from tests.helpers import recorded_response
 
 
 @responses.activate
@@ -46,9 +48,10 @@ def test_authorization_sends_credentials_in_query_params(client):
     )
     client.authorization()
 
-    request = responses.calls[0].request
-    assert request.method == "POST"
-    assert request.params == {
+    sent = only_request(responses.calls)
+
+    assert sent.method == "POST"
+    assert sent.params == {
         "grant_type": "client_credentials",
         "client_id": "client-id",
         "client_secret": "client-secret",
@@ -60,10 +63,10 @@ def test_authorization_sends_credentials_in_query_params(client):
     strict=True,
 )
 @responses.activate
-def test_authorization_maps_invalid_client(client, api_response):
+def test_authorization_maps_invalid_client(client):
     """Проверяет реальный ответ `invalid_client` тестового контура."""
 
-    payload = api_response("auth_invalid_client")
+    payload = recorded_response("auth_invalid_client")
     responses.add(responses.POST, "https://api.cdek.ru/v2/oauth/token", json=payload, status=401)
 
     with pytest.raises(CdekApiAccessException):

@@ -3,6 +3,7 @@
 import pytest
 
 from gocream_pycdek.utils import clear_dict
+from gocream_pycdek.utils import drop_none
 from gocream_pycdek.utils import get_secure
 from gocream_pycdek.utils import is_empty
 
@@ -25,6 +26,28 @@ def test_is_empty_classifies_value(value, expected):
     """Проверяет каждый пустой и значимый false-like вариант отдельно."""
 
     assert is_empty(value) is expected
+
+
+def test_drop_none_removes_only_none():
+    """Проверяет удаление непереданных параметров без чистки пустых значений."""
+
+    assert drop_none(
+        {
+            "passed": 0,
+            "empty_string": "",
+            "empty_dict": {},
+            "empty_list": [],
+            "not_passed": None,
+        }
+    ) == {"passed": 0, "empty_string": "", "empty_dict": {}, "empty_list": []}
+
+
+def test_drop_none_keeps_nested_values_untouched():
+    """Проверяет, что вложенные структуры пользователя уходят как есть."""
+
+    nested = {"keep": None, "items": [{"empty": ""}]}
+
+    assert drop_none({"nested": nested}) == {"nested": nested}
 
 
 def test_clear_dict_removes_empty_values_recursively():

@@ -68,32 +68,36 @@ pip install --pre gocream-pycdek
 
 ```python
 from gocream_pycdek import CdekClient
-from gocream_pycdek import ContractType
 
-client = CdekClient(
-    "client-id",
-    "client-secret",
-    contract_type=ContractType.ONLINE_STORE,
-)
+client = CdekClient("client-id", "client-secret")
 ```
 
 
 ## Быстрый старт
 
 ```python
-from gocream_pycdek.client import CDEKApiClient
+from gocream_pycdek import CdekClient
+from gocream_pycdek import ContractType
 
 
-client = CDEKApiClient(
-    id="client-id",
-    secret="client-secret",
-    is_shop=True,
-)
+client = CdekClient("client-id", "client-secret")
 
 regions = client.get_regions()
+
+order = client.registrate_order(
+    136,
+    {"name": "Иван Иванов", "phones": [{"number": "+79000000000"}]},
+    [{"number": "1", "weight": 1000}],
+    contract_type=ContractType.ONLINE_STORE,
+    to_location={"code": 270},
+)
 ```
 
-Параметр `production=False` переключает клиент на тестовый контур СДЭК.
+Тип заказа указывается в каждом заказе, а не в клиенте: `ContractType.DELIVERY`
+доступен любому договору, `ContractType.ONLINE_STORE` — только договору
+с интернет-магазином, поэтому одна учётная запись может отправлять оба типа.
+
+Параметр `base_url=TEST_API_URL` переключает клиент на тестовый контур СДЭК.
 
 
 ## Жизненный цикл клиента
@@ -105,14 +109,14 @@ regions = client.get_regions()
 Для короткоживущего клиента достаточно блока `with`:
 
 ```python
-with CdekClient("client-id", "client-secret", contract_type=ContractType.ONLINE_STORE) as client:
+with CdekClient("client-id", "client-secret") as client:
     regions = client.get_regions()
 ```
 
 Клиент, живущий всё время работы приложения, закрывается явно при завершении:
 
 ```python
-client = CdekClient("client-id", "client-secret", contract_type=ContractType.ONLINE_STORE)
+client = CdekClient("client-id", "client-secret")
 try:
     regions = client.get_regions()
 finally:

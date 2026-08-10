@@ -13,7 +13,7 @@
 | [`client.py:83`][client-83] / [`statuses.py:56`][statuses-56] | Для одного статуса используются разные значения: `ARRIVED_AT_RECIPIENT_CITY` и `ACCEPTED_IN_RECIPIENT_CITY`. |
 | [`client.py:997`][client-997] | `get_shipping_cost` использует снятый с поддержки калькулятор v1.5. |
 | [`client.py:1299`][client-1299] | `get_deliverypoints` отправляет имена параметров из API v1. |
-| [`utils.py:10`][utils-10] | `clear_dict` не обрабатывает списки словарей. |
+| [`utils.py:10`][utils-10] | `clear_dict` не обрабатывает списки словарей. Исправляться не будет: функция объявлена устаревшей в пользу `drop_none` и удаляется в 3.0.0. Методы клиента переводятся на неё по мере переработки. |
 
 [client-219]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L219
 [client-206]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L206

@@ -223,8 +223,10 @@ ignore = [
 
 # Настроено под уже сложившийся в проекте стиль, а не наоборот:
 # по одному импорту на строку и `from ...` перед `import ...` внутри группы.
+# `tests` тут первая сторона наравне с пакетом: общий код тестов импортируется
+# как `from tests.helpers import ...`.
 [tool.ruff.lint.isort]
-known-first-party = ["gocream_pycdek"]
+known-first-party = ["gocream_pycdek", "tests"]
 force-single-line = true
 lines-after-imports = 2
 
@@ -264,6 +266,8 @@ exclude_lines = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Сеть в тестах запрещена: ответы контура берутся из записанных fixtures,
+# а живой запрос должен падать, а не молча уходить в интернет.
 addopts = "--disable-socket"
 
 
