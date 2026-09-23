@@ -19,9 +19,9 @@ if git ls-files --others --exclude-standard -- "$ignore_file" | grep -q .; then
 	exit 1
 fi
 
-git commit -m "🎨 (style): Format code with Ruff"
+git commit -m "🎨 (chore): Linting code"
 lint_commit="$(git rev-parse HEAD)"
 
 printf '%s\n' "$lint_commit" >> "$ignore_file"
 git add -- "$ignore_file"
-git commit -m "🎨 (git): Ignore formatting commit in blame"
+git commit -m "🎨 (chore): Ignore linting commit in blame"
