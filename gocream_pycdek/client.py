@@ -1,6 +1,6 @@
 import datetime as dt
 import logging
-from copy import deepcopy
+from collections.abc import Iterator
 from enum import IntEnum
 from io import BytesIO
 from pathlib import Path
@@ -645,28 +645,35 @@ class CdekClient:
         lang: str | None = None,
         raise_errors: bool | None = True,
         origin_response: bool | None = False,
-    ) -> list:
+        **kwargs,
+    ) -> list[dict] | dict | Response:
         """
         Request regions
 
         https://apidoc.cdek.ru/#tag/location/operation/regions
 
         Args:
-            country_codes           Массив кодов стран в формате  ISO_3166-1_alpha-2    string(2) [ ]   нет
-            region_code             Код региона СДЭК    string(255) нет
-            kladr_region_code       Код КЛАДР региона   string(255) нет
-            fias_region_guid        Уникальный идентификатор ФИАС региона   UUID    нет
-            size                    Ограничение выборки результата. По умолчанию 1000   integer да, если указан page
-            page                    Номер страницы выборки результата. По умолчанию 0   integer нет
-            lang                    Локализация. По умолчанию "rus" string(3)   нет
-            raise_errors            raise errors? (default: True)
-            origin_response         return original response or only entity? (default: False)
+            country_codes: Коды стран в формате ISO 3166-1 alpha-2.
+            region_code: Код региона СДЭК.
+            kladr_region_code: Код КЛАДР региона.
+            fias_region_guid: Идентификатор ФИАС региона (UUID).
+            size: Размер страницы. По умолчанию 1000; None исключает параметр из запроса.
+            page: Номер страницы, начиная с 0. None исключает параметр из запроса.
+            lang: Язык ответа. None оставляет выбор языка API.
+            raise_errors: Вызывать исключение при ошибочном HTTP-статусе. По умолчанию True.
+            origin_response: Вернуть исходный HTTP-ответ вместо декодированного JSON. По умолчанию False.
+            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
 
         Returns:
-            list: list of regions
+            Декодированный JSON (список при успешном ответе),
+            при `raise_errors=False` возможен словарь с ошибкой,
+            а при `origin_response=True` - исходный HTTP-ответ.
+
+        Raises:
+            CdekRequestException: Ответ с ошибочным HTTP-статусом при `raise_errors=True`.
         """
 
-        complete_data = clear_dict(
+        complete_data = drop_none(
             {
                 "country_codes": country_codes,
                 "region_code": region_code,
@@ -678,15 +685,34 @@ class CdekClient:
             }
         )
 
-        response = self.send(Path(self.RESOURCE_REGIONS), method="get", params=complete_data, raise_errors=raise_errors)
+        response = self.send(
+            self.RESOURCE_REGIONS, method="get", params=complete_data, raise_errors=raise_errors, **kwargs
+        )
 
         if not origin_response:
             response = response.json()
 
         return response
 
-    def get_all_regions(self, **kwargs):
-        request_kwargs = deepcopy(kwargs)
+    def get_all_regions(self, **kwargs) -> Iterator[dict]:
+        """
+        Iterate over all regions
+
+        Обход начинается со страницы 0 и заканчивается на первом пустом списке.
+        Переданные `page` и `origin_response` заменяются на 0 и False.
+
+        Args:
+            **kwargs: Фильтры, размер страницы и HTTP-настройки для
+                [`get_regions`][gocream_pycdek.client.CdekClient.get_regions].
+
+        Yields:
+            dict: Данные одного элемента справочника регионов.
+
+        Raises:
+            CdekRequestException: Ответ с ошибочным HTTP-статусом при `raise_errors=True`.
+        """
+
+        request_kwargs = kwargs.copy()
         request_kwargs["page"] = 0
         request_kwargs["origin_response"] = False
 
@@ -717,37 +743,42 @@ class CdekClient:
         payment_limit=None,
         raise_errors=True,
         origin_response=False,
-    ):
+        **kwargs,
+    ) -> list[dict] | dict | Response:
         """
-        Request regions
+        Request cities
 
         https://apidoc.cdek.ru/#tag/location/operation/cities
 
         Args:
-            country_codes           Массив кодов стран в формате  ISO_3166-1_alpha-2    string(2) [ ]   нет
-            region_code             Код региона СДЭК    string(255) нет
-            kladr_region_code       Код КЛАДР региона   string(255) нет
-            fias_region_guid        Уникальный идентификатор ФИАС региона UUID    нет
-            kladr_code              Код КЛАДР населенного пункта    string(255) нет
-            fias_guid               Уникальный идентификатор ФИАС населенного пункта    UUID    нет
-            postal_code             Почтовый индекс string(255) нет
-            code                    Код населенного пункта СДЭК string(255) нет
-            city                    Название населенного пункта. Должно соответствовать полностью   string(255) нет
-            size                    Ограничение выборки результата. По умолчанию 1000   integer да, если указан page
-            page                    Номер страницы выборки результата. По умолчанию 0   integer нет
-            lang                    Локализация. По умолчанию "rus" string(3)   нет
-            payment_limit           Ограничение на сумму наложенного платежа:
-                -1 - ограничения нет;
-                 0 - наложенный платеж не принимается;
-                 положительное значение - сумма наложенного платежа не более данного значения.
-            raise_errors (bool, optional): raise errors? (default: True)
-            origin_response (bool, optional): return original response or only entity? (default: False)
+            country_codes: Коды стран в формате ISO 3166-1 alpha-2.
+            region_code: Код региона СДЭК.
+            kladr_region_code: Код КЛАДР региона.
+            fias_region_guid: Идентификатор ФИАС региона (UUID).
+            kladr_code: Код КЛАДР населённого пункта.
+            fias_guid: Идентификатор ФИАС населённого пункта (UUID).
+            postal_code: Почтовый индекс.
+            code: Код населённого пункта СДЭК.
+            city: Полное название населённого пункта.
+            size: Размер страницы. По умолчанию 1000; None исключает параметр из запроса.
+            page: Номер страницы, начиная с 0. None исключает параметр из запроса.
+            lang: Язык ответа. None оставляет выбор языка API.
+            payment_limit: Ограничение суммы наложенного платежа: -1 - без ограничения,
+                0 - не принимается, положительное значение - максимальная сумма.
+            raise_errors: Вызывать исключение при ошибочном HTTP-статусе. По умолчанию True.
+            origin_response: Вернуть исходный HTTP-ответ вместо декодированного JSON. По умолчанию False.
+            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
 
         Returns:
-            list: list of cities
+            Декодированный JSON (список при успешном ответе),
+            при `raise_errors=False` возможен словарь с ошибкой,
+            а при `origin_response=True` - исходный HTTP-ответ.
+
+        Raises:
+            CdekRequestException: Ответ с ошибочным HTTP-статусом при `raise_errors=True`.
         """
 
-        complete_data = clear_dict(
+        complete_data = drop_none(
             {
                 "country_codes": country_codes,
                 "region_code": region_code,
@@ -765,15 +796,34 @@ class CdekClient:
             }
         )
 
-        response = self.send(Path(self.RESOURCE_CITIES), method="get", params=complete_data, raise_errors=raise_errors)
+        response = self.send(
+            self.RESOURCE_CITIES, method="get", params=complete_data, raise_errors=raise_errors, **kwargs
+        )
 
         if not origin_response:
             response = response.json()
 
         return response
 
-    def get_all_cities(self, **kwargs):
-        request_kwargs = deepcopy(kwargs)
+    def get_all_cities(self, **kwargs) -> Iterator[dict]:
+        """
+        Iterate over all cities
+
+        Обход начинается со страницы 0 и заканчивается на первом пустом списке.
+        Переданные `page` и `origin_response` заменяются на 0 и False.
+
+        Args:
+            **kwargs: Фильтры, размер страницы и HTTP-настройки для
+                [`get_cities`][gocream_pycdek.client.CdekClient.get_cities].
+
+        Yields:
+            dict: Данные одного элемента справочника городов.
+
+        Raises:
+            CdekRequestException: Ответ с ошибочным HTTP-статусом при `raise_errors=True`.
+        """
+
+        request_kwargs = kwargs.copy()
         request_kwargs["page"] = 0
         request_kwargs["origin_response"] = False
 
