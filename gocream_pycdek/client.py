@@ -1267,9 +1267,9 @@ class CdekClient:
 
     def get_deliverypoints(
         self,
-        postal_code1: int | None = None,
-        city_code1: int | None = None,
-        tipe: str | None = None,
+        postal_code: str | int | None = None,
+        city_code: int | None = None,
+        type: str | None = None,
         country_code: str | None = None,
         region_code: int | None = None,
         have_cashless: bool | None = None,
@@ -1283,51 +1283,47 @@ class CdekClient:
         is_handout: bool | None = None,
         raise_errors: bool = True,
         origin_response: bool = False,
-    ) -> list[dict] | Response:
+        **kwargs,
+    ) -> list[dict] | dict | Response:
         """
         Request delivery points
 
         https://apidoc.cdek.ru/#tag/delivery_point/operation/search
 
         Args:
-            postal_code1                Почтовый индекс города, для которого необходим список офисов
-                                        integer         нет
-            city_code1                  Код города по базе СДЭК             integer         нет
-            tipe                        Тип офиса, может принимать значения:
-                «PVZ» - для отображения только складов СДЭК;
-                «POSTAMAT» - для отображения постаматов СДЭК;
-                «ALL» - для отображения всех ПВЗ независимо от их типа.
-                При отсутствии параметра принимается значение по умолчанию «ALL».       string(8)       нет
-            country_code                Код страны в формате ISO_3166-1_alpha-2
-                                        (см. “Общероссийский классификатор стран мира”)
-                                        string (2)  нет
-            region_code                 Код региона по базе СДЭК    integer
-            have_cashless               Наличие терминала оплаты     boolean     нет
-            have_cash                   Есть прием наличных     boolean     нет
-            allowed_cod                 Разрешен наложенный платеж     boolean     нет
-            is_dressing_room            Наличие примерочной     boolean     нет
-            weight_max                  Максимальный вес в кг, который может принять офис (значения больше 0 -
-                                        передаются офисы, которые принимают этот вес; 0 - офисы с нулевым
-                                        весом не передаются; значение не указано - все офисы). integer нет
-            weight_min                  Минимальный вес в кг, который принимает офис (при переданном значении
-                                        будут выводиться офисы с минимальным весом до указанного значения)
-                                        integer нет
-            lang                        Локализация офиса. По умолчанию "rus".  string(3)   нет
-            take_only                   Является ли офис только пунктом выдачи     boolean     нет
-            is_handout                  Является пунктом выдачи     boolean     нет
-
-            raise_errors (bool, optional): raise errors? (default: True)
-            origin_response (bool, optional): return original response or only entity? (default: False)
+            postal_code: Почтовый индекс города.
+                Строка позволяет сохранить ведущие нули.
+            city_code: Код города СДЭК.
+            type: Тип офиса: `PVZ`, `POSTAMAT` или `ALL`.
+            country_code: Код страны в формате ISO 3166-1 alpha-2.
+            region_code: Код региона СДЭК.
+            have_cashless: Наличие терминала оплаты.
+            have_cash: Приём наличных.
+            allowed_cod: Возможность наложенного платежа.
+            is_dressing_room: Наличие примерочной.
+            weight_max: Вес в килограммах, который должен принимать офис.
+                Значение 0 исключает офисы с нулевым максимальным весом.
+            weight_min: Верхняя граница минимального принимаемого офисом веса в килограммах.
+            lang: Язык описания офиса. None оставляет выбор языка API.
+            take_only: Является ли офис только пунктом выдачи.
+            is_handout: Является ли офис пунктом выдачи.
+            raise_errors: Вызывать исключение при ошибочном HTTP-статусе. По умолчанию True.
+            origin_response: Вернуть исходный HTTP-ответ вместо декодированного JSON. По умолчанию False.
+            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
 
         Returns:
-            list: list of delivery points
+            Список пунктов выдачи при успешном ответе. При `raise_errors=False`
+            возможен словарь с ошибкой, а при `origin_response=True` - исходный HTTP-ответ.
+
+        Raises:
+            CdekRequestException: Ответ с ошибочным HTTP-статусом при `raise_errors=True`.
         """
 
-        complete_data = clear_dict(
+        complete_data = drop_none(
             {
-                "postal_code1": postal_code1,
-                "city_code1": city_code1,
-                "type": tipe,
+                "postal_code": postal_code,
+                "city_code": city_code,
+                "type": type,
                 "country_code": country_code,
                 "region_code": region_code,
                 "have_cashless": have_cashless,
@@ -1343,7 +1339,7 @@ class CdekClient:
         )
 
         response = self.send(
-            Path(self.RESOURCE_DELIVERYPOINTS), method="get", params=complete_data, raise_errors=raise_errors
+            self.RESOURCE_DELIVERYPOINTS, method="get", params=complete_data, raise_errors=raise_errors, **kwargs
         )
 
         if not origin_response:
