@@ -14,7 +14,7 @@ insert_final_newline = false
 [*.py]
 indent_size = 4
 indent_style = space
-max_line_length = 100
+max_line_length = 120
 
 [{*.yml,*.yaml,package.json}]
 indent_style = space
