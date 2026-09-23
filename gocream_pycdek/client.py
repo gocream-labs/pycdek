@@ -268,7 +268,6 @@ class CdekClient:
         if raise_errors:
             try:
                 response.raise_for_status()
-
             except HTTPError as error:
                 raise CdekRequestException(str(error), response=response) from error
 
@@ -393,61 +392,94 @@ class CdekClient:
 
         return response
 
-    def get_order(
-        self, uuid=None, cdek_number=None, im_number=None, raise_errors=True, origin_response=False, **kwargs
-    ):
+    def get_order(self, uuid=None, cdek_number=None, im_number=None, *, origin_response=False, **kwargs):
         """
-        Get order info
+        Get an order by one of its identifiers
 
-        By CDEK/IM number: https://apidoc.cdek.ru/#tag/order/operation/get
-        By UUID: https://apidoc.cdek.ru/#tag/order/operation/get_2
+        Идентификатор выбирает метод API: по uuid заказ запрашивается
+        [адресом ресурса](https://apidoc.cdek.ru/#tag/order/operation/get_2), по номеру
+        СДЭК или по номеру в ИС клиента —
+        [query-параметром](https://apidoc.cdek.ru/#tag/order/operation/get).
+
+        Идентификатор нужен ровно один: без него искать нечего, а с двумя клиенту
+        пришлось бы решать за пользователя, какой из них главный. Пустое значение
+        считается непереданным — заказ по нему всё равно не найдётся, а запрос ушёл бы
+        за списком.
+
+        Ответ с ошибкой не содержит `entity`, поэтому `raise_errors=False` осмысленно
+        только вместе с `origin_response=True`: иначе разбор такого ответа упадёт
+        с `KeyError`.
 
         Args:
-            uuid (str): CDEK order uuid
-            cdek_number (str): CDEK order id (aka tracknumber)
-            im_number (str): Store order id
-            raise_errors (bool, optional): raise errors? (default: True)
-            origin_response (bool, optional): return original response or only entity? (default: False)
+            uuid (str, optional): Идентификатор заказа в ИС СДЭК.
+            cdek_number (str, optional): Номер заказа СДЭК, он же трек-номер.
+            im_number (str, optional): Номер заказа в ИС клиента. Есть только у заказов
+                «интернет-магазин».
+            origin_response (bool, optional): Вернуть ответ целиком вместо найденного
+                заказа. Defaults to False.
+            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
 
         Returns:
-            dict: order info
+            dict | Response: Найденный заказ, а при `origin_response=True` — ответ целиком.
+
+        Raises:
+            ValueError: Идентификатор не передан либо передан не один.
+            CdekRequestException: Ответ с ошибочным статусом.
         """
 
-        if sum([bool(uuid), bool(cdek_number), bool(im_number)]) != 1:
-            raise Exception("Only one of the `uuid` or `cdek_number` or `im_number` options must be specified")
+        identifiers = {"uuid": uuid, "cdek_number": cdek_number, "im_number": im_number}
+        passed = [name for name, value in identifiers.items() if value]
 
-        url = Path(self.RESOURCE_ORDER)
-        if uuid:
-            url /= Path(uuid)
+        if len(passed) > 1:
+            msg = "Only one of the `uuid` or `cdek_number` or `im_number` options must be specified"
+            raise ValueError(msg)
 
-        elif cdek_number:
-            kwargs["params"] = {"cdek_number": cdek_number}
+        if len(passed) == 0:
+            msg = "One of the `uuid` or `cdek_number` or `im_number` options must be specified"
+            raise ValueError(msg)
 
-        elif im_number:
-            kwargs["params"] = {"im_number": im_number}
+        name = passed[0]
+        if name == "uuid":
+            resource, params = f"{self.RESOURCE_ORDER}/{uuid}", None
+        else:
+            resource, params = self.RESOURCE_ORDER, {name: identifiers[name]}
 
-        response = self.send(url, method="get", **kwargs)
+        response = self.send(resource, method="get", params=params, **kwargs)
 
         if not origin_response:
             response = response.json()["entity"]
 
         return response
 
-    def remove_order(self, uuid, raise_errors=True):
+    def remove_order(
+        self, uuid: str, raise_errors: bool = True, origin_response: bool = False, **kwargs
+    ) -> dict | Response:
         """
         Remove order
 
         https://apidoc.cdek.ru/#tag/order/operation/delete
 
         Args:
-            uuid (str): order cdek uuid
-            raise_errors (bool, optional): raise errors? (default: True)
+            uuid: Идентификатор заказа в ИС СДЭК.
+            raise_errors: Вызывать исключение при ошибочном статусе ответа. По умолчанию True.
+            origin_response: Вернуть ответ целиком вместо `entity`. По умолчанию False.
+                Используйте True вместе с `raise_errors=False`, если в ответе ошибки нет `entity`.
+            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
 
         Returns:
-            dict: deleted order info
+            Информация из `entity`, а при `origin_response=True` - исходный HTTP-ответ.
+            Принятие запроса на удаление ещё не означает завершения удаления.
+
+        Raises:
+            CdekRequestException: Ответ с ошибочным статусом при `raise_errors=True`.
         """
 
-        return self.send(Path(self.RESOURCE_ORDER) / Path(uuid), method="delete", raise_errors=raise_errors)
+        response = self.send(f"{self.RESOURCE_ORDER}/{uuid}", method="delete", raise_errors=raise_errors, **kwargs)
+
+        if not origin_response:
+            response = response.json()["entity"]
+
+        return response
 
     def registrate_intakes(
         self,

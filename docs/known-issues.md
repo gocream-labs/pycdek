@@ -6,9 +6,8 @@
 |---|---|
 | [`client.py:219`][client-219] | Разбор ошибки авторизации проверяет наличие `invalid_client` вместо значения `error`; ветка `CdekApiAccessException` недостижима. |
 | [`client.py:206`][client-206] | Учётные данные передаются в query string. |
-| [`client.py:489`][client-489] | `get_order` не пробрасывает `raise_errors` в `send()`. |
 | [`client.py:251`][client-251] | Сборка URL через `pathlib.Path` ломается на Windows. |
-| [`client.py:529`][client-529], [`client.py:671`][client-671] | `remove_order` и `remove_intakes` возвращают `Response`, а не `dict`. |
+| [`client.py:671`][client-671] | `remove_intakes` возвращает `Response`, а не `dict`. |
 | [`client.py:76`][client-76] / [`statuses.py:15`][statuses-15] | Для одного статуса используются разные значения: `RECEIVED_AT_SENDER_WAREHOUSE` и `RECEIVED_AT_SHIPMENT_WAREHOUSE`. |
 | [`client.py:83`][client-83] / [`statuses.py:56`][statuses-56] | Для одного статуса используются разные значения: `ARRIVED_AT_RECIPIENT_CITY` и `ACCEPTED_IN_RECIPIENT_CITY`. |
 | [`client.py:997`][client-997] | `get_shipping_cost` использует снятый с поддержки калькулятор v1.5. |
@@ -17,9 +16,7 @@
 
 [client-219]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L219
 [client-206]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L206
-[client-489]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L489
 [client-251]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L251
-[client-529]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L529
 [client-671]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L671
 [client-76]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L76
 [statuses-15]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/statuses.py#L15
