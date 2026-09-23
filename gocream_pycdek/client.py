@@ -844,28 +844,32 @@ class CdekClient:
         form_type: str | None = None,
         origin_response: bool = False,
         **kwargs,
-    ):
+    ) -> dict | Response:
         """
-        Request for the receipt of an order.
+        Request receipt
 
-        Args:
-            orders (list of dict): Список заказов:
-                order_uuid (str, optional): Идентификатор заказа в ИС СДЭК
-                cdek_number (str, optional): Номер заказа СДЭК
-            copy_count (integer, optional): Число копий одной квитанции на листе. Рекомендовано указывать
-                не менее 2, одна приклеивается на груз, вторая остается у отправителя (default: 2)
-            form_type (bool, optional): Форма квитанции. Может принимать значения:
-                tpl_china - квитанция на китайском
-                tpl_armenia - квитанция на армянском
-            origin_response (bool, optional): return original response or only entity? (default: False)
-
-        Returns:
-            dict: requested invoice dict
+        Создаёт запрос на формирование квитанции. Ответ не означает, что файл уже готов.
 
         https://apidoc.cdek.ru/#tag/print/operation/waybillPrint
+
+        Args:
+            orders: Список заказов с `order_uuid` или `cdek_number`.
+            copy_count: Число копий. None оставляет выбор значения API.
+            form_type: Тип квитанции (например, `tpl_china` или `tpl_armenia`).
+                Передаётся в поле `type`.
+            origin_response: Вернуть исходный HTTP-ответ вместо `entity`. По умолчанию False.
+                Используйте True вместе с `raise_errors=False`, если в ответе ошибки нет `entity`.
+            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть,
+                включая `raise_errors` и `timeout`.
+
+        Returns:
+            Информация из `entity`, а при `origin_response=True` - исходный HTTP-ответ.
+
+        Raises:
+            CdekRequestException: Ответ с ошибочным HTTP-статусом при `raise_errors=True`.
         """
 
-        complete_data = clear_dict(
+        complete_data = drop_none(
             {
                 "orders": orders,
                 "copy_count": copy_count,
@@ -889,30 +893,32 @@ class CdekClient:
         lang: str | None = None,
         origin_response: bool = False,
         **kwargs,
-    ):
+    ) -> dict | Response:
         """
-        Request for the BARCODE of an order
+        Request barcode
 
-        Args:
-            orders (list of dict): Список заказов:
-                order_uuid (str, optional): Идентификатор заказа в ИС СДЭК
-                cdek_number (str, optional): Номер заказа СДЭК
-            copy_count (integer, optional): Число копий одной квитанции на листе. Рекомендовано указывать
-                не менее 2, одна приклеивается на груз, вторая остается у отправителя (default: 2)
-            form_type (str, optional): Формат печати. Может принимать значения: A4, A5, A6
-                (A - буква латинского алфавита). По умолчанию A4.
-            lang (str, optional): Язык печатной формы. Возможные языки в кодировке ISO - 639-3:
-                * Русский - RUS
-                * Английский - ENG
-            origin_response (bool, optional): return original response or only entity? (default: False)
-
-        Returns:
-            dict: requested invoice dict
+        Создаёт запрос на формирование штрихкодов. Ответ не означает, что файл уже готов.
 
         https://apidoc.cdek.ru/#tag/print/operation/barcodePrint
+
+        Args:
+            orders: Список заказов с `order_uuid` или `cdek_number`.
+            copy_count: Число копий. None оставляет выбор значения API.
+            format_type: Формат печати (`A4`, `A5`, `A6`). Передаётся в поле `format`.
+            lang: Язык печатной формы, например `RUS` или `ENG`.
+            origin_response: Вернуть исходный HTTP-ответ вместо `entity`. По умолчанию False.
+                Используйте True вместе с `raise_errors=False`, если в ответе ошибки нет `entity`.
+            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть,
+                включая `raise_errors` и `timeout`.
+
+        Returns:
+            Информация из `entity`, а при `origin_response=True` - исходный HTTP-ответ.
+
+        Raises:
+            CdekRequestException: Ответ с ошибочным HTTP-статусом при `raise_errors=True`.
         """
 
-        complete_data = clear_dict(
+        complete_data = drop_none(
             {
                 "orders": orders,
                 "copy_count": copy_count,
@@ -929,64 +935,91 @@ class CdekClient:
 
         return response
 
-    def get_receipt(self, uuid, origin_response=False, **kwargs):
+    def get_receipt(self, uuid: str, origin_response: bool = False, **kwargs) -> dict | Response:
         """
-        Receiving a receipt for the order.
+        Get receipt information
 
-        Args:
-            uuid (str): intakes cdek uuid
-            origin_response (bool, optional): return original response or only entity? (default: False)
-
-        Returns:
-            dict: requested invoice dict
+        Возвращает сведения о формировании квитанции. Готовый файл можно скачать
+        по ссылке `url` через [`download`][gocream_pycdek.client.CdekClient.download].
 
         https://apidoc.cdek.ru/#tag/print/operation/waybillGet
-        """
-
-        response = self.send(Path(self.RESOURCE_RECEIPT) / Path(uuid), method="get", **kwargs)
-
-        if not origin_response:
-            response = response.json()["entity"]
-
-        return response
-
-    def get_barcode(self, uuid, origin_response=False, **kwargs):
-        """
-        Receiving a get_barcode for the order.
 
         Args:
-            uuid (str): intakes cdek uuid
-            origin_response (bool, optional): return original response or only entity? (default: False)
+            uuid: UUID печатной формы квитанции, полученный при её создании.
+            origin_response: Вернуть исходный HTTP-ответ вместо `entity`. По умолчанию False.
+                Используйте True вместе с `raise_errors=False`, если в ответе ошибки нет `entity`.
+            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть,
+                включая `raise_errors` и `timeout`.
 
         Returns:
-            dict: requested barcode dict
+            Информация из `entity`, а при `origin_response=True` - исходный HTTP-ответ.
 
-        https://apidoc.cdek.ru/#tag/print/operation/barcodeGet
+        Raises:
+            CdekRequestException: Ответ с ошибочным HTTP-статусом при `raise_errors=True`.
         """
 
-        response = self.send(Path(self.RESOURCE_BARCODE) / Path(uuid), method="get", **kwargs)
+        response = self.send(f"{self.RESOURCE_RECEIPT}/{uuid}", method="get", **kwargs)
 
         if not origin_response:
             response = response.json()["entity"]
 
         return response
 
-    def download(self, url, origin_response=False, **kwargs):
+    def get_barcode(self, uuid: str, origin_response: bool = False, **kwargs) -> dict | Response:
         """
-        Download document.
+        Get barcode information
+
+        Возвращает сведения о формировании штрихкодов. Готовый файл можно скачать
+        по ссылке `url` через [`download`][gocream_pycdek.client.CdekClient.download].
+
+        https://apidoc.cdek.ru/#tag/print/operation/barcodeGet
 
         Args:
-            url (str): cdek url
-            origin_response (bool, optional): return original response or only entity? (default: False)
+            uuid: UUID печатной формы штрихкодов, полученный при её создании.
+            origin_response: Вернуть исходный HTTP-ответ вместо `entity`. По умолчанию False.
+                Используйте True вместе с `raise_errors=False`, если в ответе ошибки нет `entity`.
+            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть,
+                включая `raise_errors` и `timeout`.
+
+        Returns:
+            Информация из `entity`, а при `origin_response=True` - исходный HTTP-ответ.
+
+        Raises:
+            CdekRequestException: Ответ с ошибочным HTTP-статусом при `raise_errors=True`.
         """
+
+        response = self.send(f"{self.RESOURCE_BARCODE}/{uuid}", method="get", **kwargs)
+
+        if not origin_response:
+            response = response.json()["entity"]
+
+        return response
+
+    def download(self, url: str, origin_response: bool = False, **kwargs) -> BytesIO | Response:
+        """
+        Download document
+
+        Args:
+            url: Ссылка `url` из сведений о готовой печатной форме.
+            origin_response: Вернуть исходный HTTP-ответ вместо `BytesIO`. По умолчанию False.
+            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть,
+                включая `raise_errors` и `timeout`.
+
+        Returns:
+            Файл в памяти с указателем в начале, готовый к чтению.
+            При `origin_response=True` - исходный HTTP-ответ.
+            При `raise_errors=False` содержимое ответа возвращается даже при HTTP-ошибке.
+
+        Raises:
+            CdekRequestException: Ответ с ошибочным HTTP-статусом при `raise_errors=True`.
+        """
+
         response = self.send(url, method="get", **kwargs)
 
         if origin_response:
             return response
 
-        file = BytesIO()
-        file.write(response.content)
-        return file
+        return BytesIO(response.content)
 
     def get_shipping_cost(
         self,
