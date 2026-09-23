@@ -3,7 +3,6 @@ import logging
 from collections.abc import Iterator
 from enum import IntEnum
 from io import BytesIO
-from pathlib import Path
 from pathlib import PurePath
 
 import jwt
@@ -1202,63 +1201,127 @@ class CdekClient:
 
         return response
 
-    def subscribe(self, url, type, raise_errors=True, origin_response=False):
+    def subscribe(
+        self, url: str, type: str, raise_errors: bool = True, origin_response: bool = False, **kwargs
+    ) -> dict | Response:
         """
-        Webhook subscribe
+        Create webhook subscription
 
         https://apidoc.cdek.ru/#tag/webhook/operation/createWebhook
+
+        Args:
+            url: Адрес обработчика уведомлений.
+            type: Тип события, например `ORDER_STATUS`, `PRINT_FORM` или `DOWNLOAD_PHOTO`.
+            raise_errors: Вызывать исключение при ошибочном HTTP-статусе. По умолчанию True.
+            origin_response: Вернуть исходный HTTP-ответ вместо декодированного JSON. По умолчанию False.
+            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
+
+        Returns:
+            Полный JSON-ответ о создании подписки, включая служебные сведения.
+            При `origin_response=True` - исходный HTTP-ответ.
+
+        Raises:
+            CdekRequestException: Ответ с ошибочным HTTP-статусом при `raise_errors=True`.
         """
 
-        complete_data = clear_dict(
+        complete_data = drop_none(
             {
                 "url": url,
                 "type": type,
             }
         )
 
-        response = self.send(self.RESOURCE_SUBSCRIPTION, method="post", data=complete_data, raise_errors=raise_errors)
+        response = self.send(
+            self.RESOURCE_SUBSCRIPTION, method="post", data=complete_data, raise_errors=raise_errors, **kwargs
+        )
 
         if not origin_response:
             response = response.json()
 
         return response
 
-    def subscribe_info(self, raise_errors=True, origin_response=False):
+    def subscribe_info(
+        self, raise_errors: bool = True, origin_response: bool = False, **kwargs
+    ) -> list[dict] | dict | Response:
         """
-        information about all current subscriptions
+        List webhook subscriptions
 
         https://apidoc.cdek.ru/#tag/webhook/operation/getAll
+
+        Args:
+            raise_errors: Вызывать исключение при ошибочном HTTP-статусе. По умолчанию True.
+            origin_response: Вернуть исходный HTTP-ответ вместо декодированного JSON. По умолчанию False.
+            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
+
+        Returns:
+            Список подписок при успешном ответе; при `raise_errors=False` возможен словарь с ошибкой.
+            При `origin_response=True` - исходный HTTP-ответ.
+
+        Raises:
+            CdekRequestException: Ответ с ошибочным HTTP-статусом при `raise_errors=True`.
         """
 
-        response = self.send(Path(self.RESOURCE_SUBSCRIPTION), method="get", raise_errors=raise_errors)
+        response = self.send(self.RESOURCE_SUBSCRIPTION, method="get", raise_errors=raise_errors, **kwargs)
 
         if not origin_response:
             response = response.json()
 
         return response
 
-    def subscribe_info_by_uuid(self, uuid, raise_errors=True, origin_response=False):
+    def subscribe_info_by_uuid(
+        self, uuid: str, raise_errors: bool = True, origin_response: bool = False, **kwargs
+    ) -> dict | Response:
         """
-        subscription information, where uuid is the subscription identifier
+        Get webhook subscription
 
         https://apidoc.cdek.ru/#tag/webhook/operation/getById
+
+        Args:
+            uuid: UUID подписки на вебхук.
+            raise_errors: Вызывать исключение при ошибочном HTTP-статусе. По умолчанию True.
+            origin_response: Вернуть исходный HTTP-ответ вместо декодированного JSON. По умолчанию False.
+            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
+
+        Returns:
+            Полный JSON-ответ со сведениями о подписке, включая `entity` и `requests`.
+            При `origin_response=True` - исходный HTTP-ответ.
+
+        Raises:
+            CdekRequestException: Ответ с ошибочным HTTP-статусом при `raise_errors=True`.
         """
 
-        response = self.send(Path(self.RESOURCE_SUBSCRIPTION) / Path(uuid), method="get", raise_errors=raise_errors)
+        response = self.send(f"{self.RESOURCE_SUBSCRIPTION}/{uuid}", method="get", raise_errors=raise_errors, **kwargs)
 
         if not origin_response:
             response = response.json()
 
         return response
 
-    def subscribe_delete(self, uuid, raise_errors=True, origin_response=False):
+    def subscribe_delete(
+        self, uuid: str, raise_errors: bool = True, origin_response: bool = False, **kwargs
+    ) -> dict | Response:
         """
-        request to delete a subscription
+        Delete webhook subscription
 
         https://apidoc.cdek.ru/#tag/webhook/operation/deleteById
+
+        Args:
+            uuid: UUID подписки на вебхук.
+            raise_errors: Вызывать исключение при ошибочном HTTP-статусе. По умолчанию True.
+            origin_response: Вернуть исходный HTTP-ответ вместо декодированного JSON. По умолчанию False.
+            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
+
+        Returns:
+            Полный JSON-ответ на запрос удаления подписки.
+            При `origin_response=True` - исходный HTTP-ответ.
+
+        Raises:
+            CdekRequestException: Ответ с ошибочным HTTP-статусом при `raise_errors=True`.
         """
 
-        response = self.send(Path(self.RESOURCE_SUBSCRIPTION) / Path(uuid), method="delete", raise_errors=raise_errors)
+        response = self.send(
+            f"{self.RESOURCE_SUBSCRIPTION}/{uuid}", method="delete", raise_errors=raise_errors, **kwargs
+        )
 
         if not origin_response:
             response = response.json()
