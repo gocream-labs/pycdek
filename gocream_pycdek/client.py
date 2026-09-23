@@ -501,7 +501,8 @@ class CdekClient:
         need_call=None,
         raise_errors=True,
         origin_response=False,
-    ):
+        **kwargs,
+    ) -> dict | Response:
         """
         Registrate intakes
 
@@ -509,13 +510,13 @@ class CdekClient:
 
         Args:
             intake_date (str): Дата ожидания курьера в формате (yyyy-MM-dd)
-            intake_time_from (time): Время начала ожидания курьера
-            intake_time_to (time): Время окончания ожидания курьера
+            intake_time_from (str): Время начала ожидания курьера в формате HH:MM
+            intake_time_to (str): Время окончания ожидания курьера в формате HH:MM
             order_uuid (str, optional): Идентификатор заказа в ИС СДЭК (UUID)
-            lunch_time_from (time, optional): Время начала обеда, должно входить в диапазон
-                [intake_time_to;intake_time_to]
-            lunch_time_to (time, optional): Время окончания обеда, должно входить в диапазон
-                [intake_time_to;intake_time_to]
+            lunch_time_from (str, optional): Время начала обеда в формате HH:MM, должно входить в диапазон
+                [intake_time_from;intake_time_to]
+            lunch_time_to (str, optional): Время окончания обеда в формате HH:MM, должно входить в диапазон
+                [intake_time_from;intake_time_to]
             name (str, optional): Описание груза
             cdek_number (int, optional): Номер заказа СДЭК
             weight (int, optional): Общий вес (в граммах)
@@ -542,14 +543,19 @@ class CdekClient:
                 city (str, optional): Название города
                 kladr_code (str, optional): Код КЛАДР
             need_call (bool, optional): Необходим прозвон отправителя (по умолчанию - false)
-            raise_errors (bool, optional): raise errors? (default: True)
-            origin_response (bool, optional): return original response or only entity? (default: False)
+            raise_errors (bool, optional): Вызывать исключение при ошибочном HTTP-статусе. По умолчанию True.
+            origin_response (bool, optional): Вернуть исходный HTTP-ответ вместо `entity`. По умолчанию False.
+                Используйте True вместе с `raise_errors=False`, если в ответе ошибки нет `entity`.
+            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
 
         Returns:
-            dict: Intakes dict
+            dict | Response: Информация из `entity`, а при `origin_response=True` - исходный HTTP-ответ.
+
+        Raises:
+            CdekRequestException: Ответ с ошибочным HTTP-статусом при `raise_errors=True`.
         """
 
-        complete_data = clear_dict(
+        complete_data = drop_none(
             {
                 "intake_date": intake_date,
                 "intake_time_from": intake_time_from,
@@ -570,14 +576,18 @@ class CdekClient:
             }
         )
 
-        response = self.send(self.RESOURCE_INTAKES, method="post", data=complete_data, raise_errors=raise_errors)
+        response = self.send(
+            self.RESOURCE_INTAKES, method="post", data=complete_data, raise_errors=raise_errors, **kwargs
+        )
 
         if not origin_response:
             response = response.json()["entity"]
 
         return response
 
-    def get_intakes(self, uuid, raise_errors=True, origin_response=False):
+    def get_intakes(
+        self, uuid: str, raise_errors: bool = True, origin_response: bool = False, **kwargs
+    ) -> dict | Response:
         """
         Get intakes info
 
@@ -585,21 +595,26 @@ class CdekClient:
 
         Args:
             uuid (str): intakes cdek uuid
-            raise_errors (bool, optional): raise errors? (default: True)
-            origin_response (bool, optional): return original response or only entity? (default: False)
+            raise_errors (bool, optional): Вызывать исключение при ошибочном HTTP-статусе. По умолчанию True.
+            origin_response (bool, optional): Вернуть исходный HTTP-ответ вместо `entity`. По умолчанию False.
+                Используйте True вместе с `raise_errors=False`, если в ответе ошибки нет `entity`.
+            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
 
         Returns:
-            dict: intakes info
+            dict | Response: Информация из `entity`, а при `origin_response=True` - исходный HTTP-ответ.
+
+        Raises:
+            CdekRequestException: Ответ с ошибочным HTTP-статусом при `raise_errors=True`.
         """
 
-        response = self.send(Path(self.RESOURCE_INTAKES) / Path(uuid), method="get", raise_errors=raise_errors)
+        response = self.send(f"{self.RESOURCE_INTAKES}/{uuid}", method="get", raise_errors=raise_errors, **kwargs)
 
         if not origin_response:
             response = response.json()["entity"]
 
         return response
 
-    def remove_intakes(self, uuid, raise_errors=True):
+    def remove_intakes(self, uuid: str, raise_errors: bool = True, **kwargs) -> Response:
         """
         Remove intakes
 
@@ -607,13 +622,17 @@ class CdekClient:
 
         Args:
             uuid (str): intakes cdek uuid
-            raise_errors (bool, optional): raise errors? (default: True)
+            raise_errors (bool, optional): Вызывать исключение при ошибочном HTTP-статусе. По умолчанию True.
+            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
 
         Returns:
-            dict: deleted intakes info
+            Response: Исходный HTTP-ответ. Принятие запроса ещё не означает завершения удаления.
+
+        Raises:
+            CdekRequestException: Ответ с ошибочным HTTP-статусом при `raise_errors=True`.
         """
 
-        return self.send(Path(self.RESOURCE_INTAKES) / Path(uuid), method="delete", raise_errors=raise_errors)
+        return self.send(f"{self.RESOURCE_INTAKES}/{uuid}", method="delete", raise_errors=raise_errors, **kwargs)
 
     def get_regions(
         self,
