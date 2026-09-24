@@ -4,6 +4,7 @@ import pytest
 import responses
 
 from gocream_pycdek.exceptions import CdekApiAccessException
+from gocream_pycdek.exceptions import CdekApiException
 from gocream_pycdek.exceptions import CdekApiUnavailableException
 from gocream_pycdek.exceptions import CdekApiWrongTokenTypeException
 from tests.helpers import only_request
@@ -38,7 +39,7 @@ def test_authorization_returns_token_response(client):
 
 @responses.activate
 def test_authorization_sends_credentials_in_query_params(client):
-    """Фиксирует текущую передачу credentials в query string POST-запроса."""
+    """Проверяет сохранение передачи credentials в query-параметрах POST-запроса."""
 
     responses.add(
         responses.POST,
@@ -56,12 +57,9 @@ def test_authorization_sends_credentials_in_query_params(client):
         "client_id": "client-id",
         "client_secret": "client-secret",
     }
+    assert sent.body is None
 
 
-@pytest.mark.xfail(
-    reason="Клиент не читает значение поля error из ответа invalid_client",
-    strict=True,
-)
 @responses.activate
 def test_authorization_maps_invalid_client(client):
     """Проверяет реальный ответ `invalid_client` тестового контура."""
@@ -100,4 +98,62 @@ def test_authorization_rejects_non_bearer_token(client):
     )
 
     with pytest.raises(CdekApiWrongTokenTypeException):
+        client.authorization()
+
+
+@pytest.mark.parametrize("content_type", [None, "application/json; charset=UTF-8", "text/plain"])
+@responses.activate
+def test_authorization_reads_error_without_exact_content_type(client, content_type):
+    """invalid_client распознаётся без привязки к Content-Type и тексту описания."""
+
+    responses.add(
+        responses.POST,
+        "https://api.cdek.ru/v2/oauth/token",
+        body='{"error": "invalid_client", "error_description": "Credentials rejected"}',
+        content_type=content_type,
+        status=401,
+    )
+    with pytest.raises(CdekApiAccessException):
+        client.authorization()
+
+
+@pytest.mark.parametrize("body", ["not JSON", "[]", "null", '"error"'])
+@responses.activate
+def test_authorization_preserves_unstructured_error(client, body):
+    """Неструктурированная ошибка авторизации сохраняется в CdekApiException."""
+
+    responses.add(responses.POST, "https://api.cdek.ru/v2/oauth/token", body=body, status=400, content_type=None)
+    with pytest.raises(CdekApiException) as exc_info:
+        client.authorization()
+    assert exc_info.value.message == body
+
+
+@responses.activate
+def test_authorization_preserves_other_oauth_error(client):
+    """Неизвестная OAuth-ошибка сохраняет код и описание из JSON."""
+
+    responses.add(
+        responses.POST,
+        "https://api.cdek.ru/v2/oauth/token",
+        json={"error": "invalid_scope", "error_description": "Unknown scope"},
+        status=400,
+    )
+    with pytest.raises(CdekApiException) as exc_info:
+        client.authorization()
+    assert exc_info.value.code == "invalid_scope"
+    assert exc_info.value.message == "Unknown scope"
+
+
+@responses.activate
+def test_authorization_maps_non_json_service_unavailable(client):
+    """HTTP 503 с HTML-телом преобразуется в исключение недоступности API."""
+
+    responses.add(
+        responses.POST,
+        "https://api.cdek.ru/v2/oauth/token",
+        body="<html>Unavailable</html>",
+        content_type="text/html",
+        status=503,
+    )
+    with pytest.raises(CdekApiUnavailableException):
         client.authorization()

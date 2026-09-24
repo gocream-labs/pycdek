@@ -32,10 +32,9 @@ class ContractType(IntEnum):
     """
     Type of the order, as sent in the `type` field
 
-    Указывается в каждом заказе, а не в клиенте: тип — свойство заказа, а не учётной
-    записи. `DELIVERY` доступен любому договору, `ONLINE_STORE` — только договору
-    с интернет-магазином, поэтому одна и та же учётная запись может отправлять оба
-    типа.
+    Указывается в каждом заказе, а не в клиенте: тип - свойство заказа, а не учётной записи.
+    `DELIVERY` доступен любому договору, `ONLINE_STORE` - только договору с интернет-магазином,
+    поэтому одна и та же учётная запись может отправлять оба типа.
 
     Attributes:
         ONLINE_STORE: Заказ «интернет-магазин».
@@ -71,15 +70,6 @@ class CdekClient:
     Без этого сокеты остаются открытыми, пока на клиента есть хоть одна ссылка.
     Сборщик мусора их в итоге доберёт, но предупреждения при этом не будет,
     так что накопление дескрипторов легко не заметить.
-
-    Attributes:
-        TOKEN_REFRESH_MARGIN: Насколько раньше срока клиент идёт за новым токеном. Запас
-            нужен на расхождение часов с СДЭК и на время запроса, который этим токеном
-            уйдёт. СДЭК выдаёт токен на час, так что пять минут стоят примерно 8% срока
-            жизни.
-        DEFAULT_TIMEOUT: Таймаут запроса как пара `(connect, read)` в секундах. Отдельный
-            атрибут, а не литерал в `send`, чтобы значение переопределялось наследником
-            или на экземпляре, без правки вызовов.
     """
 
     RESOURCE_AUTH_TOKEN = "v2/oauth/token"
@@ -95,7 +85,17 @@ class CdekClient:
     RESOURCE_CALCULATOR_URL = "calculator/calculate_price_by_json.php"
 
     TOKEN_REFRESH_MARGIN: dt.timedelta = dt.timedelta(minutes=5)
+    """
+    Насколько раньше срока клиент идёт за новым токеном. Запас нужен на расхождение часов с СДЭК и
+    на время запроса, который этим токеном уйдёт. СДЭК выдаёт токен на час, так что пять минут стоят
+    примерно 8% срока жизни.
+    """
+
     DEFAULT_TIMEOUT: tuple[float, float] = (3, 7)
+    """
+    Таймаут запроса как пара `(connect, read)` в секундах. Отдельный атрибут, а не литерал в `send`,
+    чтобы значение переопределялось наследником или на экземпляре, без правки вызовов.
+    """
 
     def __init__(
         self,
@@ -121,14 +121,14 @@ class CdekClient:
         # `get_all_cities` это разница между одним handshake и сотнями.
         self._session = requests.Session()
 
-    def __enter__(self):
+    def __enter__(self) -> "CdekClient":
         """
         Enter runtime context and return the client itself
         """
 
         return self
 
-    def __exit__(self, *exc_info):
+    def __exit__(self, *exc_info: object) -> None:
         """
         Leave runtime context, closing the client and releasing its connections
         """
@@ -148,7 +148,10 @@ class CdekClient:
     @property
     def token(self) -> str:
         """
-        request token if needed and return token
+        Return a cached token, refreshing it before expiration
+
+        Срок действия берётся из JWT. Обновление выполняется заранее с учётом
+        `TOKEN_REFRESH_MARGIN` через [`authorization`][gocream_pycdek.client.CdekClient.authorization].
         """
 
         deadline = dt.datetime.now() + self.TOKEN_REFRESH_MARGIN
@@ -165,9 +168,23 @@ class CdekClient:
 
         return self._token
 
-    def authorization(self):
+    def authorization(self) -> dict:
         """
-        request jwt token for use in api requests
+        Request an access token
+
+        Учётные данные отправляются в query-параметрах POST-запроса. Метод возвращает ответ API;
+        кэш токена обновляется свойством [`token`][gocream_pycdek.client.CdekClient.token].
+
+        [документации CDEK](https://apidoc.cdek.ru/#tag/auth/operation/getOAuthToken)
+
+        Returns:
+            JSON-ответ с токеном и сведениями о сроке действия.
+
+        Raises:
+            CdekApiAccessException: API вернул `invalid_client`.
+            CdekApiUnavailableException: Сервис недоступен.
+            CdekApiException: Другая ошибка авторизации.
+            CdekApiWrongTokenTypeException: Получен неподдерживаемый тип токена.
         """
 
         response = self._session.post(
@@ -184,35 +201,35 @@ class CdekClient:
             message = response.text
             code = None
 
-            if response.headers["Content-Type"] == "application/json":
-                json = response.json()
+            try:
+                error = response.json()
+            except ValueError:
+                pass
+            else:
+                if isinstance(error, dict):
+                    code = error.get("error")
+                    message = error.get("error_description") or error.get("reason") or message
 
-                if "error_description" in json and "invalid_client" in json:
-                    message = json["error_description"]
-                    code = json["invalid_client"]
+            if code == "invalid_client":
+                raise CdekApiAccessException(message)
 
-                elif "reason" in json and len(json) == 1:
-                    message = json["reason"]
-
-            if code == "invalid_client" and message == "Bad client credentials":
-                raise CdekApiAccessException()
-
-            elif code is None and message == "Service Unavailable":
+            if response.status_code == 503 or (code is None and message == "Service Unavailable"):
                 raise CdekApiUnavailableException()
 
             raise CdekApiException(message, code)
 
-        else:
-            json = response.json()
+        payload = response.json()
+        if payload["token_type"] != "bearer":
+            raise CdekApiWrongTokenTypeException(payload["token_type"])
 
-        if json["token_type"] != "bearer":
-            raise CdekApiWrongTokenTypeException(json["token_type"])
+        return payload
 
-        return json
-
-    def get_url(self, resource):
+    def get_url(self, resource: str | PurePath) -> str:
         """
-        make request url
+        Build a request URL
+
+        Относительный путь дополняется базовым URL. Абсолютный URL нужно передавать строкой:
+        `PurePath` теряет двойной слэш в схеме при создании объекта.
         """
 
         resource = resource.as_posix() if isinstance(resource, PurePath) else str(resource)
@@ -221,14 +238,25 @@ class CdekClient:
 
         return f"{self.base_url}/{resource.lstrip('/')}"
 
-    def get_headers(self):
+    def get_headers(self) -> dict[str, str]:
         """
-        make headers for requests
+        Build authorization headers
+
+        Использует [`token`][gocream_pycdek.client.CdekClient.token], при необходимости обновляя его.
         """
 
         return {"Authorization": f"Bearer {self.token}"}
 
-    def send(self, resource, method, *, data=None, params=None, raise_errors=True, **kwargs):
+    def send(
+        self,
+        resource: str | PurePath,
+        method: str,
+        *,
+        data: dict | None = None,
+        params: dict | None = None,
+        raise_errors: bool = True,
+        **kwargs,
+    ) -> Response:
         """
         Send authorized request to the API
 
@@ -301,15 +329,14 @@ class CdekClient:
         """
         Register an order
 
-        Параметры повторяют поля тела запроса, поэтому состав вложенных структур —
-        `recipient`, `packages`, адресов и прочих — здесь не дублируется. Он описан
-        по полям в
+        Параметры повторяют поля тела запроса, поэтому состав вложенных структур - `recipient`,
+        `packages`, адресов и прочих - здесь не дублируется. Он описан по полям в
         [документации CDEK](https://apidoc.cdek.ru/#tag/order/operation/register_1)
         и остаётся источником истины: там же видно, какие поля обязательны для
         конкретного типа заказа.
 
         В тело запроса попадают только переданные параметры: непереданные остаются
-        равными `None` и отбрасываются. Всё остальное уходит как есть — пустая строка
+        равными `None` и отбрасываются. Всё остальное уходит как есть - пустая строка
         для СДЭК осмысленное значение, а не отсутствие поля.
 
         Даты передаются строками в формате `yyyy-MM-dd`: тело сериализуется штатным
@@ -347,13 +374,13 @@ class CdekClient:
             services (list of dict, optional): Дополнительные услуги, см.
                 [приложение 6](https://apidoc.cdek.ru/#tag/common/Prilozheniya/Prilozhenie-6.-Dopolnitelnye-uslugi).
             request_print (str, optional): Печатная форма, которую нужно сформировать по
-                заказу: `barcode` — ШК мест, `waybill` — квитанция. Уходит в поле `print`.
+                заказу: `barcode` - ШК мест, `waybill` - квитанция. Уходит в поле `print`.
             origin_response (bool, optional): Вернуть ответ целиком вместо созданного
                 заказа. Defaults to False.
             **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
 
         Returns:
-            dict | Response: Созданный заказ, а при `origin_response=True` — ответ целиком.
+            dict | Response: Созданный заказ, а при `origin_response=True` - ответ целиком.
 
         Raises:
             CdekRequestException: Ответ с ошибочным статусом.
@@ -397,12 +424,12 @@ class CdekClient:
 
         Идентификатор выбирает метод API: по uuid заказ запрашивается
         [адресом ресурса](https://apidoc.cdek.ru/#tag/order/operation/get_2), по номеру
-        СДЭК или по номеру в ИС клиента —
+        СДЭК или по номеру в ИС клиента -
         [query-параметром](https://apidoc.cdek.ru/#tag/order/operation/get).
 
         Идентификатор нужен ровно один: без него искать нечего, а с двумя клиенту
         пришлось бы решать за пользователя, какой из них главный. Пустое значение
-        считается непереданным — заказ по нему всё равно не найдётся, а запрос ушёл бы
+        считается непереданным - заказ по нему всё равно не найдётся, а запрос ушёл бы
         за списком.
 
         Ответ с ошибкой не содержит `entity`, поэтому `raise_errors=False` осмысленно
@@ -419,7 +446,7 @@ class CdekClient:
             **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
 
         Returns:
-            dict | Response: Найденный заказ, а при `origin_response=True` — ответ целиком.
+            dict | Response: Найденный заказ, а при `origin_response=True` - ответ целиком.
 
         Raises:
             ValueError: Идентификатор не передан либо передан не один.

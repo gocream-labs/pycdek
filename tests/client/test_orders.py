@@ -132,7 +132,7 @@ def test_registrate_order_forwards_kwargs_to_send(client):
 def test_order_lookup_requires_identifier(client):
     """Проверяет ошибку при вызове `get_order` без идентификатора."""
 
-    with pytest.raises(ValueError, match="Only one"):
+    with pytest.raises(ValueError, match="One of the"):
         client.get_order()
 
 
@@ -148,7 +148,7 @@ def test_order_lookup_ignores_empty_identifier(client):
 
     client.send = MagicMock(return_value=FakeResponse({"entity": {"uuid": "u"}}))
 
-    with pytest.raises(ValueError, match="Only one"):
+    with pytest.raises(ValueError, match="One of the"):
         client.get_order(uuid="", cdek_number="")
 
     client.send.assert_not_called()
