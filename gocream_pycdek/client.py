@@ -1,5 +1,6 @@
 import datetime as dt
 import logging
+import warnings
 from collections.abc import Iterator
 from enum import IntEnum
 from io import BytesIO
@@ -1074,11 +1075,14 @@ class CdekClient:
         raise_errors=True,
         origin_response=False,
         **kwargs,
-    ):
+    ) -> dict | Response:
         """
+        Calculate shipping cost with the legacy API
 
-        TODO:
-        * new method https://apidoc.cdek.ru/#tag/calculator/operation/tariff
+        Deprecated:
+            2.0.0: Используйте [`calculator_tariff`][gocream_pycdek.client.CdekClient.calculator_tariff].
+                Метод будет удалён в 3.0.0. Параметры нового калькулятора отличаются,
+                поэтому вызов нужно адаптировать, а не просто переименовать.
 
         goods (dict): Габаритные характеристики упаковки:
             weight (float): Вес упаковки (в килограммах)
@@ -1119,6 +1123,12 @@ class CdekClient:
 
         https://apidoc.cdek.ru/#tag/calculator/operation/tariff
         """
+
+        warnings.warn(
+            "get_shipping_cost is deprecated and will be removed in 3.0.0; use calculator_tariff instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
         complete_data = clear_dict(
             {
@@ -1166,50 +1176,47 @@ class CdekClient:
 
     def calculator_tariff(
         self,
-        tariff_code,
-        from_location,
-        to_location,
-        packages,
+        tariff_code: int,
+        from_location: dict,
+        to_location: dict,
+        packages: list[dict],
         *,
-        contract_type,
-        date=None,
-        currency=None,
-        services=None,
-        origin_response=False,
+        contract_type: ContractType | int,
+        date: str | None = None,
+        currency: int | None = None,
+        services: list[dict] | None = None,
+        origin_response: bool = False,
         **kwargs,
-    ):
+    ) -> dict | Response:
         """
-        tariff_code (int): Код тарифа
-        from_location (dict): Адрес отправления
-            code (int, optional): Код населенного пункта СДЭК (метод "Список населенных пунктов")
-            postal_code (str, optional): Почтовый индекс
-            country_code (str, optional): Код страны в формате ISO_3166-1_alpha-2
-            city (str, optional): Название города
-            address (str, optional): Полная строка адреса
-        to_location (dict): Адрес получения
-            code (int, optional): Код населенного пункта СДЭК (метод "Список населенных пунктов")
-            postal_code (str, optional): Почтовый индекс
-            country_code (str, optional): Код страны в формате ISO_3166-1_alpha-2
-            city (str, optional): Название города
-            address (str, optional): Полная строка адреса
-        packages (list of dict): Список информации по местам (упаковкам)
-            weight (int): Общий вес (в граммах)
-            length (int, optional): Габариты упаковки. Длина (в сантиметрах)
-            width (int, optional):  Габариты упаковки. Ширина (в сантиметрах)
-            height (int, optional): Габариты упаковки. Высота (в сантиметрах)
-        contract_type (ContractType): Тип заказа, от него зависят доступные тарифы.
-            Уходит в поле `type`.
-        date (str, optional): Дата и время планируемой передачи заказа. По умолчанию - текущая.
-        currency (int, optional): Валюта, в которой необходимо произвести расчет. По умолчанию - валюта договора
-        services (list of dict, optional): Дополнительные услуги
-            code (string): Тип дополнительной услуги, код из справочника доп. услуг
-            parameter (string, optional): Параметр дополнительной услуги
-        origin_response (bool, optional): return original response or only entity? (default: False)
+        Calculate shipping cost by tariff code
 
         https://apidoc.cdek.ru/#tag/calculator/operation/tariff
+
+        Args:
+            tariff_code: Код тарифа СДЭК.
+            from_location: Адрес отправления: код города или другие поля адреса API.
+            to_location: Адрес получения: код города или другие поля адреса API.
+            packages: Упаковки с весом `weight` в граммах и габаритами
+                `length`, `width`, `height` в сантиметрах.
+            contract_type: Тип заказа из `ContractType`.
+                Передаётся в поле `type`.
+            date: Дата и время планируемой передачи заказа в строковом формате API.
+            currency: Код валюты расчёта. None оставляет выбор API.
+            services: Дополнительные услуги с полями `code` и `parameter`.
+            origin_response: Вернуть исходный HTTP-ответ вместо JSON. По умолчанию False.
+            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть,
+                включая `raise_errors` и `timeout`.
+
+        Returns:
+            Полный JSON-ответ расчёта, а при `origin_response=True` - исходный HTTP-ответ.
+
+        Raises:
+            ValueError: Неизвестный тип заказа.
+            CdekRequestException: Ответ с ошибочным HTTP-статусом при `raise_errors=True`.
         """
 
-        kwargs["data"] = clear_dict(
+        kwargs["data"] = drop_none(
             {
                 "type": ContractType(contract_type).value,
                 "tariff_code": tariff_code,

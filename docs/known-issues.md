@@ -9,7 +9,7 @@
 | [`client.py:671`][client-671] | `remove_intakes` возвращает `Response`, а не `dict`. |
 | [`client.py:76`][client-76] / [`statuses.py:15`][statuses-15] | Для одного статуса используются разные значения: `RECEIVED_AT_SENDER_WAREHOUSE` и `RECEIVED_AT_SHIPMENT_WAREHOUSE`. |
 | [`client.py:83`][client-83] / [`statuses.py:56`][statuses-56] | Для одного статуса используются разные значения: `ARRIVED_AT_RECIPIENT_CITY` и `ACCEPTED_IN_RECIPIENT_CITY`. |
-| [`client.py:997`][client-997] | `get_shipping_cost` использует снятый с поддержки калькулятор v1.5. |
+| [`client.py:997`][client-997] | `get_shipping_cost` использует устаревший калькулятор v1.5; deprecated с 2.0.0, удаление запланировано в 3.0.0. |
 | [`utils.py:10`][utils-10] | `clear_dict` не обрабатывает списки словарей. Исправляться не будет: функция объявлена устаревшей в пользу `drop_none` и удаляется в 3.0.0. Методы клиента переводятся на неё по мере переработки. |
 
 [client-251]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L251
