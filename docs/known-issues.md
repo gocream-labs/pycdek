@@ -1,22 +1,22 @@
 # Known Issues
 
-Эти проблемы известны и будут последовательно исправляться до выхода стабильной версии 2.0.0.
+Ниже перечислены оставшиеся ограничения обработки ошибок и устаревших методов текущей реализации.
 
-| Где | Проблема |
+
+## Remaining Limitations
+
+| Где | Ограничение и дальнейшее действие |
 |---|---|
-| `authorization` | Учётные данные передаются в query-параметрах POST-запроса. Перенос в тело формы отложен до подтверждения поддержки со стороны СДЭК. |
-| [`client.py:251`][client-251] | Сборка URL через `pathlib.Path` ломается на Windows. |
-| [`client.py:671`][client-671] | `remove_intakes` возвращает `Response`, а не `dict`. |
-| [`client.py:76`][client-76] / [`statuses.py:15`][statuses-15] | Для одного статуса используются разные значения: `RECEIVED_AT_SENDER_WAREHOUSE` и `RECEIVED_AT_SHIPMENT_WAREHOUSE`. |
-| [`client.py:83`][client-83] / [`statuses.py:56`][statuses-56] | Для одного статуса используются разные значения: `ARRIVED_AT_RECIPIENT_CITY` и `ACCEPTED_IN_RECIPIENT_CITY`. |
-| [`client.py:997`][client-997] | `get_shipping_cost` использует устаревший калькулятор v1.5; deprecated с 2.0.0, удаление запланировано в 3.0.0. |
-| [`utils.py:10`][utils-10] | `clear_dict` не обрабатывает списки словарей. Исправляться не будет: функция объявлена устаревшей в пользу `drop_none` и удаляется в 3.0.0. Методы клиента переводятся на неё по мере переработки. |
+| [`get_all_regions`][gocream_pycdek.client.CdekClient.get_all_regions], [`get_all_cities`][gocream_pycdek.client.CdekClient.get_all_cities] | При `raise_errors=False` словарь ошибки может быть принят за страницу: генератор выдаёт его ключи и продолжает запросы. Используйте стандартное `raise_errors=True`; изменение обработки ошибок планируется отдельно. |
+| Методы, извлекающие `entity` | При `raise_errors=False` ответ без `entity` приводит к `KeyError`. Для ручной обработки такого ответа используйте `origin_response=True`. Унификация ошибок отложена на 3.0.0. |
+| [`get_shipping_cost`][gocream_pycdek.client.CdekClient.get_shipping_cost] | Legacy-калькулятор deprecated с 2.0.0, удаление запланировано в 3.0.0. Аргументы `auth_login` и `secure` не используются; при `auth=True` берутся credentials клиента. Записанный ответ получен для GET, текущий POST покрыт только синтетическим HTTP-моком. |
+| [`clear_dict`][gocream_pycdek.utils.clear_dict] | Не обрабатывает словари внутри списков; поведение зафиксировано ожидаемо падающим тестом. Исправляться не будет: функция и `is_empty` удаляются в 3.0.0. Единственный внутренний вызов остаётся в `get_shipping_cost`; актуальные методы используют `drop_none`. |
 
-[client-251]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L251
-[client-671]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L671
-[client-76]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L76
-[statuses-15]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/statuses.py#L15
-[client-83]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L83
-[statuses-56]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/statuses.py#L56
-[client-997]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/client.py#L997
-[utils-10]: https://github.com/gocream-labs/pycdek/blob/master/gocream_pycdek/utils.py#L10
+
+## Review Scope
+
+URL и HTTP-методы сопоставлены с записанными ответами тестового контура и локальными HTTP-тестами. Это не проверка актуальной спецификации и не живые запросы к СДЭК; внешняя проверка сетевого протокола остаётся отдельной задачей роадмапа.
+
+Старые записи о сборке URL предметных методов через `Path` и конфликтующих статусах в `client.py` удалены: таких вызовов и дублирующих констант в текущем коде нет. Сверка самого справочника статусов с API остаётся отдельной задачей.
+
+[`remove_intakes`][gocream_pycdek.client.CdekClient.remove_intakes] намеренно возвращает исходный `Response` для совместимости второй версии. Документация и тесты отражают этот контракт; это не оставшаяся ошибка декодирования.

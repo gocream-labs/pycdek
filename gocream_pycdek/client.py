@@ -183,7 +183,7 @@ class CdekClient:
 
         Raises:
             CdekApiAccessException: API вернул `invalid_client`.
-            CdekApiUnavailableException: Сервис недоступен.
+            CdekApiUnavailableException: HTTP 503 или сообщение "Service Unavailable" без кода ошибки.
             CdekApiException: Другая ошибка авторизации.
             CdekApiWrongTokenTypeException: Получен неподдерживаемый тип токена.
         """
@@ -728,6 +728,9 @@ class CdekClient:
         Обход начинается со страницы 0 и заканчивается на первом пустом списке.
         Переданные `page` и `origin_response` заменяются на 0 и False.
 
+        Оставляйте `raise_errors=True`: обход ожидает список, а JSON-ошибка,
+        возвращённая при отключённой проверке, не является страницей справочника.
+
         Args:
             **kwargs: Фильтры, размер страницы и HTTP-настройки для
                 [`get_regions`][gocream_pycdek.client.CdekClient.get_regions].
@@ -838,6 +841,9 @@ class CdekClient:
 
         Обход начинается со страницы 0 и заканчивается на первом пустом списке.
         Переданные `page` и `origin_response` заменяются на 0 и False.
+
+        Оставляйте `raise_errors=True`: обход ожидает список, а JSON-ошибка,
+        возвращённая при отключённой проверке, не является страницей справочника.
 
         Args:
             **kwargs: Фильтры, размер страницы и HTTP-настройки для
@@ -1084,44 +1090,45 @@ class CdekClient:
                 Метод будет удалён в 3.0.0. Параметры нового калькулятора отличаются,
                 поэтому вызов нужно адаптировать, а не просто переименовать.
 
-        goods (dict): Габаритные характеристики упаковки:
-            weight (float): Вес упаковки (в килограммах)
-            length (int): Длина упаковки (в сантиметрах)
-            width (int):  Ширина упаковки (в сантиметрах)
-            height (int): Высота упаковки (в сантиметрах)
-            volume (float): Объём упаковки (в м³)
-        version (str, optional): Версия используемого API - “1.0”
-        auth_login (str, optional):  Идентификатор ИМ (логин)
-        secure (str, optional): Ключ
-        date_execute (date, optional): Планируемая дата отправки заказа в формате “ГГГГ-ММ-ДД” date    нет
-        lang (str, optional): Локализация названий городов. По умолчанию "rus"
-        sender_country_code (str, optional): Код страны отправителя в формате ISO_3166-1_alpha-2
-            (см. “Общероссийский классификатор стран мира”). По умолчанию - ru.
-        receiver_country_code (str, optional): Код страны получателя в формате ISO_3166-1_alpha-2
-            (см. “Общероссийский классификатор стран мира”). По умолчанию - ru.
-        sender_city_id (int, optional): Код города отправителя из базы СДЭК (см. файл «City_XXX_YYYYMMDD.xls»)
-        sender_city (str, optional): Наименование города отправителя string  нет
-        sender_city_post_code (int, optional): Индекс города отправителя из базы СДЭК (см. файл «City_XXX_YYYYMMDD.xls»)
-        receiver_city_id (int, optional): Код города получателя из базы СДЭК (см. файл «City_XXX_YYYYMMDD.xls»)
-        receiver_city_post_code (int, optional): Индекс города получателя из базы СДЭК
-            (см. файл «City_XXX_YYYYMMDD.xls»)
-        receiver_city (, optional): Наименование города получателя  string  нет
-        sender_longitude (float, optional): Долгота города отправителя
-        receiver_longitude (float, optional): Долгота города получателя
-        sender_latitude (float, optional): Широта города отправителя
-        receiver_latitude (float, optional): Широта города получателя
-        tariff_id (int, optional): Код выбранного тарифа (подробнее см. приложение 1)
-        tariff_list (list, optional): Список тарифов:
-            priority (int): Заданный приоритет
-            id (int): Код тарифа (подробнее см. приложение 1)
-            mode_id (int, optional): Режим доставки (подробнее см. приложение 1)
-        services (dict, optional): Список передаваемых дополнительных услуг (подробнее см. приложение 2):
-            id (int): Идентификатор номера дополнительной услуги
-            param (int, optional): Параметр дополнительной услуги, если необходимо
-        raise_errors (bool, optional): raise errors? (default: True)
-        origin_response (bool, optional): return original response or only entity? (default: False)
+        Args:
+            goods (dict): Габариты груза: `weight` в килограммах, `length`, `width`,
+                `height` в сантиметрах, `volume` в кубических метрах.
+            version (str): Версия legacy-запроса. По умолчанию "1.0".
+            auth_login (str, optional): Не используется. Сохранён для совместимости;
+                при `auth=True` логин берётся из `client_id` клиента.
+            secure (str, optional): Не используется. Сохранён для совместимости;
+                при `auth=True` подпись вычисляется из секрета клиента и даты.
+            date_execute (str, optional): Дата отправки в формате `yyyy-MM-dd`.
+                При `auth=True` и отсутствии даты используется текущая локальная дата.
+                Объект `datetime.date` не сериализуется в JSON.
+            lang (str, optional): Язык ответа.
+            sender_country_code (str, optional): Код страны отправителя.
+            receiver_country_code (str, optional): Код страны получателя.
+            sender_city_id (int, optional): Код города отправителя СДЭК.
+            sender_city (str, optional): Название города отправителя.
+            sender_city_post_code (str, optional): Почтовый индекс отправителя.
+            receiver_city_id (int, optional): Код города получателя СДЭК.
+            receiver_city_post_code (str, optional): Почтовый индекс получателя.
+            receiver_city (str, optional): Название города получателя.
+            sender_longitude (float, optional): Долгота отправителя.
+            receiver_longitude (float, optional): Долгота получателя.
+            sender_latitude (float, optional): Широта отправителя.
+            receiver_latitude (float, optional): Широта получателя.
+            tariff_id (int, optional): Код тарифа legacy-калькулятора.
+            tariff_list (list, optional): Тарифы с полями `priority`, `id` и `mode_id`.
+            services (dict, optional): Дополнительные услуги legacy-калькулятора.
+            auth (bool): Добавить `authLogin` и `secure` из учётных данных клиента.
+                По умолчанию False. Не управляет HTTP-заголовками в `send`.
+            raise_errors (bool): Вызывать исключение при ошибочном HTTP-статусе. По умолчанию True.
+            origin_response (bool): Вернуть исходный HTTP-ответ вместо JSON. По умолчанию False.
+            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
 
-        https://apidoc.cdek.ru/#tag/calculator/operation/tariff
+        Returns:
+            Декодированный JSON, а при `origin_response=True` - исходный HTTP-ответ.
+
+        Raises:
+            CdekNoAuthClientException: При `auth=True` не заданы учётные данные клиента.
+            CdekRequestException: Ответ с ошибочным HTTP-статусом при `raise_errors=True`.
         """
 
         warnings.warn(
