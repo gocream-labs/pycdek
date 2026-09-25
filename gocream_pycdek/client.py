@@ -33,13 +33,13 @@ class ContractType(IntEnum):
     """
     Type of the order, as sent in the `type` field
 
-    Указывается в каждом заказе, а не в клиенте: тип - свойство заказа, а не учётной записи.
-    `DELIVERY` доступен любому договору, `ONLINE_STORE` - только договору с интернет-магазином,
-    поэтому одна и та же учётная запись может отправлять оба типа.
+    Указывается в каждом заказе, а не в клиенте: тип - свойство заказа, а не учётной записи. `DELIVERY` доступен любому
+    договору, `ONLINE_STORE` - только договору с интернет-магазином, поэтому одна и та же учётная запись может
+    отправлять оба типа.
 
     Attributes:
-        ONLINE_STORE: Заказ «интернет-магазин».
-        DELIVERY: Заказ «доставка».
+        ONLINE_STORE: Заказ "интернет-магазин".
+        DELIVERY: Заказ "доставка".
     """
 
     ONLINE_STORE = 1
@@ -57,9 +57,8 @@ class CdekClient:
     """
     Client for cdek api
 
-    Клиент держит открытую HTTP-сессию, поэтому у него есть время жизни. Соединение
-    переиспользуется между запросами, и это тем выгоднее, чем дольше живёт экземпляр -
-    один клиент на приложение предпочтительнее клиента на запрос.
+    Клиент держит открытую HTTP-сессию, поэтому у него есть время жизни. Соединение переиспользуется между запросами,
+    и это тем выгоднее, чем дольше живёт экземпляр - один клиент на приложение предпочтительнее клиента на запрос.
 
     Освобождать соединения нужно явно, через `close` или блок `with`:
 
@@ -68,9 +67,8 @@ class CdekClient:
         regions = client.get_regions()
     ```
 
-    Без этого сокеты остаются открытыми, пока на клиента есть хоть одна ссылка.
-    Сборщик мусора их в итоге доберёт, но предупреждения при этом не будет,
-    так что накопление дескрипторов легко не заметить.
+    Без этого сокеты остаются открытыми, пока на клиента есть хоть одна ссылка. Сборщик мусора их в итоге доберёт,
+    но предупреждения при этом не будет, так что накопление дескрипторов легко не заметить.
     """
 
     RESOURCE_AUTH_TOKEN = "v2/oauth/token"
@@ -87,15 +85,14 @@ class CdekClient:
 
     TOKEN_REFRESH_MARGIN: dt.timedelta = dt.timedelta(minutes=5)
     """
-    Насколько раньше срока клиент идёт за новым токеном. Запас нужен на расхождение часов с СДЭК и
-    на время запроса, который этим токеном уйдёт. СДЭК выдаёт токен на час, так что пять минут стоят
-    примерно 8% срока жизни.
+    Насколько раньше срока клиент идёт за новым токеном. Запас нужен на расхождение часов с СДЭК и на время запроса,
+    который этим токеном уйдёт. СДЭК выдаёт токен на час, так что пять минут стоят примерно 8% срока жизни.
     """
 
     DEFAULT_TIMEOUT: tuple[float, float] = (3, 7)
     """
-    Таймаут запроса как пара `(connect, read)` в секундах. Отдельный атрибут, а не литерал в `send`,
-    чтобы значение переопределялось наследником или на экземпляре, без правки вызовов.
+    Таймаут запроса как пара `(connect, read)` в секундах. Отдельный атрибут, а не литерал в `send`, чтобы значение
+    переопределялось наследником или на экземпляре, без правки вызовов.
     """
 
     def __init__(
@@ -107,9 +104,10 @@ class CdekClient:
     ) -> None:
         """
         Args:
-            client_id: CDEK client ID.
-            client_secret: CDEK client secret.
-            base_url: Base URL of the CDEK API.
+            client_id: Идентификатор клиента СДЭК, передаваемый в query-поле `client_id` при авторизации.
+            client_secret: Секретный ключ клиента СДЭК, передаваемый в query-поле `client_secret` при авторизации.
+            base_url: Базовый URL API. По умолчанию рабочий `https://api.cdek.ru`. Для тестового контура используйте
+                `https://api.edu.cdek.ru`.
         """
 
         self.client_id = client_id
@@ -140,8 +138,8 @@ class CdekClient:
         """
         Close underlying HTTP session and release pooled connections
 
-        Вызывается автоматически при выходе из блока `with`. Клиент после закрытия
-        остаётся работоспособным: следующий запрос откроет соединение заново.
+        Вызывается автоматически при выходе из блока `with`. Клиент после закрытия остаётся работоспособным: следующий
+        запрос откроет соединение заново.
         """
 
         self._session.close()
@@ -151,8 +149,8 @@ class CdekClient:
         """
         Return a cached token, refreshing it before expiration
 
-        Срок действия берётся из JWT. Обновление выполняется заранее с учётом
-        `TOKEN_REFRESH_MARGIN` через [`authorization`][gocream_pycdek.client.CdekClient.authorization].
+        Срок действия берётся из JWT. Обновление выполняется заранее с учётом `TOKEN_REFRESH_MARGIN` через
+        [`authorization`][gocream_pycdek.client.CdekClient.authorization].
         """
 
         deadline = dt.datetime.now() + self.TOKEN_REFRESH_MARGIN
@@ -173,8 +171,9 @@ class CdekClient:
         """
         Request an access token
 
-        Учётные данные отправляются в query-параметрах POST-запроса. Метод возвращает ответ API;
-        кэш токена обновляется свойством [`token`][gocream_pycdek.client.CdekClient.token].
+        Учётные данные отправляются в query-параметрах POST-запроса. Метод только запрашивает токен и возвращает ответ
+        API как есть, без кэширования. Кэш токена обновляется отдельно, свойством
+        [`token`][gocream_pycdek.client.CdekClient.token].
 
         [документации CDEK](https://apidoc.cdek.ru/#tag/auth/operation/getOAuthToken)
 
@@ -229,8 +228,14 @@ class CdekClient:
         """
         Build a request URL
 
-        Относительный путь дополняется базовым URL. Абсолютный URL нужно передавать строкой:
-        `PurePath` теряет двойной слэш в схеме при создании объекта.
+        Относительный путь дополняется базовым URL. Абсолютный URL нужно передавать строкой: `PurePath` теряет двойной
+        слэш в схеме при создании объекта.
+
+        Args:
+            resource (str|PurePath): Путь ресурса относительно `base_url` или абсолютный URL. Ведущий `/` отбрасывается.
+
+        Returns:
+            str: Полный URL запроса. Абсолютный URL возвращается без изменений.
         """
 
         resource = resource.as_posix() if isinstance(resource, PurePath) else str(resource)
@@ -266,11 +271,9 @@ class CdekClient:
             method (str): HTTP method, e.g. `get`, `post` or `delete`.
             data (dict, optional): Request body, sent as json. Defaults to None.
             params (dict, optional): Query string parameters. Defaults to None.
-            raise_errors (bool, optional): Raise `CdekRequestException` on error status.
-                Defaults to True.
-            **kwargs: Passed to `requests.Session.request` as is. Свой `headers` заменяет
-                набор целиком, а не дополняет его: так подменяется `Authorization` или
-                отправляется анонимный запрос, если передать `headers={}`.
+            raise_errors (bool, optional): Raise `CdekRequestException` on error status. Defaults to True.
+            **kwargs: Passed to `requests.Session.request` as is. Свой `headers` заменяет набор целиком, а не дополняет
+                его: так подменяется `Authorization` или отправляется анонимный запрос, если передать `headers={}`.
 
         Returns:
             Response: Response as returned by `requests`.
@@ -330,54 +333,65 @@ class CdekClient:
         """
         Register an order
 
-        Параметры повторяют поля тела запроса, поэтому состав вложенных структур - `recipient`,
-        `packages`, адресов и прочих - здесь не дублируется. Он описан по полям в
-        [документации CDEK](https://apidoc.cdek.ru/#tag/order/operation/register_1)
-        и остаётся источником истины: там же видно, какие поля обязательны для
-        конкретного типа заказа.
+        Параметры повторяют поля тела запроса, поэтому состав вложенных структур - `recipient`, `packages`, адресов
+        и прочих - здесь не дублируется. Он описан по полям в
+        [документации CDEK](https://apidoc.cdek.ru/#tag/order/operation/register_1) и остаётся источником истины:
+        там же видно, какие поля обязательны для конкретного типа заказа.
 
-        В тело запроса попадают только переданные параметры: непереданные остаются
-        равными `None` и отбрасываются. Всё остальное уходит как есть - пустая строка
-        для СДЭК осмысленное значение, а не отсутствие поля.
+        В тело запроса попадают только переданные параметры: непереданные остаются равными `None` и отбрасываются. Всё
+        остальное уходит как есть - пустая строка для СДЭК осмысленное значение, а не отсутствие поля.
 
-        Даты передаются строками в формате `yyyy-MM-dd`: тело сериализуется штатным
-        JSON-энкодером `requests`, и объект `datetime.date` вызовет `TypeError`.
+        Даты передаются строками в формате `yyyy-MM-dd`: тело сериализуется штатным JSON-энкодером `requests`, и объект
+        `datetime.date` вызовет `TypeError`.
 
         Args:
-            tariff_code (int): Код тарифа, см.
-                [приложение 4](https://apidoc.cdek.ru/#tag/common/Prilozheniya/Prilozhenie-4.-Tarify-SDEK).
-            recipient (dict): Получатель.
-            packages (list of dict): Места (упаковки) заказа вместе с товарами.
-            contract_type (ContractType): Тип заказа. Уходит в поле `type`.
-            number (str, optional): Номер заказа в ИС клиента. Только для заказов
-                «интернет-магазин». Если не передан, СДЭК присвоит собственный uuid.
-            comment (str, optional): Комментарий к заказу.
-            developer_key (str, optional): Ключ разработчика, для разработчиков модулей.
-            shipment_point (str, optional): Код ПВЗ СДЭК, откуда забирают отправление
-                либо куда клиент привозит его сам.
-            delivery_point (str, optional): Код ПВЗ СДЭК, куда доставить посылку.
-            date_invoice (str, optional): Дата инвойса в формате `yyyy-MM-dd`.
-            shipper_name (str, optional): Грузоотправитель.
-            shipper_address (str, optional): Адрес грузоотправителя.
-            delivery_recipient_cost (dict, optional): Доп. сбор за доставку, который
-                интернет-магазин берёт с получателя. Валюта сбора должна совпадать
-                с валютой наложенного платежа.
-            delivery_recipient_cost_adv (list of dict, optional): Доп. сбор за доставку
-                в зависимости от суммы заказа.
-            sender (dict, optional): Отправитель.
-            seller (dict, optional): Реквизиты истинного продавца. Код формы
-                собственности см. в
-                [приложении 5](https://apidoc.cdek.ru/#tag/common/Prilozheniya/Prilozhenie-5.-Forma-sobstvennosti).
-            from_location (dict, optional): Адрес отправления. Не нужен, если задан
-                `shipment_point`.
-            to_location (dict, optional): Адрес получения. Не нужен, если задан
-                `delivery_point`.
-            services (list of dict, optional): Дополнительные услуги, см.
-                [приложение 6](https://apidoc.cdek.ru/#tag/common/Prilozheniya/Prilozhenie-6.-Dopolnitelnye-uslugi).
-            request_print (str, optional): Печатная форма, которую нужно сформировать по
-                заказу: `barcode` - ШК мест, `waybill` - квитанция. Уходит в поле `print`.
-            origin_response (bool, optional): Вернуть ответ целиком вместо созданного
-                заказа. Defaults to False.
+            tariff_code (int): Код тарифа СДЭК. Обязателен для регистрации заказа.
+            recipient (dict): Получатель. Обязательны `name` (ФИО, до 255 символов) и `phones` (не более 10 номеров).
+                Остальные поля описаны в схеме получателя API.
+            packages (list of dict): Список мест (упаковок) с товарами: от 1 до 255 мест. Состав упаковки и товаров
+                описан в схеме `PackageRequestDto` документации регистрации заказа.
+            contract_type (ContractType): Тип заказа: `1` (`ContractType.ONLINE_STORE`) - интернет-магазин, только для
+                договора с ИМ; `2` (`ContractType.DELIVERY`) - доставка для любого договора. Клиент требует явного
+                значения и передаёт его в поле `type`.
+            number (str, optional): Номер заказа в ИС клиента для типа "интернет-магазин", до 40 ASCII-символов. Должен
+                быть уникальным среди активных неудалённых заказов одного договора. Повтор разрешён, если предыдущий
+                заказ завершён со статусом `DELIVERED` или `NOT_DELIVERED`.
+            comment (str, optional): Комментарий к заказу, до 255 символов.
+            developer_key (str, optional): Ключ разработчика. Клиент передаёт его в поле тела `developer_key`.
+                Спецификация также описывает отдельный HTTP-заголовок `developer-key`.
+            shipment_point (str, optional): Код ПВЗ самостоятельного привоза, до 255 символов. Обязателен для тарифа
+                "от склада". Несовместим с `from_location`.
+            delivery_point (str, optional): Код ПВЗ назначения, до 255 символов. Обязателен для тарифа "до склада" или
+                "до постамата". Несовместим с `to_location`.
+            date_invoice (str, optional): Дата инвойса строкой `yyyy-MM-dd`. Обязательна для международного заказа типа
+                "интернет-магазин". По документации заполнение поля делает заказ международным.
+            shipper_name (str, optional): Грузоотправитель, до 255 символов. Обязателен для международного заказа типа
+                "интернет-магазин". По документации заполнение поля делает заказ международным.
+            shipper_address (str, optional): Адрес грузоотправителя, до 255 символов. Обязателен для международного
+                заказа типа "интернет-магазин". По документации заполнение поля делает заказ международным.
+            delivery_recipient_cost (dict, optional): Дополнительный сбор за доставку с получателя, только для
+                интернет-магазина. Обязательное поле `value` - сумма с НДС, не более 50 000 000 в валюте города
+                получателя. При переданном `vat_rate` нужен `vat_sum`. Для Беларусь-Беларусь и РФ-Беларусь поле
+                игнорируется.
+            delivery_recipient_cost_adv (list of dict, optional): Пороги дополнительного сбора за доставку в зависимости
+                от суммы заказа. Применяются только для интернет-магазина с услугой "ЧАСТИЧНАЯ ДОСТАВКА". Правила
+                расчёта при полном отказе от товара приведены в документации поля.
+            sender (dict, optional): Отправитель: обязателен для типа "доставка", необязателен для интернет-магазина.
+                В структуре обязательно `name`. `phones` содержит до 10 номеров и требуется, если номер отправителя
+                не был указан при регистрации.
+            seller (dict, optional): Реквизиты истинного продавца. Для отображения в чеке нужны `name`, `inn` и `phone`.
+                Иначе используются реквизиты контрагента договора. `phone` обязателен при заданном `inn`. Дополнительно
+                доступны `ownership_form` и `address`.
+            from_location (dict, optional): Адрес отправления для тарифа "от двери". Обязательна строка `address`
+                (до 255 символов). Населённый пункт задаётся полями схемы адреса. Несовместим с `shipment_point`.
+            to_location (dict, optional): Адрес получения для тарифа "до двери". Обязательна строка `address`
+                (до 255 символов). Населённый пункт задаётся полями схемы адреса. Несовместим с `delivery_point`.
+            services (list of dict, optional): Список дополнительных услуг с кодом `code` и параметром `parameter`, если
+                он требуется выбранной услугой. Значения перечислены в приложении 6 документации СДЭК.
+            request_print (str, optional): Печатная форма, создаваемая вместе с заказом. Передаётся в поле `print`.
+                Текущая спецификация перечисляет `WAYBILL` (квитанция) и `BARCODE` (штрихкоды). Клиент отправляет
+                значение без изменения регистра.
+            origin_response (bool, optional): Вернуть ответ целиком вместо созданного заказа. Defaults to False.
             **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
 
         Returns:
@@ -424,26 +438,22 @@ class CdekClient:
         Get an order by one of its identifiers
 
         Идентификатор выбирает метод API: по uuid заказ запрашивается
-        [адресом ресурса](https://apidoc.cdek.ru/#tag/order/operation/get_2), по номеру
-        СДЭК или по номеру в ИС клиента -
-        [query-параметром](https://apidoc.cdek.ru/#tag/order/operation/get).
+        [адресом ресурса](https://apidoc.cdek.ru/#tag/order/operation/get_2), по номеру СДЭК или по номеру в ИС клиента
+        - [query-параметром](https://apidoc.cdek.ru/#tag/order/operation/get).
 
-        Идентификатор нужен ровно один: без него искать нечего, а с двумя клиенту
-        пришлось бы решать за пользователя, какой из них главный. Пустое значение
-        считается непереданным - заказ по нему всё равно не найдётся, а запрос ушёл бы
-        за списком.
+        Идентификатор нужен ровно один: без него искать нечего, а с двумя клиенту пришлось бы решать за пользователя,
+        какой из них главный. Пустое значение считается непереданным - заказ по нему всё равно не найдётся, а запрос
+        ушёл бы за списком.
 
-        Ответ с ошибкой не содержит `entity`, поэтому `raise_errors=False` осмысленно
-        только вместе с `origin_response=True`: иначе разбор такого ответа упадёт
-        с `KeyError`.
+        Ответ с ошибкой не содержит `entity`, поэтому `raise_errors=False` осмысленно только вместе с
+        `origin_response=True`: иначе разбор такого ответа упадёт с `KeyError`.
 
         Args:
-            uuid (str, optional): Идентификатор заказа в ИС СДЭК.
-            cdek_number (str, optional): Номер заказа СДЭК, он же трек-номер.
-            im_number (str, optional): Номер заказа в ИС клиента. Есть только у заказов
-                «интернет-магазин».
-            origin_response (bool, optional): Вернуть ответ целиком вместо найденного
-                заказа. Defaults to False.
+            uuid (str, optional): UUID заказа в ИС СДЭК для получения сведений по адресу `/v2/orders/{uuid}`.
+            cdek_number (str, optional): Номер заказа СДЭК (трек-номер). Отправляется query-параметром `cdek_number`.
+            im_number (str, optional): Номер заказа в ИС клиента. Отправляется query-параметром `im_number`. Клиент
+                требует ровно один непустой идентификатор из `uuid`, `cdek_number`, `im_number`.
+            origin_response (bool, optional): Вернуть ответ целиком вместо найденного заказа. Defaults to False.
             **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
 
         Returns:
@@ -487,15 +497,15 @@ class CdekClient:
         https://apidoc.cdek.ru/#tag/order/operation/delete
 
         Args:
-            uuid: Идентификатор заказа в ИС СДЭК.
+            uuid: Идентификатор заказа в ИС СДЭК, который необходимо удалить. Передаётся в пути запроса.
             raise_errors: Вызывать исключение при ошибочном статусе ответа. По умолчанию True.
-            origin_response: Вернуть ответ целиком вместо `entity`. По умолчанию False.
-                Используйте True вместе с `raise_errors=False`, если в ответе ошибки нет `entity`.
+            origin_response: Вернуть ответ целиком вместо `entity`. По умолчанию False. Используйте True вместе с
+                `raise_errors=False`, если в ответе ошибки нет `entity`.
             **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
 
         Returns:
-            Информация из `entity`, а при `origin_response=True` - исходный HTTP-ответ.
-            Принятие запроса на удаление ещё не означает завершения удаления.
+            Информация из `entity`, а при `origin_response=True` - исходный HTTP-ответ. Принятие запроса на удаление ещё
+            не означает завершения удаления.
 
         Raises:
             CdekRequestException: Ответ с ошибочным статусом при `raise_errors=True`.
@@ -536,40 +546,35 @@ class CdekClient:
         https://apidoc.cdek.ru/#tag/intake/operation/create
 
         Args:
-            intake_date (str): Дата ожидания курьера в формате (yyyy-MM-dd)
-            intake_time_from (str): Время начала ожидания курьера в формате HH:MM
-            intake_time_to (str): Время окончания ожидания курьера в формате HH:MM
-            order_uuid (str, optional): Идентификатор заказа в ИС СДЭК (UUID)
-            lunch_time_from (str, optional): Время начала обеда в формате HH:MM, должно входить в диапазон
-                [intake_time_from;intake_time_to]
-            lunch_time_to (str, optional): Время окончания обеда в формате HH:MM, должно входить в диапазон
-                [intake_time_from;intake_time_to]
-            name (str, optional): Описание груза
-            cdek_number (int, optional): Номер заказа СДЭК
-            weight (int, optional): Общий вес (в граммах)
-            length (int, optional): Габариты упаковки. Длина (в сантиметрах)
-            width (int, optional): Габариты упаковки. Ширина (в сантиметрах)
-            height (int, optional): Габариты упаковки. Высота (в сантиметрах)
-            comment (str, optional): Комментарий к заявке для курьера
-            sender (dict, optional): Отправитель:
-                name (str): ФИО контактного лица
-                company (str, optional): Название компании отправителя
-                phones (list of dict, optional): Список телефонов:
-                    number (str): Номер телефона
-                    additional (str, optional): Дополнительная информация (доп. номер)
-            from_location (dict, optional): Адрес отправителя (забора):
-                country_code (str): Код страны в формате ISO_3166-1_alpha-2
-                address (str): Строка адреса
-                code (str, optional): Код локации (справочник СДЭК)
-                fias_guid (str, optional): Уникальный идентификатор ФИАС (UUID)
-                postal_code (str, optional): Почтовый индекс
-                longitude (float, optional): Долгота
-                latitude (float, optional): Широта
-                region (str, optional): Название региона
-                sub_region (str, optional): Название района региона
-                city (str, optional): Название города
-                kladr_code (str, optional): Код КЛАДР
-            need_call (bool, optional): Необходим прозвон отправителя (по умолчанию - false)
+            intake_date (str): Дата ожидания курьера строкой `yyyy-MM-dd`, не более чем на 31 день вперёд от текущей.
+                Заявка на сегодня, созданная после 15:00 по времени отправителя, может быть выполнена на следующий
+                день.
+            intake_time_from (str): Начало ожидания в формате `HH:mm`, не ранее 09:00 местного времени.
+            intake_time_to (str): Окончание ожидания в формате `HH:mm`, не позднее 22:00 местного времени.
+            order_uuid (str, optional): Идентификатор заказа в ИС СДЭК. По описанию API обязателен, если не передан
+                `cdek_number`.
+            lunch_time_from (str, optional): Начало обеда в формате `HH:mm`, внутри интервала от `intake_time_from` до
+                `intake_time_to`.
+            lunch_time_to (str, optional): Окончание обеда в формате `HH:mm`, внутри интервала ожидания курьера.
+            name (str, optional): Описание груза, до 255 символов. Требуется без номера заказа, иначе берётся из
+                заказа.
+            cdek_number (int, optional): Номер заказа СДЭК. По описанию API обязателен, если не передан `order_uuid`.
+            weight (int, optional): Общий вес в граммах. Если поле отсутствует, значение по умолчанию на стороне API -
+                100.
+            length (int, optional): Длина упаковки в сантиметрах. При отсутствии поля API использует 1.
+            width (int, optional): Ширина упаковки в сантиметрах. При отсутствии поля API использует 1.
+            height (int, optional): Высота упаковки в сантиметрах. При отсутствии поля API использует 1.
+            comment (str, optional): Комментарий курьеру, до 255 символов.
+            sender (dict, optional): Отправитель. Требуется без номера заказа, иначе берётся из заказа. Обязательно
+                `name` (до 255 символов). `phones` содержит не более 10 номеров и требуется, если номер отправителя не
+                указан в заказе. Дополнительные поля описаны в `IntakeContactDto`.
+            from_location (dict, optional): Адрес забора. Требуется без номера заказа,
+                иначе берётся из заказа. Обязательно `address` (до 255 символов). Доступны `code` (целочисленный код
+                города СДЭК), `city_uuid`, `city`, `fias_guid`, `postal_code`, поля региона и координаты.
+                `country_code` - ISO 3166-1 alpha-2, по умолчанию `RU`. Поля `kladr_code`, а также `fias_region_guid`
+                и `kladr_region_code` в составе региона, помечены устаревшими в спецификации API.
+            need_call (bool, optional): Нужен ли предварительный звонок отправителю. По умолчанию на стороне API -
+                False.
             raise_errors (bool, optional): Вызывать исключение при ошибочном HTTP-статусе. По умолчанию True.
             origin_response (bool, optional): Вернуть исходный HTTP-ответ вместо `entity`. По умолчанию False.
                 Используйте True вместе с `raise_errors=False`, если в ответе ошибки нет `entity`.
@@ -621,7 +626,8 @@ class CdekClient:
         https://apidoc.cdek.ru/#tag/intake/operation/getByUuid
 
         Args:
-            uuid (str): intakes cdek uuid
+            uuid (str): Идентификатор заявки на вызов курьера в ИС СДЭК, о которой нужно получить сведения. Это UUID
+                заявки, а не заказа.
             raise_errors (bool, optional): Вызывать исключение при ошибочном HTTP-статусе. По умолчанию True.
             origin_response (bool, optional): Вернуть исходный HTTP-ответ вместо `entity`. По умолчанию False.
                 Используйте True вместе с `raise_errors=False`, если в ответе ошибки нет `entity`.
@@ -648,7 +654,8 @@ class CdekClient:
         https://apidoc.cdek.ru/#tag/intake/operation/deleteByUuid
 
         Args:
-            uuid (str): intakes cdek uuid
+            uuid (str): Идентификатор заявки на вызов курьера в ИС СДЭК, которую необходимо удалить. Это UUID заявки,
+                а не заказа.
             raise_errors (bool, optional): Вызывать исключение при ошибочном HTTP-статусе. По умолчанию True.
             **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
 
@@ -679,14 +686,22 @@ class CdekClient:
 
         https://apidoc.cdek.ru/#tag/location/operation/regions
 
+        Deprecated:
+            `region_code`, `kladr_region_code`: Отсутствуют в текущей спецификации метода. Это не поле, помеченное
+                устаревшим, а параметр, которого в контракте API никогда не было; поддержка на стороне API не
+                подтверждена. Оставлены для обратной совместимости и будут удалены в 3.0.0.
+            `fias_region_guid`: Помечено устаревшим в спецификации API - значения могут быть неактуальны.
+
         Args:
-            country_codes: Коды стран в формате ISO 3166-1 alpha-2.
-            region_code: Код региона СДЭК.
-            kladr_region_code: Код КЛАДР региона.
-            fias_region_guid: Идентификатор ФИАС региона (UUID).
-            size: Размер страницы. По умолчанию 1000; None исключает параметр из запроса.
-            page: Номер страницы, начиная с 0. None исключает параметр из запроса.
-            lang: Язык ответа. None оставляет выбор языка API.
+            country_codes: Список кодов стран ISO 3166-1 alpha-2. Клиент передаёт значение как query-параметр
+                `country_codes`.
+            region_code: Код региона СДЭК. См. секцию Deprecated выше.
+            kladr_region_code: Код КЛАДР региона. См. секцию Deprecated выше.
+            fias_region_guid: UUID региона ФИАС. См. секцию Deprecated выше.
+            size: Размер страницы, по умолчанию 1000. По документации обязателен, если указан `page`. None исключает
+                поле из запроса.
+            page: Номер страницы, начиная с 0. По умолчанию 0. None исключает поле из запроса.
+            lang: Локализация ответа: `rus` (по умолчанию API), `eng` или `zho`.
             raise_errors: Вызывать исключение при ошибочном HTTP-статусе. По умолчанию True.
             origin_response: Вернуть исходный HTTP-ответ вместо декодированного JSON. По умолчанию False.
             **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
@@ -699,6 +714,22 @@ class CdekClient:
         Raises:
             CdekRequestException: Ответ с ошибочным HTTP-статусом при `raise_errors=True`.
         """
+
+        if region_code is not None or kladr_region_code is not None:
+            warnings.warn(
+                "get_regions: `region_code` and `kladr_region_code` are absent from the current API v2 "
+                "specification for this method; support is unconfirmed and both will be removed in 3.0.0",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
+        if fias_region_guid is not None:
+            warnings.warn(
+                "get_regions: `fias_region_guid` is deprecated by the CDEK API specification and may return "
+                "stale values",
+                DeprecationWarning,
+                stacklevel=2,
+            )
 
         complete_data = drop_none(
             {
@@ -725,11 +756,11 @@ class CdekClient:
         """
         Iterate over all regions
 
-        Обход начинается со страницы 0 и заканчивается на первом пустом списке.
-        Переданные `page` и `origin_response` заменяются на 0 и False.
+        Обход начинается со страницы 0 и заканчивается на первом пустом списке. Переданные `page` и `origin_response`
+        заменяются на 0 и False.
 
-        Оставляйте `raise_errors=True`: обход ожидает список, а JSON-ошибка,
-        возвращённая при отключённой проверке, не является страницей справочника.
+        Оставляйте `raise_errors=True`: обход ожидает список, а JSON-ошибка, возвращённая при отключённой проверке,
+        не является страницей справочника.
 
         Args:
             **kwargs: Фильтры, размер страницы и HTTP-настройки для
@@ -780,33 +811,56 @@ class CdekClient:
 
         https://apidoc.cdek.ru/#tag/location/operation/cities
 
+        Deprecated:
+            `kladr_region_code`: Отсутствует в текущей спецификации метода. Это не поле, помеченное устаревшим,
+                а параметр, которого в контракте API никогда не было; поддержка на стороне API не подтверждена. Оставлен
+                для обратной совместимости и будет удалён в 3.0.0.
+            `fias_region_guid`: Помечено устаревшим в спецификации API - значения могут быть неактуальны.
+
         Args:
-            country_codes: Коды стран в формате ISO 3166-1 alpha-2.
-            region_code: Код региона СДЭК.
-            kladr_region_code: Код КЛАДР региона.
-            fias_region_guid: Идентификатор ФИАС региона (UUID).
+            country_codes: Список кодов стран ISO 3166-1 alpha-2. Клиент передаёт значение как query-параметр
+                `country_codes`.
+            region_code: Целочисленный код региона из справочника СДЭК.
+            kladr_region_code: Код КЛАДР региона. См. секцию Deprecated выше.
+            fias_region_guid: UUID региона ФИАС. См. секцию Deprecated выше.
             kladr_code: Код КЛАДР населённого пункта.
-            fias_guid: Идентификатор ФИАС населённого пункта (UUID).
-            postal_code: Почтовый индекс.
-            code: Код населённого пункта СДЭК.
-            city: Полное название населённого пункта.
-            size: Размер страницы. По умолчанию 1000; None исключает параметр из запроса.
-            page: Номер страницы, начиная с 0. None исключает параметр из запроса.
-            lang: Язык ответа. None оставляет выбор языка API.
-            payment_limit: Ограничение суммы наложенного платежа: -1 - без ограничения,
-                0 - не принимается, положительное значение - максимальная сумма.
+            fias_guid: UUID населённого пункта ФИАС.
+            postal_code: Почтовый индекс населённого пункта.
+            code: Целочисленный код населённого пункта СДЭК.
+            city: Полное название населённого пункта: требуется точное совпадение.
+            size: Размер страницы, по умолчанию 1000. По документации обязателен, если указан `page`. None исключает
+                поле из запроса.
+            page: Номер страницы, начиная с 0. По умолчанию 0. None исключает поле из запроса.
+            lang: Язык локализации ответа. Текущая спецификация метода не перечисляет допустимые значения.
+            payment_limit: Ограничение суммы наложенного платежа, допускается дробное число. Специальные значения: -1
+                - без ограничения, 0 - наложенный платёж не принимается.
             raise_errors: Вызывать исключение при ошибочном HTTP-статусе. По умолчанию True.
             origin_response: Вернуть исходный HTTP-ответ вместо декодированного JSON. По умолчанию False.
             **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
 
         Returns:
-            Декодированный JSON (список при успешном ответе),
-            при `raise_errors=False` возможен словарь с ошибкой,
+            Декодированный JSON (список при успешном ответе), при `raise_errors=False` возможен словарь с ошибкой,
             а при `origin_response=True` - исходный HTTP-ответ.
 
         Raises:
             CdekRequestException: Ответ с ошибочным HTTP-статусом при `raise_errors=True`.
         """
+
+        if kladr_region_code is not None:
+            warnings.warn(
+                "get_cities: `kladr_region_code` is absent from the current API v2 specification for this "
+                "method; support is unconfirmed and the parameter will be removed in 3.0.0",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
+        if fias_region_guid is not None:
+            warnings.warn(
+                "get_cities: `fias_region_guid` is deprecated by the CDEK API specification and may return "
+                "stale values",
+                DeprecationWarning,
+                stacklevel=2,
+            )
 
         complete_data = drop_none(
             {
@@ -839,11 +893,11 @@ class CdekClient:
         """
         Iterate over all cities
 
-        Обход начинается со страницы 0 и заканчивается на первом пустом списке.
-        Переданные `page` и `origin_response` заменяются на 0 и False.
+        Обход начинается со страницы 0 и заканчивается на первом пустом списке. Переданные `page` и `origin_response`
+        заменяются на 0 и False.
 
-        Оставляйте `raise_errors=True`: обход ожидает список, а JSON-ошибка,
-        возвращённая при отключённой проверке, не является страницей справочника.
+        Оставляйте `raise_errors=True`: обход ожидает список, а JSON-ошибка, возвращённая при отключённой проверке,
+        не является страницей справочника.
 
         Args:
             **kwargs: Фильтры, размер страницы и HTTP-настройки для
@@ -886,12 +940,15 @@ class CdekClient:
         https://apidoc.cdek.ru/#tag/print/operation/waybillPrint
 
         Args:
-            orders: Список заказов с `order_uuid` или `cdek_number`.
-            copy_count: Число копий. None оставляет выбор значения API.
-            form_type: Тип квитанции (например, `tpl_china` или `tpl_armenia`).
-                Передаётся в поле `type`.
-            origin_response: Вернуть исходный HTTP-ответ вместо `entity`. По умолчанию False.
-                Используйте True вместе с `raise_errors=False`, если в ответе ошибки нет `entity`.
+            orders: Список заказов для печати. В каждом элементе нужен `order_uuid` (UUID заказа) либо `cdek_number`
+                (номер заказа СДЭК). Каждое поле обязательно при отсутствии другого.
+            copy_count: Число копий квитанции на листе. По умолчанию на стороне API - 2. Рекомендуется не менее двух
+                экземпляров: один для груза, другой для отправителя.
+            form_type: Форма квитанции, передаваемая в поле `type`. По умолчанию - русская. Допустимы `tpl_china`,
+                `tpl_armenia`, `tpl_russia`, `tpl_english`, `tpl_italian`, `tpl_korean`, `tpl_latvian`,
+                `tpl_lithuanian`, `tpl_german`, `tpl_turkish`, `tpl_czech`, `tpl_thailand`, `tpl_invoice`.
+            origin_response: Вернуть исходный HTTP-ответ вместо `entity`. По умолчанию False. Используйте True вместе
+                с `raise_errors=False`, если в ответе ошибки нет `entity`.
             **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть,
                 включая `raise_errors` и `timeout`.
 
@@ -935,12 +992,14 @@ class CdekClient:
         https://apidoc.cdek.ru/#tag/print/operation/barcodePrint
 
         Args:
-            orders: Список заказов с `order_uuid` или `cdek_number`.
-            copy_count: Число копий. None оставляет выбор значения API.
-            format_type: Формат печати (`A4`, `A5`, `A6`). Передаётся в поле `format`.
-            lang: Язык печатной формы, например `RUS` или `ENG`.
-            origin_response: Вернуть исходный HTTP-ответ вместо `entity`. По умолчанию False.
-                Используйте True вместе с `raise_errors=False`, если в ответе ошибки нет `entity`.
+            orders: Список заказов для печати. В каждом элементе нужен `order_uuid` (UUID заказа) либо `cdek_number`
+                (номер заказа СДЭК). Каждое поле обязательно при отсутствии другого.
+            copy_count: Число копий штрихкода. По умолчанию на стороне API - 1.
+            format_type: Формат печати: `A4`, `A5`, `A6` или `A7` (латинская A). По умолчанию на стороне API - `A4`.
+                Передаётся в поле `format`.
+            lang: Язык печатной формы: `RUS` (русский) или `ENG` (английский), в формате ISO 639-3.
+            origin_response: Вернуть исходный HTTP-ответ вместо `entity`. По умолчанию False. Используйте True вместе
+                с `raise_errors=False`, если в ответе ошибки нет `entity`.
             **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть,
                 включая `raise_errors` и `timeout`.
 
@@ -972,15 +1031,16 @@ class CdekClient:
         """
         Get receipt information
 
-        Возвращает сведения о формировании квитанции. Готовый файл можно скачать
-        по ссылке `url` через [`download`][gocream_pycdek.client.CdekClient.download].
+        Возвращает сведения о формировании квитанции. Готовый файл можно скачать по ссылке `url` через
+        [`download`][gocream_pycdek.client.CdekClient.download].
 
         https://apidoc.cdek.ru/#tag/print/operation/waybillGet
 
         Args:
-            uuid: UUID печатной формы квитанции, полученный при её создании.
-            origin_response: Вернуть исходный HTTP-ответ вместо `entity`. По умолчанию False.
-                Используйте True вместе с `raise_errors=False`, если в ответе ошибки нет `entity`.
+            uuid: UUID задания на формирование печатной формы, возвращённый при её создании. Передаётся в пути
+                запроса. UUID заказа здесь не используется.
+            origin_response: Вернуть исходный HTTP-ответ вместо `entity`. По умолчанию False. Используйте True вместе
+                с `raise_errors=False`, если в ответе ошибки нет `entity`.
             **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть,
                 включая `raise_errors` и `timeout`.
 
@@ -1002,17 +1062,18 @@ class CdekClient:
         """
         Get barcode information
 
-        Возвращает сведения о формировании штрихкодов. Готовый файл можно скачать
-        по ссылке `url` через [`download`][gocream_pycdek.client.CdekClient.download].
+        Возвращает сведения о формировании штрихкодов. Готовый файл можно скачать по ссылке `url` через
+        [`download`][gocream_pycdek.client.CdekClient.download].
 
         https://apidoc.cdek.ru/#tag/print/operation/barcodeGet
 
         Args:
-            uuid: UUID печатной формы штрихкодов, полученный при её создании.
-            origin_response: Вернуть исходный HTTP-ответ вместо `entity`. По умолчанию False.
-                Используйте True вместе с `raise_errors=False`, если в ответе ошибки нет `entity`.
-            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть,
-                включая `raise_errors` и `timeout`.
+            uuid: UUID задания на формирование печатной формы, возвращённый при её создании. Передаётся в пути
+                запроса. UUID заказа здесь не используется.
+            origin_response: Вернуть исходный HTTP-ответ вместо `entity`. По умолчанию False. Используйте True вместе
+                с `raise_errors=False`, если в ответе ошибки нет `entity`.
+            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть, включая `raise_errors`
+                и `timeout`.
 
         Returns:
             Информация из `entity`, а при `origin_response=True` - исходный HTTP-ответ.
@@ -1032,11 +1093,16 @@ class CdekClient:
         """
         Download document
 
+        [Квитанция](https://apidoc.cdek.ru/#tag/print/operation/waybillDownload) и
+        [штрихкоды](https://apidoc.cdek.ru/#tag/print/operation/barcodeDownload).
+
         Args:
-            url: Ссылка `url` из сведений о готовой печатной форме.
+            url: Ссылка `url` из ответа о готовой печатной форме. Документация описывает скачивание квитанции по
+                `/v2/print/orders/{uuid}.pdf`, штрихкодов - по `/v2/print/barcodes/{uuid}.pdf`, где `uuid` относится к
+                печатной форме. Абсолютную ссылку передавайте строкой.
             origin_response: Вернуть исходный HTTP-ответ вместо `BytesIO`. По умолчанию False.
-            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть,
-                включая `raise_errors` и `timeout`.
+            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть, включая `raise_errors`
+                и `timeout`.
 
         Returns:
             Файл в памяти с указателем в начале, готовый к чтению.
@@ -1085,22 +1151,24 @@ class CdekClient:
         """
         Calculate shipping cost with the legacy API
 
+        Метод отсутствует в текущей спецификации API v2. Описания ниже отражают
+        legacy-интерфейс клиента и не являются контрактом `calculator_tariff`.
+
         Deprecated:
-            2.0.0: Используйте [`calculator_tariff`][gocream_pycdek.client.CdekClient.calculator_tariff].
-                Метод будет удалён в 3.0.0. Параметры нового калькулятора отличаются,
-                поэтому вызов нужно адаптировать, а не просто переименовать.
+            2.0.0: Используйте [`calculator_tariff`][gocream_pycdek.client.CdekClient.calculator_tariff]. Метод будет
+                удалён в 3.0.0. Параметры нового калькулятора отличаются, поэтому вызов нужно адаптировать, а не просто
+                переименовать.
 
         Args:
-            goods (dict): Габариты груза: `weight` в килограммах, `length`, `width`,
-                `height` в сантиметрах, `volume` в кубических метрах.
+            goods (dict): Габариты груза: `weight` в килограммах, `length`, `width`, `height` в сантиметрах, `volume`
+                в кубических метрах.
             version (str): Версия legacy-запроса. По умолчанию "1.0".
-            auth_login (str, optional): Не используется. Сохранён для совместимости;
-                при `auth=True` логин берётся из `client_id` клиента.
-            secure (str, optional): Не используется. Сохранён для совместимости;
-                при `auth=True` подпись вычисляется из секрета клиента и даты.
-            date_execute (str, optional): Дата отправки в формате `yyyy-MM-dd`.
-                При `auth=True` и отсутствии даты используется текущая локальная дата.
-                Объект `datetime.date` не сериализуется в JSON.
+            auth_login (str, optional): Не используется. Сохранён для совместимости. При `auth=True` логин берётся из
+                `client_id` клиента.
+            secure (str, optional): Не используется. Сохранён для совместимости. При `auth=True` подпись вычисляется
+                из секрета клиента и даты.
+            date_execute (str, optional): Дата отправки в формате `yyyy-MM-dd`. При `auth=True` и отсутствии даты
+                используется текущая локальная дата. Объект `datetime.date` не сериализуется в JSON.
             lang (str, optional): Язык ответа.
             sender_country_code (str, optional): Код страны отправителя.
             receiver_country_code (str, optional): Код страны получателя.
@@ -1117,8 +1185,8 @@ class CdekClient:
             tariff_id (int, optional): Код тарифа legacy-калькулятора.
             tariff_list (list, optional): Тарифы с полями `priority`, `id` и `mode_id`.
             services (dict, optional): Дополнительные услуги legacy-калькулятора.
-            auth (bool): Добавить `authLogin` и `secure` из учётных данных клиента.
-                По умолчанию False. Не управляет HTTP-заголовками в `send`.
+            auth (bool): Добавить `authLogin` и `secure` из учётных данных клиента. По умолчанию False. Не управляет
+                HTTP-заголовками в `send`.
             raise_errors (bool): Вызывать исключение при ошибочном HTTP-статусе. По умолчанию True.
             origin_response (bool): Вернуть исходный HTTP-ответ вместо JSON. По умолчанию False.
             **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
@@ -1201,19 +1269,26 @@ class CdekClient:
         https://apidoc.cdek.ru/#tag/calculator/operation/tariff
 
         Args:
-            tariff_code: Код тарифа СДЭК.
-            from_location: Адрес отправления: код города или другие поля адреса API.
-            to_location: Адрес получения: код города или другие поля адреса API.
-            packages: Упаковки с весом `weight` в граммах и габаритами
-                `length`, `width`, `height` в сантиметрах.
-            contract_type: Тип заказа из `ContractType`.
-                Передаётся в поле `type`.
-            date: Дата и время планируемой передачи заказа в строковом формате API.
-            currency: Код валюты расчёта. None оставляет выбор API.
-            services: Дополнительные услуги с полями `code` и `parameter`.
+            tariff_code: Код тарифа СДЭК, обязательный для расчёта по конкретному тарифу.
+            from_location: Населённый пункт отправления. Поля: `code` (код СДЭК), `postal_code`, `country_code` (ISO
+                3166-1 alpha-2, по умолчанию `RU`), `city`, `address`, `longitude`, `latitude`, `contragent_type`
+                (`LEGAL_ENTITY` или `INDIVIDUAL`).
+            to_location: Населённый пункт получения с теми же полями, что и `from_location`. Структура обязательна для
+                расчёта.
+            packages: Список мест. У каждой упаковки обязателен `weight` в граммах. `length`, `width`, `height`
+                задаются в сантиметрах.
+            contract_type: Тип заказа: `1` - интернет-магазин, `2` - доставка. API использует 1 по умолчанию, но
+                клиент требует передать аргумент явно. Значение отправляется в поле `type`.
+            date: Дата и время планируемой передачи заказа в формате `yyyy-MM-dd'T'HH:mm:ssZ`, например
+                `2025-03-24T14:15:22+0700`. При отсутствии API использует текущую дату и время.
+            currency: Числовой код валюты из приложения 14 "Код валюты для методов расчета стоимости". По умолчанию -
+                валюта договора.
+            services: Список дополнительных услуг: `code` - код услуги, `parameter` - её параметр. Например, для
+                `INSURANCE` это объявленная стоимость, для `SMS` - телефон, для упаковки - количество или длина в
+                зависимости от услуги.
             origin_response: Вернуть исходный HTTP-ответ вместо JSON. По умолчанию False.
-            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть,
-                включая `raise_errors` и `timeout`.
+            **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть, включая `raise_errors`
+                и `timeout`.
 
         Returns:
             Полный JSON-ответ расчёта, а при `origin_response=True` - исходный HTTP-ответ.
@@ -1251,8 +1326,10 @@ class CdekClient:
         https://apidoc.cdek.ru/#tag/webhook/operation/createWebhook
 
         Args:
-            url: Адрес обработчика уведомлений.
-            type: Тип события, например `ORDER_STATUS`, `PRINT_FORM` или `DOWNLOAD_PHOTO`.
+            url: URL обработчика, на который СДЭК отправляет события.
+            type: Тип вебхука: `ORDER_STATUS`, `ORDER_MODIFIED`, `PRINT_FORM`, `RECEIPT`, `DOWNLOAD_PHOTO`,
+                `PREALERT_CLOSED`, `ACCOMPANYING_WAYBILL`, `OFFICE_AVAILABILITY`, `DELIV_PROBLEM`, `DELIV_AGREEMENT`
+                или `COURIER_INFO`. Повторный вызов с уже существующим типом создаёт ещё одну подписку.
             raise_errors: Вызывать исключение при ошибочном HTTP-статусе. По умолчанию True.
             origin_response: Вернуть исходный HTTP-ответ вместо декодированного JSON. По умолчанию False.
             **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
@@ -1295,7 +1372,7 @@ class CdekClient:
             **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
 
         Returns:
-            Список подписок при успешном ответе; при `raise_errors=False` возможен словарь с ошибкой.
+            Список подписок при успешном ответе. При `raise_errors=False` возможен словарь с ошибкой.
             При `origin_response=True` - исходный HTTP-ответ.
 
         Raises:
@@ -1318,14 +1395,14 @@ class CdekClient:
         https://apidoc.cdek.ru/#tag/webhook/operation/getById
 
         Args:
-            uuid: UUID подписки на вебхук.
+            uuid: Идентификатор вебхука, сведения о котором необходимо получить. Передаётся в пути запроса.
             raise_errors: Вызывать исключение при ошибочном HTTP-статусе. По умолчанию True.
             origin_response: Вернуть исходный HTTP-ответ вместо декодированного JSON. По умолчанию False.
             **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
 
         Returns:
-            Полный JSON-ответ со сведениями о подписке, включая `entity` и `requests`.
-            При `origin_response=True` - исходный HTTP-ответ.
+            Полный JSON-ответ со сведениями о подписке, включая `entity` и `requests`. При `origin_response=True`
+            - исходный HTTP-ответ.
 
         Raises:
             CdekRequestException: Ответ с ошибочным HTTP-статусом при `raise_errors=True`.
@@ -1347,14 +1424,13 @@ class CdekClient:
         https://apidoc.cdek.ru/#tag/webhook/operation/deleteById
 
         Args:
-            uuid: UUID подписки на вебхук.
+            uuid: Идентификатор вебхука, который необходимо удалить. Передаётся в пути запроса.
             raise_errors: Вызывать исключение при ошибочном HTTP-статусе. По умолчанию True.
             origin_response: Вернуть исходный HTTP-ответ вместо декодированного JSON. По умолчанию False.
             **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
 
         Returns:
-            Полный JSON-ответ на запрос удаления подписки.
-            При `origin_response=True` - исходный HTTP-ответ.
+            Полный JSON-ответ на запрос удаления подписки. При `origin_response=True` - исходный HTTP-ответ.
 
         Raises:
             CdekRequestException: Ответ с ошибочным HTTP-статусом при `raise_errors=True`.
@@ -1395,29 +1471,37 @@ class CdekClient:
         https://apidoc.cdek.ru/#tag/delivery_point/operation/search
 
         Args:
-            postal_code: Почтовый индекс города.
-                Строка позволяет сохранить ведущие нули.
-            city_code: Код города СДЭК.
-            type: Тип офиса: `PVZ`, `POSTAMAT` или `ALL`.
+            postal_code: Почтовый индекс города, для которого запрашивается список офисов. Строка сохраняет ведущие
+                нули.
+            city_code: Код города по справочнику СДЭК.
+            type: Тип офиса: `POSTAMAT`, `PVZ` или `ALL`. При отсутствии фильтра API использует `ALL`.
             country_code: Код страны в формате ISO 3166-1 alpha-2.
-            region_code: Код региона СДЭК.
-            have_cashless: Наличие терминала оплаты.
-            have_cash: Приём наличных.
-            allowed_cod: Возможность наложенного платежа.
-            is_dressing_room: Наличие примерочной.
-            weight_max: Вес в килограммах, который должен принимать офис.
-                Значение 0 исключает офисы с нулевым максимальным весом.
-            weight_min: Верхняя граница минимального принимаемого офисом веса в килограммах.
-            lang: Язык описания офиса. None оставляет выбор языка API.
-            take_only: Является ли офис только пунктом выдачи.
-            is_handout: Является ли офис пунктом выдачи.
+            region_code: Код региона по справочнику СДЭК.
+            have_cashless: Наличие терминала оплаты. True — только офисы с этим признаком, False — только без него,
+                None — фильтр не применяется.
+            have_cash: Приём наличных. True — только офисы с этим признаком, False — только без него, None — фильтр
+                не применяется.
+            allowed_cod: Возможность наложенного платежа. True — только офисы с этим признаком, False — только без
+                него, None — фильтр не применяется.
+            is_dressing_room: Наличие примерочной. True — только офисы с этим признаком, False — только без него,
+                None — фильтр не применяется.
+            weight_max: Фильтр максимального принимаемого веса в килограммах, не меньше 0. Положительное значение
+                выбирает офисы, принимающие такой вес. 0 исключает офисы с нулевым ограничением. Отсутствие поля не
+                ограничивает выборку по весу.
+            weight_min: Фильтр минимального принимаемого веса в килограммах, не меньше 0. Выбирает офисы, чей
+                минимальный принимаемый вес не превышает указанного.
+            lang: Локализация описания офиса. По умолчанию на стороне API - `rus`.
+            take_only: Офис является только пунктом выдачи. True — только офисы с этим признаком, False — только без
+                него, None — фильтр не применяется.
+            is_handout: Офис является пунктом выдачи. True — только офисы с этим признаком, False — только без него,
+                None — фильтр не применяется.
             raise_errors: Вызывать исключение при ошибочном HTTP-статусе. По умолчанию True.
             origin_response: Вернуть исходный HTTP-ответ вместо декодированного JSON. По умолчанию False.
             **kwargs: Передаются в [`send`][gocream_pycdek.client.CdekClient.send] как есть.
 
         Returns:
-            Список пунктов выдачи при успешном ответе. При `raise_errors=False`
-            возможен словарь с ошибкой, а при `origin_response=True` - исходный HTTP-ответ.
+            Список пунктов выдачи при успешном ответе. При `raise_errors=False` возможен словарь с ошибкой, а при
+            `origin_response=True` - исходный HTTP-ответ.
 
         Raises:
             CdekRequestException: Ответ с ошибочным HTTP-статусом при `raise_errors=True`.

@@ -2,6 +2,14 @@ from requests import RequestException
 
 
 class BaseCdekException(Exception):
+    """
+    Base class for all library exceptions
+
+    Args:
+        message (str, optional): Описание ошибки. По умолчанию - `default_message`.
+        code (str, optional): Код ошибки. По умолчанию - `default_code`.
+    """
+
     default_message = "Base CDEK exception."
     default_code = "base_cdek_exception"
 
@@ -14,7 +22,7 @@ class BaseCdekException(Exception):
 
 class CdekException(BaseCdekException):
     """
-    General exception
+    Base class for client and API errors
     """
 
     default_message = "CDEK exception."
@@ -23,7 +31,7 @@ class CdekException(BaseCdekException):
 
 class CdekNoAuthClientException(CdekException):
     """
-    Client need to be authed
+    Client credentials are not set
     """
 
     default_message = "Required auth client."
@@ -32,7 +40,7 @@ class CdekNoAuthClientException(CdekException):
 
 class CdekApiException(CdekException):
     """
-    Base API exception
+    Authorization request failed
     """
 
     default_message = "CDEK api exception."
@@ -41,7 +49,7 @@ class CdekApiException(CdekException):
 
 class CdekApiUnavailableException(CdekApiException):
     """
-    API Unavailable error
+    API is temporarily unavailable
     """
 
     default_message = "CDEK api unavailable."
@@ -50,7 +58,7 @@ class CdekApiUnavailableException(CdekApiException):
 
 class CdekApiAccessException(CdekApiException):
     """
-    API access error
+    API rejected client credentials
     """
 
     default_message = "CDEK bad api credentials."
@@ -59,7 +67,12 @@ class CdekApiAccessException(CdekApiException):
 
 class CdekApiWrongTokenTypeException(CdekApiException):
     """
-    API Token Type error
+    API returned an unsupported token type
+
+    Args:
+        token_type (str): Тип токена из ответа API.
+        message (str, optional): Шаблон описания с плейсхолдером `{token_type}`. По умолчанию - `default_message`.
+        code (str, optional): Код ошибки. По умолчанию - `default_code`.
     """
 
     default_message = "CDEK api returned token type `{token_type}` that not supported."
@@ -74,21 +87,21 @@ class CdekApiWrongTokenTypeException(CdekApiException):
 
 class CdekRequestException(BaseCdekException, RequestException):
     """
-    Wrapper around `RequestException` so we can catch them separatly
+    HTTP request returned an error status
+
+    Исходный ответ сохраняется в `response`.
+
+    Args:
+        message (str, optional): Описание ошибки. По умолчанию - `default_message`.
+        code (str, optional): Код ошибки. По умолчанию - `default_code`.
+        response (requests.Response, optional): Ответ, вызвавший ошибку.
+        request (requests.PreparedRequest, optional): Запрос, вызвавший ошибку. По умолчанию берётся из `response`.
     """
 
     default_message = "CDEK request exception."
     default_code = "cdek_request_exception"
 
     def __init__(self, message=None, code=None, *, response=None, request=None):
-        """
-        Args:
-            message: Human readable description, `default_message` if omitted.
-            code: Machine readable code, `default_code` if omitted.
-            response: Response that caused the error, if there was one.
-            request: Request that caused the error, taken from `response` if omitted.
-        """
-
         # `RequestException.__init__` перетирает `response` и `request` тем, что найдёт в
         # своих kwargs, а `BaseCdekException` зовёт его через `super()` со строкой. Поэтому
         # атрибуты выставляются после родителя, иначе они молча обнулятся.

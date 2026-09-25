@@ -93,5 +93,19 @@ def clear_dict(raw_dict, empty_data=is_empty):
 
 
 def get_secure(secure_password, date):
+    """
+    Build the signature for the legacy calculator
+
+    Подпись - MD5 от строки `<date>&<secure_password>`. Используется только устаревшим
+    [`get_shipping_cost`][gocream_pycdek.client.CdekClient.get_shipping_cost] при `auth=True`.
+
+    Args:
+        secure_password (str): Секрет клиента.
+        date (str): Дата отправки в формате `yyyy-MM-dd`, та же, что уходит в `dateExecute`.
+
+    Returns:
+        str: Подпись в виде hex-строки.
+    """
+
     code = f"{date}&{secure_password}".encode()
     return hashlib.md5(code).hexdigest()
