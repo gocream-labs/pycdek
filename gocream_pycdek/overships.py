@@ -25,3 +25,7 @@ LIMITED_LIABILITY_COMPANY = 137
 # Публичное акционерное общество
 # Public joint-stock company
 PUBLIC_JOINT_STOCK_COMPANY = 147
+
+# Товарищество с ограниченной ответственностью
+# Limited liability partnership
+LIMITED_LIABILITY_PARTNERSHIP = 179
