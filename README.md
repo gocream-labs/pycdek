@@ -139,6 +139,7 @@ finally:
 ## Дополнительные материалы
 
 - [Справочник публичного API](https://gocream-labs.github.io/pycdek/latest/reference/)
+- [Покрытие эндпоинтов API v2](https://gocream-labs.github.io/pycdek/latest/reference/coverage/)
 - [Известные проблемы](https://gocream-labs.github.io/pycdek/latest/known-issues/)
 - [План развития](https://gocream-labs.github.io/pycdek/latest/roadmap/)
 - [Участие в разработке](https://gocream-labs.github.io/pycdek/latest/contributing/)

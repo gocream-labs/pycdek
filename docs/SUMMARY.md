@@ -10,6 +10,7 @@
     - [Пункты выдачи](reference/deliverypoints.md)
     - [Исключения](reference/exceptions.md)
     - [Вспомогательные функции](reference/utils.md)
+    - [Покрытие API](reference/coverage.md)
 - Проект
     - [Известные проблемы](known-issues.md)
     - [План развития](roadmap.md)
