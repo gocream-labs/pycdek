@@ -1,0 +1,20 @@
+{
+  "result": {
+    "currency": "RUB",
+    "deliveryDateMax": "2026-10-02",
+    "deliveryDateMin": "2026-10-01",
+    "deliveryPeriodMax": 1,
+    "deliveryPeriodMin": 0,
+    "percentVAT": 20,
+    "price": "708.00",
+    "priceByCurrency": 708.0,
+    "services": [
+      {
+        "id": 2,
+        "price": 0.0,
+        "title": "Страхование"
+      }
+    ],
+    "tariffId": 136
+  }
+}

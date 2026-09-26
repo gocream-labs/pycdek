@@ -9,6 +9,8 @@ from gocream_pycdek import CdekClient
 from gocream_pycdek import ContractType
 from gocream_pycdek.exceptions import CdekNoAuthClientException
 from gocream_pycdek.exceptions import CdekRequestException
+from gocream_pycdek.utils import get_secure
+from tests.helpers import RECORDINGS_PATH
 from tests.helpers import FakeResponse
 from tests.helpers import json_body
 from tests.helpers import only_request
@@ -62,26 +64,45 @@ def test_shipping_cost_requires_credentials_when_auth_enabled():
 
 @responses.activate
 def test_legacy_calculator_endpoint(authorized_test_client):
-    """Проверяет POST legacy-калькулятора и тело запроса.
-
-    Ответ здесь синтетический, и это осознанно. Записанный `legacy_calculator_error.xml`
-    снят с GET-запроса, который и возвращал `bad_request` - тело JSON просто не доезжало.
-    Клиент такой запрос больше не делает, а POST на тестовом контуре ещё не переснимали,
-    поэтому под проверкой форма запроса, а не тело ответа.
-    """
+    """Проверяет POST legacy-калькулятора с подписью и разбор записанного ответа контура."""
 
     url = f"{API_URL}calculator/calculate_price_by_json.php"
-    responses.add(responses.POST, url, body="<response/>", status=400, content_type="application/xml")
+    resp_json = recorded_response("legacy_calculator")
+    responses.add(responses.POST, url, json=resp_json, status=200)
 
-    request_data = {"goods": {"weight": 1}, "version": "1.0"}
-
-    with pytest.warns(DeprecationWarning), pytest.raises(CdekRequestException):
-        authorized_test_client.get_shipping_cost(request_data["goods"])
+    with pytest.warns(DeprecationWarning):
+        result = authorized_test_client.get_shipping_cost(
+            {"weight": 1}, sender_city_id=44, receiver_city_id=270, tariff_id=136, date_execute="2026-10-01", auth=True
+        )
 
     sent = only_request(responses.calls)
 
     assert sent.method == "POST"
-    assert json_body(sent) == request_data
+    assert json_body(sent) == {
+        "version": "1.0",
+        "goods": {"weight": 1},
+        "senderCityId": 44,
+        "receiverCityId": 270,
+        "tariffId": 136,
+        "dateExecute": "2026-10-01",
+        "authLogin": "client-id",
+        "secure": get_secure("client-secret", "2026-10-01"),
+    }
+    assert result == resp_json
+
+
+@responses.activate
+def test_legacy_calculator_without_auth(authorized_test_client):
+    """Без `auth=True` контур отвечает XML-ошибкой, и клиент поднимает `CdekRequestException`."""
+
+    url = f"{API_URL}calculator/calculate_price_by_json.php"
+    body = (RECORDINGS_PATH / "legacy_calculator_auth_error.xml").read_bytes()
+    responses.add(responses.POST, url, body=body, status=400, content_type="application/xml;charset=UTF-8")
+
+    with pytest.warns(DeprecationWarning), pytest.raises(CdekRequestException) as error:
+        authorized_test_client.get_shipping_cost({"weight": 1})
+
+    assert b"ERROR_REQUEST_AUTH_IS_EMPTY" in error.value.response.content
 
 
 @responses.activate
