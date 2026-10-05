@@ -1,0 +1,193 @@
+# Воркфлоу проверок для pull request и reusable-вызовов из release workflows.
+# В pull request запускаются все проверки; reusable-вызовы явно выбирают нужные.
+
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - master
+      - next
+  # Ручной запуск и вызов из release.yml. Блок inputs свой: общим с workflow_call
+  # он быть не может, GitHub требует отдельный под каждым триггером.
+  workflow_dispatch:
+    inputs:
+      run_tests:
+        description: Run the Python test matrix
+        default: true
+        required: false
+        type: boolean
+      run_package:
+        description: Build the package distributions
+        default: false
+        required: false
+        type: boolean
+      run_lint:
+        description: Run lint and formatting checks
+        default: false
+        required: false
+        type: boolean
+      run_docs:
+        description: Build documentation and check internal links
+        default: false
+        required: false
+        type: boolean
+  workflow_call:
+    inputs:
+      run_tests:
+        description: Run the Python test matrix
+        default: false
+        required: false
+        type: boolean
+      run_package:
+        description: Build the package distributions
+        default: false
+        required: false
+        type: boolean
+      run_lint:
+        description: Run lint and formatting checks
+        default: false
+        required: false
+        type: boolean
+      run_docs:
+        description: Build documentation and check internal links
+        default: false
+        required: false
+        type: boolean
+    secrets:
+      CODECOV_TOKEN:
+        description: Token for uploading coverage reports to Codecov
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}"
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # Матрица тестов по всем поддерживаемым версиям Python плюс отчёт в Codecov.
+  test:
+    name: Test (${{ matrix.python-version }})
+    if: ${{ github.event_name == 'pull_request' || inputs.run_tests }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
+          - "3.14"
+    steps:
+      - name: Setup | Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup | Install Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "${{ matrix.python-version }}"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Setup | Install Hatch
+        uses: pypa/hatch@257e27e51a6a5616ed08a39a408a21c35c9931bc
+        with:
+          version: "1.17.1"
+
+      - name: Action | Run tests
+        run: hatch run "mtest.py${{ matrix.python-version }}:check"
+
+      # Codecov объединяет отчёты матрицы сам, флаг даёт разбивку по версиям.
+      # Падение загрузки не должно ронять проверки, без токена работает tokenless.
+      - name: Action | Upload coverage to Codecov
+        uses: codecov/codecov-action@v7
+        with:
+          token: "${{ secrets.CODECOV_TOKEN }}"
+          files: coverage.xml
+          disable_search: true
+          flags: "py${{ matrix.python-version }}"
+          name: "py${{ matrix.python-version }}"
+          fail_ci_if_error: false
+
+  # Проверка, что дистрибутивы вообще собираются; артефакты не сохраняются.
+  package:
+    name: Build package
+    if: ${{ github.event_name == 'pull_request' || inputs.run_package }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup | Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup | Install Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Setup | Install Hatch
+        uses: pypa/hatch@257e27e51a6a5616ed08a39a408a21c35c9931bc
+        with:
+          version: "1.17.1"
+
+      - name: Action | Build release
+        run: hatch build --clean
+
+  # Статический анализ и форматирование, без автоисправления.
+  lint:
+    name: Lint
+    if: ${{ github.event_name == 'pull_request' || inputs.run_lint }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup | Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup | Install Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Setup | Install Hatch
+        uses: pypa/hatch@257e27e51a6a5616ed08a39a408a21c35c9931bc
+        with:
+          version: "1.17.1"
+
+      - name: Action | Run linter
+        run: hatch run lint:check
+
+      - name: Action | Check formatting
+        run: hatch run lint:fmt-check
+
+  # Строгая сборка документации и проверка внутренних ссылок; деплой - в docs.yml.
+  docs:
+    name: Documentation
+    if: ${{ github.event_name == 'pull_request' || inputs.run_docs }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup | Checkout repository with full history
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup | Install Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Setup | Install Hatch
+        uses: pypa/hatch@257e27e51a6a5616ed08a39a408a21c35c9931bc
+        with:
+          version: "1.17.1"
+
+      - name: Action | Build documentation
+        run: hatch run docs:build
+
+      - name: Action | Check internal links
+        run: hatch run docs:links

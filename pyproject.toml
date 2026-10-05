@@ -1,0 +1,376 @@
+[build-system]
+# Нижняя граница нужна из-за PEP 639 (`license` строкой SPDX + `license-files`):
+# в более старых hatchling этого синтаксиса нет. Верхнюю границу тут ставить не
+# принято - её нельзя переопределить, и она ломает сборку старых sdist в будущем.
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+
+[project]
+name = "gocream-pycdek"
+description = "python wrapper for cdek api v2.0"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MPL-2.0"
+license-files = ["LICENSE"]
+authors = [
+	{ name = "Dmitry Dobrynin", email = "dd@tovarisch.engineer" },
+]
+keywords = ["cdek", "сдэк", "delivery", "api", "client"]
+classifiers = [
+	"Development Status :: 4 - Beta",
+	"Environment :: Web Environment",
+	"Intended Audience :: Developers",
+	"Natural Language :: Russian",
+	"Operating System :: OS Independent",
+	"Programming Language :: Python",
+	"Programming Language :: Python :: 3",
+	"Programming Language :: Python :: 3.10",
+	"Programming Language :: Python :: 3.11",
+	"Programming Language :: Python :: 3.12",
+	"Programming Language :: Python :: 3.13",
+	"Programming Language :: Python :: 3.14",
+	"Programming Language :: Python :: 3 :: Only",
+	"Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+	"requests>=2.22.0,<3",
+	"pyjwt>=2,<3",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://gocream-labs.github.io/pycdek/"
+Documentation = "https://gocream-labs.github.io/pycdek/"
+Repository = "https://github.com/gocream-labs/pycdek"
+Changelog = "https://github.com/gocream-labs/pycdek/blob/master/CHANGELOG.md"
+"Bug Tracker" = "https://github.com/gocream-labs/pycdek/issues"
+
+
+[tool.hatch.version]
+path = "gocream_pycdek/__init__.py"
+
+
+# `.gitignore` в этот список добавлять бесполезно: hatchling кладёт VCS-ignore
+# в sdist принудительно, чтобы пересборка из него отбирала ровно те же файлы.
+# Проверено - `exclude` его не убирает.
+[tool.hatch.build]
+skip-excluded-dirs = true
+exclude = [
+	"/dist",
+	"/site",
+	"/.editorconfig",
+	"/.mailmap",
+]
+
+# Остальное hatchling берёт по умолчанию: всё, что под контролем VCS.
+# Явный include не нужен - README, LICENSE, AUTHORS и logo.svg попадают сами.
+[tool.hatch.build.targets.wheel]
+packages = ["gocream_pycdek"]
+
+
+[dependency-groups]
+docs = [
+	"mkdocs-material==9.7.7",
+	"mkdocstrings-python==2.0.5",
+	"mkdocs-git-revision-date-localized-plugin==1.5.3",
+	"mkdocs-git-authors-plugin==0.10.0",
+	# 0.6.3 закрепляет `mkdocs<=1.6.1` и тянет форк `properdocs`: автор плагина, как и
+	# команда Material, не переходит на MkDocs 2.0. Нам это по пути - material 9.7.7
+	# тоже живёт на 1.6.1.
+	"mkdocs-literate-nav==0.6.3",
+	"mike==2.2.0",
+	"linkchecker==10.6.0",
+	"ruff==0.15.14",
+]
+lint = [
+	"pre-commit==4.6.0",
+	"ruff==0.15.14",
+]
+test = [
+	"pytest==9.1.1",
+	"pytest-cov==7.1.0",
+	"responses==0.26.2",
+	"pytest-socket==0.8.0",
+]
+release = [
+	"python-semantic-release==10.5.3",
+]
+
+
+[tool.hatch.envs.default]
+description = "Dev environment"
+python = "3.14"
+dependency-groups = ["test", "lint"]
+
+[tool.hatch.envs.default.scripts]
+init = [
+	"git config --local blame.ignoreRevsFile .git-blame-ignore-revs",
+	"pre-commit install --hook-type pre-commit --hook-type commit-msg",
+]
+remove = [
+	"git config --local --unset blame.ignoreRevsFile",
+	"pre-commit uninstall --hook-type pre-commit",
+	"pre-commit uninstall --hook-type commit-msg",
+]
+
+
+[tool.hatch.envs.lint]
+description = "Lint environment"
+detached = true
+python = "3.14"
+dependency-groups = ["lint"]
+
+[tool.hatch.envs.lint.scripts]
+check = "ruff check {args:.}"
+fmt-check = "ruff format --check --diff {args:.}"
+format = [
+	"ruff check --fix {args:.}",
+	"ruff format {args:.}",
+]
+commit = "bash scripts/commit-lint.sh"
+
+
+[tool.hatch.envs.test]
+description = "Tests environment"
+python = "3.14"
+dependency-groups = ["test"]
+
+[tool.hatch.envs.test.scripts]
+check = "pytest {args:--cov=gocream_pycdek --cov-report term-missing}"
+
+
+[tool.hatch.envs.release]
+description = "Release environment"
+detached = true
+python = "3.14"
+dependency-groups = ["release"]
+
+[tool.hatch.envs.release.scripts]
+preview = "semantic-release --noop version --print"
+beta-preview = "semantic-release --noop version --as-prerelease --prerelease-token b --print"
+changelog = "semantic-release changelog"
+
+
+[tool.hatch.envs.docs]
+description = "Documentation environment"
+python = "3.14"
+dependency-groups = ["docs"]
+
+[tool.hatch.envs.docs.scripts]
+build = "mkdocs build --strict {args}"
+serve = "mkdocs serve {args}"
+links = "linkchecker --config .linkcheckerrc {args:site/index.html}"
+links-external = "linkchecker --config .linkcheckerrc --check-extern {args:https://gocream-labs.github.io/pycdek/}"
+versions = "mike list {args}"
+deploy = "mike deploy --update-aliases {args}"
+set-default = "mike set-default {args}"
+serve-versions = "mike serve {args}"
+
+
+[tool.hatch.envs.mtest]
+description = "Test matrix environment"
+dependency-groups = ["test"]
+
+[tool.hatch.envs.mtest.scripts]
+check = "pytest {args:-q --cov=gocream_pycdek --cov-report=xml}"
+
+[[tool.hatch.envs.mtest.matrix]]
+python = ["3.10", "3.11", "3.12", "3.13", "3.14"]
+
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+show-fixes = true
+
+[tool.ruff.lint]
+select = [
+	"B",	# flake8-bugbear
+	"C4",	# flake8-comprehensions
+	"DTZ",	# flake8-datetimez
+	"E",	# pycodestyle errors
+	"F",	# pyflakes
+	"I",	# isort
+	"ICN",	# flake8-import-conventions
+	"N",	# pep8-naming
+	"RUF",	# ruff-specific
+	"S",	# flake8-bandit
+	"SIM",	# flake8-simplify
+	"UP",	# pyupgrade
+	"W",	# pycodestyle warnings
+]
+
+# Правила выбраны широко, но часть отключена до своего этапа роадмапа.
+# Так проверка зелёная с первого дня, а включение каждого правила - отдельный
+# осмысленный коммит, а не тонущая в шуме массовая правка. По сути этот список
+# и есть машинно-проверяемый бэклог.
+ignore = [
+	# Постоянно: проект русскоязычный, кириллица в комментариях и докстрингах
+	# намеренная. Это 144 срабатывания из 149 по группе RUF.
+	"RUF001",	# кириллица в строках
+	"RUF002",	# кириллица в докстрингах
+	"RUF003",	# кириллица в комментариях
+
+	# Этап 5, ломает совместимость либо требует решения по существу
+	"DTZ005",	# datetime.now() без tz - логика протухания токена
+	"DTZ006",	# fromtimestamp() без tz - там же
+	"DTZ011",	# date.today() в устаревшем калькуляторе v1.5
+	"N818",	# переименование исключений в *Error - изменение API
+	"S105",	# ложные срабатывания на RESOURCE_AUTH_TOKEN и token_type
+	"S113",	# requests без timeout (в send() он есть, тут ложное)
+	"S324",	# md5 в get_secure - подпись устаревшего калькулятора v1.5
+]
+
+# Настроено под уже сложившийся в проекте стиль, а не наоборот:
+# по одному импорту на строку и `from ...` перед `import ...` внутри группы.
+# `tests` тут первая сторона наравне с пакетом: общий код тестов импортируется
+# как `from tests.helpers import ...`.
+[tool.ruff.lint.isort]
+known-first-party = ["gocream_pycdek", "tests"]
+force-single-line = true
+lines-after-imports = 2
+
+# Проект уже пишет `import datetime as dt` - закрепляем договорённость.
+[tool.ruff.lint.flake8-import-conventions.extend-aliases]
+datetime = "dt"
+
+# Docstring - Google-style: из них mkdocstrings собирает справочник API
+# (`docstring_style: google` в `mkdocs.yml`). Группа `D` включится, когда старые
+# докстринги будут приведены к формату; convention задана заранее, чтобы
+# включение было одной строкой в `select`, а не сменой стиля разом.
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401", "F403"]
+"tests/*" = ["S101", "PLR2004"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+
+[tool.coverage.run]
+source = ["gocream_pycdek"]
+omit = ["*/tests/*"]
+# Пути в отчётах относительные: иначе в coverage.xml попадает абсолютный путь
+# рабочей директории и Codecov не находит файлы в репозитории.
+relative_files = true
+
+[tool.coverage.report]
+exclude_lines = [
+	"pragma: no cover",
+	"if TYPE_CHECKING:",
+]
+
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Сеть в тестах запрещена: ответы контура берутся из записанных fixtures,
+# а живой запрос должен падать, а не молча уходить в интернет.
+addopts = "--disable-socket"
+
+
+# Релизы: версия и CHANGELOG считаются по emoji-маркерам в коммитах.
+# Проверить, что получится, не записывая ничего: `hatch run release:preview`.
+[tool.semantic_release]
+commit_message = "🔖 (release): Release {version}"
+commit_parser = "emoji"
+version_variables = ["gocream_pycdek/__init__.py:__version__"]
+tag_format = "{version}"
+
+[tool.semantic_release.branches.main]
+match = "master"
+prerelease = false
+
+# Ветка для release candidate перед стабильным релизом.
+[tool.semantic_release.branches.next]
+match = "next"
+prerelease = true
+prerelease_token = "rc"
+
+# Ручные beta-релизы можно выпускать из любой рабочей ветки. `master` и
+# `next` обрабатываются более специфичными правилами выше.
+[tool.semantic_release.branches.beta]
+match = "^(?!master$|next$).+"
+prerelease = true
+prerelease_token = "b"
+
+[tool.semantic_release.changelog]
+mode = "update"
+insertion_flag = "<!-- version list -->"
+# Штатные шаблоны PSR печатают заголовком раздела сам emoji-маркер ("### 🏗️"),
+# поэтому в `templates/` лежат свои. Если каталог непустой, PSR берёт только
+# его, штатные шаблоны в рендеринге не участвуют.
+template_dir = "templates"
+
+[tool.semantic_release.commit_parser_options]
+ignore_merge_commits = true
+# Теги перечислены по уровню, чтобы техническое форматирование не выпускало
+# новую версию пакета.
+major_tags = ["💥", ":boom:"]
+minor_tags = ["✨", ":sparkles:"]
+patch_tags = [
+	"⚡️", ":zap:",	# производительность
+	"🐛", ":bug:",	# исправление бага
+	"🩹", ":adhesive_bandage:",	# мелкое исправление
+	"🚑️", ":ambulance:",	# критический хотфикс
+	"🔒️", ":lock:",	# безопасность
+	"♻️", ":recycle:",	# рефакторинг
+	"🗑️", ":wastebasket:",	# пометка устаревшего
+	"⚰️", ":coffin:",	# удаление мёртвого кода
+	"🧱", ":bricks:",	# инфраструктура и оснастка
+	"👽️", ":alien:",	# правки под изменения внешнего API
+	"🏷️", ":label:",	# типы
+	"📝", ":memo:",	# документация
+	"🔧", ":wrench:",	# конфигурация
+	"🏗️", ":building_construction:",	# архитектура и сборка
+	"⬆️", ":arrow_up:",	# обновление зависимостей
+	"⬇️", ":arrow_down:",	# понижение зависимостей
+	"➕", ":heavy_plus_sign:",	# добавлена зависимость
+	"➖", ":heavy_minus_sign:",	# удалена зависимость
+	"🌐", ":globe_with_meridians:",	# локализация
+	"✏️", ":pencil2:",	# опечатки
+	"⏪️", ":rewind:",	# откат изменений
+]
+other_allowed_tags = [
+	"🎨", ":art:",	# форматирование и стиль
+	"🧪", ":test_tube:",	# тесты
+	"📄", ":page_facing_up:",	# лицензия
+]
+
+# Продублировать полный список обязательно. Поле `allowed_tags` в
+# EmojiParserOptions вычисляется из значений по умолчанию на этапе объявления
+# dataclass и не пересобирается из переопределённых списков выше. Регулярное
+# выражение парсера строится именно по нему, а уровень версии - по спискам
+# выше. Из-за этого без `allowed_tags` маркеры, объявленные только в
+# `other_allowed_tags`, не распознаются и уезжают в раздел "Other".
+allowed_tags = [
+	"💥", ":boom:",
+	"✨", ":sparkles:",
+	"⚡️", ":zap:",
+	"🐛", ":bug:",
+	"🩹", ":adhesive_bandage:",
+	"🚑️", ":ambulance:",
+	"🔒️", ":lock:",
+	"♻️", ":recycle:",
+	"🗑️", ":wastebasket:",
+	"⚰️", ":coffin:",
+	"🧱", ":bricks:",
+	"👽️", ":alien:",
+	"🏷️", ":label:",
+	"📝", ":memo:",
+	"🔧", ":wrench:",
+	"🏗️", ":building_construction:",
+	"⬆️", ":arrow_up:",
+	"⬇️", ":arrow_down:",
+	"➕", ":heavy_plus_sign:",
+	"➖", ":heavy_minus_sign:",
+	"🌐", ":globe_with_meridians:",
+	"✏️", ":pencil2:",
+	"⏪️", ":rewind:",
+	"🎨", ":art:",
+	"🧪", ":test_tube:",
+	"📄", ":page_facing_up:",
+]

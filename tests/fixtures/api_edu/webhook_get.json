@@ -1,0 +1,15 @@
+{
+  "entity": {
+    "type": "ORDER_STATUS",
+    "url": "https://webhook.invalid/cdek-1",
+    "uuid": "55555555-5555-4555-8555-555555555551"
+  },
+  "requests": [
+    {
+      "date_time": "2026-08-01T12:00:00+0000",
+      "request_uuid": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeee1",
+      "state": "SUCCESSFUL",
+      "type": "CREATE"
+    }
+  ]
+}

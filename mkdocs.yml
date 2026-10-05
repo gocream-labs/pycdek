@@ -1,0 +1,141 @@
+site_name: Gocream / PyCDEK
+site_description: Python-библиотека для CDEK API v2.0
+site_url: https://gocream-labs.github.io/pycdek/
+site_dir: site
+
+# Файл навигации literate-nav не должен становиться страницей сайта.
+exclude_docs: |
+  SUMMARY.md
+strict: true
+site_author: Dmitriy Dobrynin (aka dd) <dd@tovarisch.engineer>
+copyright: Copyright &copy; 2019 - present <a href="https://gocream.com/" target="_blank" rel="noopener" >GoCream</a>
+
+repo_name: gocream-labs/pycdek
+repo_url: https://github.com/gocream-labs/pycdek
+edit_uri: edit/master/docs/
+
+theme:
+  name: material
+  language: ru
+  features:
+    - content.code.copy
+    - content.code.annotate
+    - navigation.footer
+    - navigation.sections
+    - navigation.tabs
+    - navigation.tracking
+    - navigation.top
+    - search.highlight
+    - search.suggest
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Включить тёмную тему
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Включить светлую тему
+
+plugins:
+  # Навигация описана в `docs/SUMMARY.md`, а не здесь.
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - search:
+      lang:
+        - ru
+        - en
+  - git-revision-date-localized:
+      type: date
+      locale: ru
+      timezone: Europe/Moscow
+      fallback_to_build_date: true
+      enable_creation_date: true
+      ignored_commits_file: .git-blame-ignore-revs
+      # Новые страницы ещё не имеют git-истории до первого коммита.
+      strict: false
+      enabled: !ENV [GC_PYCDEK_MKDOCS_ENABLED_GIT_REVISION_DATE, true]
+      exclude:
+        - index.md
+        - roadmap.md
+        - contributing.md
+  - git-authors:
+      show_contribution: true
+      show_line_count: false
+      show_email_address: false
+      sort_authors_by: contribution
+      fallback_to_empty: true
+      ignore_commits: .git-blame-ignore-revs
+      strict: false
+      enabled: !ENV [GC_PYCDEK_MKDOCS_ENABLED_GIT_AUTHORS, true]
+      enabled_on_serve: false
+      exclude:
+        - index.md
+        - roadmap.md
+        - contributing.md
+  - mkdocstrings:
+      handlers:
+        python:
+          paths:
+            - .
+          inventories:
+            - https://docs.python.org/3/objects.inv
+          options:
+            docstring_style: google
+            docstring_options:
+              # Старые docstring приводятся к Google-style отдельным этапом.
+              warnings: false
+            members_order: source
+            group_by_category: false
+            merge_init_into_class: true
+            separate_signature: true
+            show_signature_annotations: true
+            signature_crossrefs: true
+            show_root_heading: true
+            show_source: true
+
+extra:
+  version:
+    provider: mike
+    default:
+      - latest
+      - next
+    alias: true
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/gocream-labs/pycdek
+      name: GitHub
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/gocream-pycdek/
+      name: PyPI
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - footnotes
+  - md_in_html
+  - tables
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      base_path:
+        - .
+      check_paths: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - toc:
+      permalink: true
+
+watch:
+  - gocream_pycdek
+  - README.md
+  - ROADMAP.md
+  - CONTRIBUTING.md

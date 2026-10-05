@@ -1,0 +1,3 @@
+<response>
+    <Order Msg="Нет данных для авторизации" ErrorCode="ERROR_REQUEST_AUTH_IS_EMPTY"/>
+</response>

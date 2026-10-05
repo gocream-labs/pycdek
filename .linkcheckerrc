@@ -1,0 +1,13 @@
+[checking]
+threads=10
+timeout=15
+maxrunseconds=300
+maxrequestspersecond=2
+
+[filtering]
+# В обычной CI-проверке внешние URL проверяются только синтаксически.
+# Полную сетевую проверку включает команда `docs:links-external`.
+checkextern=0
+
+[output]
+status=0

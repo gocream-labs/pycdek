@@ -1,0 +1,29 @@
+{
+  "captured_at": "2026-08-01",
+  "base_url": "https://api.edu.cdek.ru",
+  "sanitized": true,
+  "responses": {
+    "auth_success.json": {"method": "POST", "path": "/v2/oauth/token", "status": 200},
+    "auth_invalid_client.json": {"method": "POST", "path": "/v2/oauth/token", "status": 401},
+    "order_create.json": {"method": "POST", "path": "/v2/orders", "status": 202},
+    "order_get.json": {"method": "GET", "path": "/v2/orders/{uuid}", "status": 200},
+    "order_delete.json": {"method": "DELETE", "path": "/v2/orders/{uuid}", "status": 202},
+    "intake_create.json": {"method": "POST", "path": "/v2/intakes", "status": 202},
+    "intake_get.json": {"method": "GET", "path": "/v2/intakes/{uuid}", "status": 200},
+    "intake_delete.json": {"method": "DELETE", "path": "/v2/intakes/{uuid}", "status": 202},
+    "regions.json": {"method": "GET", "path": "/v2/location/regions", "status": 200},
+    "cities.json": {"method": "GET", "path": "/v2/location/cities", "status": 200},
+    "receipt_create.json": {"method": "POST", "path": "/v2/print/orders", "status": 202},
+    "receipt_get.json": {"method": "GET", "path": "/v2/print/orders/{uuid}", "status": 200},
+    "barcode_create.json": {"method": "POST", "path": "/v2/print/barcodes", "status": 202},
+    "barcode_get.json": {"method": "GET", "path": "/v2/print/barcodes/{uuid}", "status": 200},
+    "calculator_tariff.json": {"method": "POST", "path": "/v2/calculator/tariff", "status": 200},
+    "legacy_calculator.json": {"method": "POST", "path": "/calculator/calculate_price_by_json.php", "status": 200, "captured_at": "2026-09-26"},
+    "legacy_calculator_auth_error.xml": {"method": "POST", "path": "/calculator/calculate_price_by_json.php", "status": 400, "captured_at": "2026-09-26"},
+    "deliverypoints.json": {"method": "GET", "path": "/v2/deliverypoints", "status": 200},
+    "webhook_create_error.json": {"method": "POST", "path": "/v2/webhooks", "status": 400},
+    "webhooks.json": {"method": "GET", "path": "/v2/webhooks", "status": 200},
+    "webhook_get.json": {"method": "GET", "path": "/v2/webhooks/{uuid}", "status": 200},
+    "webhook_delete_error.json": {"method": "DELETE", "path": "/v2/webhooks/{uuid}", "status": 404}
+  }
+}

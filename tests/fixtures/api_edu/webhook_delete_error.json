@@ -1,0 +1,15 @@
+{
+  "requests": [
+    {
+      "date_time": "2026-08-01T14:45:53+0000",
+      "errors": [
+        {
+          "code": "v2_entity_not_found",
+          "message": "Entity is not found by uuid 55555555-5555-4555-8555-555555555555"
+        }
+      ],
+      "state": "INVALID",
+      "type": "DELETE"
+    }
+  ]
+}

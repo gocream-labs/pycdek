@@ -1,18 +1,33 @@
-*.egg-info
 *.log
+*.mo
 *.py[cod]
-*.so
+*.sublime-project
+*.sublime-workspace
+*~
 .*
-db.*
-~*
 
-/bin
-/include
-/lib
-/logs
-/share
+# Исключения из `.*` - конфиги, которые должны быть в репозитории.
+# Слэш в конце обязателен: без него git не заходит внутрь исключённой
+# директории, и правила для вложенных файлов не сработают.
+!.gitignore
+!.editorconfig
+!.gitattributes
+!.gitlint
+!.github/
+!.pre-commit-config.yaml
+!.git-blame-ignore-revs
+!.linkcheckerrc
+!.mailmap
+!templates/.components/
+!templates/.release_notes.md.j2
+
+__pycache__
+coverage.xml
+htmlcov
+dist
+/venv
+/env
 /build
-/dist
-
-/local_settings.py
-pip-selfcheck.json
+/site
+/share
+/stuff

@@ -1,0 +1,89 @@
+{
+  "entity": {
+    "cdek_number": "1100000002",
+    "comment": "Забор груза по консолидированной заявке",
+    "from_location": {
+      "address": "Тестовый адрес отправителя",
+      "city": "Москва",
+      "city_uuid": "7e8f36ba-d937-4ce4-8d53-e44177db6469",
+      "code": 44,
+      "country": "Россия",
+      "country_code": "RU",
+      "fias_guid": "0c5b2444-70a0-4932-980c-b4dc0d3f02b5",
+      "latitude": 55.75222,
+      "longitude": 37.61556,
+      "region": "Москва",
+      "region_code": 81,
+      "sub_region": "Москва"
+    },
+    "height": 10,
+    "intake_date": "2026-08-03",
+    "intake_number": "13000000",
+    "intake_time_from": "10:00",
+    "intake_time_to": "18:00",
+    "length": 10,
+    "name": "Тестовая посылка",
+    "order_uuid": "77777777-7777-4777-8777-777777777777",
+    "packages": [
+      {
+        "height": 10,
+        "length": 10,
+        "package_id": "88888888-8888-4888-8888-888888888888",
+        "weight": 100,
+        "width": 10
+      }
+    ],
+    "sender": {
+      "company": "Тестовый отправитель",
+      "contragent_type": "LEGAL_ENTITY",
+      "name": "Тестовый отправитель",
+      "passport_requirements_satisfied": false,
+      "phones": [
+        {
+          "number": "+70000000000"
+        }
+      ]
+    },
+    "statuses": [
+      {
+        "code": "READY_FOR_APPOINTMENT",
+        "date_time": "2026-08-01T14:35:50+0000",
+        "name": "Готова к назначению"
+      },
+      {
+        "code": "CREATED",
+        "date_time": "2026-08-01T14:35:50+0000",
+        "name": "Создан"
+      },
+      {
+        "code": "ACCEPTED",
+        "date_time": "2026-08-01T14:35:50+0000",
+        "name": "Принят"
+      }
+    ],
+    "to_location": {
+      "address": "Тестовый адрес получения",
+      "city": "Москва",
+      "city_uuid": "7e8f36ba-d937-4ce4-8d53-e44177db6469",
+      "code": 44,
+      "country": "Россия",
+      "country_code": "RU",
+      "latitude": 55.644399,
+      "longitude": 37.831928,
+      "postal_code": "140091",
+      "region": "Москва",
+      "region_code": 81
+    },
+    "uuid": "22222222-2222-4222-8222-222222222222",
+    "weight": 100,
+    "width": 10
+  },
+  "requests": [
+    {
+      "date_time": "2026-08-01T14:35:46+0000",
+      "request_uuid": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1",
+      "state": "SUCCESSFUL",
+      "type": "CREATE"
+    }
+  ]
+}

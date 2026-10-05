@@ -1,0 +1,109 @@
+# Переиспользуемый воркфлоу публикации документации.
+# Вызывается из prerelease.yml и release.yml; сборка и проверка документации
+# выполняются отдельно в ci.yml.
+
+name: Documentation
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: Git tag or commit containing the documentation source
+        required: true
+        type: string
+      version:
+        description: Public documentation version, for example 2.0
+        default: ""
+        required: false
+        type: string
+      alias:
+        description: Mike alias assigned to the version
+        default: latest
+        required: false
+        type: string
+      deploy_next:
+        description: Deploy the source as the next documentation version
+        default: false
+        required: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "docs-${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  documentation:
+    name: Deploy Documentation
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    concurrency:
+      group: docs-deploy
+      cancel-in-progress: false
+
+    steps:
+      - name: Setup | Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          ref: "${{ inputs.ref }}"
+          fetch-depth: 0
+
+      - name: Setup | Install Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Setup | Install Hatch
+        uses: pypa/hatch@257e27e51a6a5616ed08a39a408a21c35c9931bc
+        with:
+          version: "1.17.1"
+
+      - name: Setup | Select documentation mode
+        id: mode
+        env:
+          DEPLOY_NEXT: "${{ inputs.deploy_next }}"
+          DOCS_VERSION: "${{ inputs.version }}"
+        run: |
+          if [ "$DEPLOY_NEXT" = "true" ] && [ -n "$DOCS_VERSION" ]; then
+            echo "::error::Choose either next or stable documentation deployment, not both"
+            exit 1
+          elif [ "$DEPLOY_NEXT" = "true" ]; then
+            DOCS_MODE=next
+          elif [ -n "$DOCS_VERSION" ]; then
+            DOCS_MODE=stable
+          else
+            echo "::error::Documentation deployment mode is required"
+            exit 1
+          fi
+
+          echo "docs_mode=$DOCS_MODE" >> "$GITHUB_OUTPUT"
+          echo "Documentation mode: $DOCS_MODE"
+
+      - name: Setup | Configure Git author
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+
+      - name: Action | Deploy next documentation
+        if: steps.mode.outputs.docs_mode == 'next'
+        run: hatch run docs:deploy --push next
+
+      - name: Action | Deploy stable documentation
+        if: steps.mode.outputs.docs_mode == 'stable'
+        env:
+          DOCS_VERSION: "${{ inputs.version }}"
+          DOCS_ALIAS: "${{ inputs.alias }}"
+        run: hatch run docs:deploy --push "$DOCS_VERSION" "$DOCS_ALIAS"
+
+      - name: Action | Use stable documentation as default
+        if: steps.mode.outputs.docs_mode == 'stable'
+        env:
+          DOCS_ALIAS: "${{ inputs.alias }}"
+        run: hatch run docs:set-default --push "$DOCS_ALIAS"

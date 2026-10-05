@@ -1,0 +1,7 @@
+{
+  "access_token": "fixture.jwt.token",
+  "expires_in": 3599,
+  "jti": "00000000-0000-4000-8000-000000000000",
+  "scope": "location:all order:all payment:all",
+  "token_type": "bearer"
+}
