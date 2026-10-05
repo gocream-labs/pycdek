@@ -8,6 +8,85 @@
 
 <!-- version list -->
 
+## v2.0.0 (2026-10-05)
+
+### Refactoring
+
+- ♻️ **client**: Refactor auth methods
+  ([`af857d4`](https://github.com/gocream-labs/pycdek/commit/af857d4b7ce33cddc8907fed909a933d535cdb67))
+
+- ♻️ **client**: Refactor authorization mechanics
+  ([`e04696d`](https://github.com/gocream-labs/pycdek/commit/e04696d848c9891c6724b8682d29777b4b039f0d))
+
+- ♻️ **client**: Refactor calculation
+  ([`0afde40`](https://github.com/gocream-labs/pycdek/commit/0afde408a11572dfc23c0d6cb66f038f3cff3722))
+
+- ♻️ **client**: Refactor delivery poinets method
+  ([`43b942e`](https://github.com/gocream-labs/pycdek/commit/43b942e7ccf460a63ff0309115259f1cf8667a40))
+
+- ♻️ **client**: Refactor get_order & remove_order methods
+  ([`e191dad`](https://github.com/gocream-labs/pycdek/commit/e191dad0ea78ebc3c1f6f3e5e410010d918ab088))
+
+- ♻️ **client**: Refactor intakes methods
+  ([`4f119ac`](https://github.com/gocream-labs/pycdek/commit/4f119ac6e64c9034074fbdffa1274a6584bb7e2d))
+
+- ♻️ **client**: Refactor location methods
+  ([`1d43dec`](https://github.com/gocream-labs/pycdek/commit/1d43decff7041b7533aaf83214b89fb6b8a7847c))
+
+- ♻️ **client**: Refactor receipt, barcode and download methods
+  ([`525aae2`](https://github.com/gocream-labs/pycdek/commit/525aae2fbef8ace64775be372349167d5ae75c65))
+
+- ♻️ **client**: Refactor registrate_order method
+  ([`1cda502`](https://github.com/gocream-labs/pycdek/commit/1cda5022cb3931705e0d314950a71fef9d44b88f))
+
+- ♻️ **client**: Refactor send method and docs
+  ([`9919e7d`](https://github.com/gocream-labs/pycdek/commit/9919e7d856589181e821bcea1e0ca5d879adce8b))
+
+- ♻️ **client**: Refactor webhook methods
+  ([`4b4d427`](https://github.com/gocream-labs/pycdek/commit/4b4d427a4a20ca03515b607c6aa24dd254f0a78c))
+
+### Tests
+
+- 🧪 **client**: Add and update tests, and check with a api.edu.cdek.ru
+  ([`7daeea0`](https://github.com/gocream-labs/pycdek/commit/7daeea0e99a41bad6d581832f8cbefe24e61df9e))
+
+### Documentation
+
+- 📝 **chore**: Update docs and comments
+  ([`1078495`](https://github.com/gocream-labs/pycdek/commit/1078495fc11105ec0ad14b5a28b8f4698fa54a9c))
+
+- 📝 **docs**: Update coverage API methods
+  ([`ec631c8`](https://github.com/gocream-labs/pycdek/commit/ec631c82eab8c012da116230632b7211268c34b9))
+
+- 📝 **docs**: Update docs and deprecation messages
+  ([`5774783`](https://github.com/gocream-labs/pycdek/commit/5774783b23a30f163103514a157931def81688eb))
+
+### Build System
+
+- 🔧 **constants**: Add new statuses, tarrifs, services and overships
+  ([`df33cc9`](https://github.com/gocream-labs/pycdek/commit/df33cc9db30d1d7ebf48198fcd6fffbe2177173c))
+
+- 🏗️ **docs**: Remove release badge
+  ([`17d326b`](https://github.com/gocream-labs/pycdek/commit/17d326b5ce8829b40e12da750051803c9d9b9903))
+
+- 🔧 **docs**: Set up Google-style docstrings
+  ([`08085aa`](https://github.com/gocream-labs/pycdek/commit/08085aafa0173453685b606f664896de31bdd3b3))
+
+- 🔧 **project**: Change line length
+  ([`e277340`](https://github.com/gocream-labs/pycdek/commit/e277340fa5c7c5aebb477cfcb9c589905d9ea43d))
+
+- 🔧 **project**: Change titles for lint commits
+  ([`4827014`](https://github.com/gocream-labs/pycdek/commit/48270143b36384ff189e3cdf63e3a996946f5f4a))
+
+### Other
+
+- 🧑‍💻 (chore): Add annotations
+  ([`8ff1f3d`](https://github.com/gocream-labs/pycdek/commit/8ff1f3d134a260a97a677bd6813142f01124268c))
+
+- 🧑‍💻 (chore): Add py.typed
+  ([`82d5089`](https://github.com/gocream-labs/pycdek/commit/82d5089e1a70883900443d87fcb956fad70103a9))
+
+
 ## v2.0.0-rc.1 (2026-08-04)
 
 ### Breaking Changes
