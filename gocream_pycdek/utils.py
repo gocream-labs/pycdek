@@ -1,7 +1,9 @@
 import hashlib
+from collections.abc import Callable
+from typing import Any
 
 
-def is_empty(value):
+def is_empty(value: object) -> bool:
     """
     Tell whether a value counts as empty for `clear_dict`
 
@@ -23,7 +25,7 @@ def is_empty(value):
     return not (isinstance(value, (int, float)) or value not in (None, (), {}, ""))
 
 
-def drop_none(fields):
+def drop_none(fields: dict[str, Any]) -> dict[str, Any]:
     """
     Build request payload from named parameters, keeping only the ones that were passed
 
@@ -46,7 +48,7 @@ def drop_none(fields):
     return {key: value for key, value in fields.items() if value is not None}
 
 
-def clear_dict(raw_dict, empty_data=is_empty):
+def clear_dict(raw_dict: dict, empty_data: Callable[[Any], bool] = is_empty) -> dict:
     """
     Recursively clear empty keys from dict
 
@@ -92,7 +94,7 @@ def clear_dict(raw_dict, empty_data=is_empty):
     return new_dict
 
 
-def get_secure(secure_password, date):
+def get_secure(secure_password: str, date: str) -> str:
     """
     Build the signature for the legacy calculator
 

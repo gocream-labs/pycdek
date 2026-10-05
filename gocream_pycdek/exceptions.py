@@ -1,4 +1,6 @@
+from requests import PreparedRequest
 from requests import RequestException
+from requests import Response
 
 
 class BaseCdekException(Exception):
@@ -13,7 +15,7 @@ class BaseCdekException(Exception):
     default_message = "Base CDEK exception."
     default_code = "base_cdek_exception"
 
-    def __init__(self, message=None, code=None):
+    def __init__(self, message: str | None = None, code: str | None = None) -> None:
         self.code = code or self.default_code
         self.message = message or self.default_message
 
@@ -78,7 +80,7 @@ class CdekApiWrongTokenTypeException(CdekApiException):
     default_message = "CDEK api returned token type `{token_type}` that not supported."
     default_code = "cdek_api_token_type"
 
-    def __init__(self, token_type, message=None, code=None):
+    def __init__(self, token_type: str, message: str | None = None, code: str | None = None) -> None:
         super().__init__(
             (message or self.default_message).format(token_type=token_type),
             code or self.default_code,
@@ -101,7 +103,14 @@ class CdekRequestException(BaseCdekException, RequestException):
     default_message = "CDEK request exception."
     default_code = "cdek_request_exception"
 
-    def __init__(self, message=None, code=None, *, response=None, request=None):
+    def __init__(
+        self,
+        message: str | None = None,
+        code: str | None = None,
+        *,
+        response: Response | None = None,
+        request: PreparedRequest | None = None,
+    ) -> None:
         # `RequestException.__init__` перетирает `response` и `request` тем, что найдёт в
         # своих kwargs, а `BaseCdekException` зовёт его через `super()` со строкой. Поэтому
         # атрибуты выставляются после родителя, иначе они молча обнулятся.

@@ -5,6 +5,7 @@ from collections.abc import Iterator
 from enum import IntEnum
 from io import BytesIO
 from pathlib import PurePath
+from typing import cast
 
 import jwt
 import requests
@@ -306,30 +307,30 @@ class CdekClient:
 
     def registrate_order(
         self,
-        tariff_code,
-        recipient,
-        packages,
+        tariff_code: int,
+        recipient: dict,
+        packages: list[dict],
         *,
-        contract_type,
-        number=None,
-        comment=None,
-        developer_key=None,
-        shipment_point=None,
-        delivery_point=None,
-        date_invoice=None,
-        shipper_name=None,
-        shipper_address=None,
-        delivery_recipient_cost=None,
-        delivery_recipient_cost_adv=None,
-        sender=None,
-        seller=None,
-        from_location=None,
-        to_location=None,
-        services=None,
-        request_print=None,
-        origin_response=False,
+        contract_type: ContractType | int,
+        number: str | None = None,
+        comment: str | None = None,
+        developer_key: str | None = None,
+        shipment_point: str | None = None,
+        delivery_point: str | None = None,
+        date_invoice: str | None = None,
+        shipper_name: str | None = None,
+        shipper_address: str | None = None,
+        delivery_recipient_cost: dict | None = None,
+        delivery_recipient_cost_adv: list[dict] | None = None,
+        sender: dict | None = None,
+        seller: dict | None = None,
+        from_location: dict | None = None,
+        to_location: dict | None = None,
+        services: list[dict] | None = None,
+        request_print: str | None = None,
+        origin_response: bool = False,
         **kwargs,
-    ):
+    ) -> dict | Response:
         """
         Register an order
 
@@ -433,7 +434,15 @@ class CdekClient:
 
         return response
 
-    def get_order(self, uuid=None, cdek_number=None, im_number=None, *, origin_response=False, **kwargs):
+    def get_order(
+        self,
+        uuid: str | None = None,
+        cdek_number: str | None = None,
+        im_number: str | None = None,
+        *,
+        origin_response: bool = False,
+        **kwargs,
+    ) -> dict | Response:
         """
         Get an order by one of its identifiers
 
@@ -520,24 +529,24 @@ class CdekClient:
 
     def registrate_intakes(
         self,
-        intake_date,
-        intake_time_from,
-        intake_time_to,
-        order_uuid=None,
-        lunch_time_from=None,
-        lunch_time_to=None,
-        name=None,
-        cdek_number=None,
-        weight=None,
-        length=None,
-        width=None,
-        height=None,
-        comment=None,
-        sender=None,
-        from_location=None,
-        need_call=None,
-        raise_errors=True,
-        origin_response=False,
+        intake_date: str,
+        intake_time_from: str,
+        intake_time_to: str,
+        order_uuid: str | None = None,
+        lunch_time_from: str | None = None,
+        lunch_time_to: str | None = None,
+        name: str | None = None,
+        cdek_number: int | None = None,
+        weight: int | None = None,
+        length: int | None = None,
+        width: int | None = None,
+        height: int | None = None,
+        comment: str | None = None,
+        sender: dict | None = None,
+        from_location: dict | None = None,
+        need_call: bool | None = None,
+        raise_errors: bool = True,
+        origin_response: bool = False,
         **kwargs,
     ) -> dict | Response:
         """
@@ -677,8 +686,8 @@ class CdekClient:
         size: int | None = 1000,
         page: int | None = 0,
         lang: str | None = None,
-        raise_errors: bool | None = True,
-        origin_response: bool | None = False,
+        raise_errors: bool = True,
+        origin_response: bool = False,
         **kwargs,
     ) -> list[dict] | dict | Response:
         """
@@ -778,7 +787,9 @@ class CdekClient:
         request_kwargs["origin_response"] = False
 
         while True:
-            regions = self.get_regions(**request_kwargs)
+            # При `origin_response=False` ответ - декодированный JSON, при успехе список. Ошибку, принятую за страницу
+            # при `raise_errors=False`, обход не отличает: это ограничение из Known Issues.
+            regions = cast("list[dict]", self.get_regions(**request_kwargs))
 
             if len(regions) == 0:
                 break
@@ -789,21 +800,21 @@ class CdekClient:
 
     def get_cities(
         self,
-        country_codes=None,
-        region_code=None,
-        kladr_region_code=None,
-        fias_region_guid=None,
-        kladr_code=None,
-        fias_guid=None,
-        postal_code=None,
-        code=None,
-        city=None,
-        page=0,
-        size=1000,
-        lang=None,
-        payment_limit=None,
-        raise_errors=True,
-        origin_response=False,
+        country_codes: list[str] | None = None,
+        region_code: int | None = None,
+        kladr_region_code: str | None = None,
+        fias_region_guid: str | None = None,
+        kladr_code: str | None = None,
+        fias_guid: str | None = None,
+        postal_code: str | None = None,
+        code: int | None = None,
+        city: str | None = None,
+        page: int | None = 0,
+        size: int | None = 1000,
+        lang: str | None = None,
+        payment_limit: float | None = None,
+        raise_errors: bool = True,
+        origin_response: bool = False,
         **kwargs,
     ) -> list[dict] | dict | Response:
         """
@@ -915,7 +926,9 @@ class CdekClient:
         request_kwargs["origin_response"] = False
 
         while True:
-            cities = self.get_cities(**request_kwargs)
+            # При `origin_response=False` ответ - декодированный JSON, при успехе список. Ошибку, принятую за страницу
+            # при `raise_errors=False`, обход не отличает: это ограничение из Known Issues.
+            cities = cast("list[dict]", self.get_cities(**request_kwargs))
 
             if len(cities) == 0:
                 break
@@ -1122,30 +1135,30 @@ class CdekClient:
 
     def get_shipping_cost(
         self,
-        goods,
-        version="1.0",
-        auth_login=None,
-        secure=None,
-        date_execute=None,
-        lang=None,
-        sender_country_code=None,
-        receiver_country_code=None,
-        sender_city_id=None,
-        sender_city=None,
-        sender_city_post_code=None,
-        receiver_city_id=None,
-        receiver_city_post_code=None,
-        receiver_city=None,
-        sender_longitude=None,
-        receiver_longitude=None,
-        sender_latitude=None,
-        receiver_latitude=None,
-        tariff_id=None,
-        tariff_list=None,
-        services=None,
-        auth=False,
-        raise_errors=True,
-        origin_response=False,
+        goods: dict,
+        version: str = "1.0",
+        auth_login: str | None = None,
+        secure: str | None = None,
+        date_execute: str | None = None,
+        lang: str | None = None,
+        sender_country_code: str | None = None,
+        receiver_country_code: str | None = None,
+        sender_city_id: int | None = None,
+        sender_city: str | None = None,
+        sender_city_post_code: str | None = None,
+        receiver_city_id: int | None = None,
+        receiver_city_post_code: str | None = None,
+        receiver_city: str | None = None,
+        sender_longitude: float | None = None,
+        receiver_longitude: float | None = None,
+        sender_latitude: float | None = None,
+        receiver_latitude: float | None = None,
+        tariff_id: int | None = None,
+        tariff_list: list[dict] | None = None,
+        services: dict | None = None,
+        auth: bool = False,
+        raise_errors: bool = True,
+        origin_response: bool = False,
         **kwargs,
     ) -> dict | Response:
         """
