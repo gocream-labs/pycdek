@@ -1427,19 +1427,19 @@
 <ol>
 <li>При необходимости предварительно выпустите и проверьте beta или RC в реальном проекте или приложении.</li>
 <li>Создайте pull request в <code>master</code>.</li>
-<li>Дождитесь успешного CI и review.</li>
+<li>Дождитесь успешного CI и review. В ruleset ветки <code>master</code> проверки CI для PR должны быть обязательными: тесты Python 3.10-3.14, сборка пакета, линтер и документация.</li>
 <li>Выполните merge в <code>master</code>.</li>
-<li>Дождитесь workflow <strong>Release</strong>: он повторно проверит commit в <code>master</code>, а затем выполнит релиз.</li>
+<li>Дождитесь workflow <strong>Release</strong> и отдельно запущенного CI для <code>master</code>.</li>
 <li>Создайте pull request из <code>master</code> обратно в <code>next</code>.</li>
 </ol>
-<p>Workflow <strong>Release</strong> сначала вызывает общий набор проверок из <code>ci.yml</code>: матрицу тестов и контрольную сборку пакета. Только после их успеха Python Semantic Release вычисляет stable-версию, обновляет версию и <code>CHANGELOG.md</code>, создаёт release-коммит и stable-тег и отправляет их в <code>master</code>.</p>
-<p>После сборки одного комплекта <code>sdist</code> и <code>wheel</code> независимо запускаются публикация в PyPI, создание GitHub Release и публикация документации. Ошибка одного направления не блокирует остальные, а весь workflow остаётся неуспешным, пока проблема не исправлена. Если проверки stable-кандидата не прошли, release-коммит, тег и публикации не создаются.</p>
+<p>Проверки перед релизом выполняются в CI pull request. После merge workflow <strong>Release</strong> запускает Python Semantic Release: он вычисляет stable-версию, обновляет версию и <code>CHANGELOG.md</code>, создаёт release-коммит и stable-тег и отправляет их в <code>master</code>.</p>
+<p>После сборки одного комплекта <code>sdist</code> и <code>wheel</code> независимо запускаются публикация в PyPI, создание GitHub Release, публикация документации и отдельный CI для текущего <code>master</code>. Ошибка одного направления публикации не блокирует остальные, а workflow <strong>Release</strong> остаётся неуспешным, пока проблема не исправлена. Дополнительный CI запускает матрицу тестов для статуса ветки и покрытия; публикация не ждёт его результата, а его падение не меняет результат workflow <strong>Release</strong>.</p>
 <p>Обратная синхронизация <code>master</code> → <code>next</code> обязательна: стабильный release-коммит и тег должны находиться в истории дальнейшей разработки.</p>
 <h2 id="release-verification">Release Verification<a class="headerlink" href="#release-verification" title="Permanent link">&para;</a></h2>
 <p>После публикации проверьте:</p>
 <ul>
 <li>версию пакета в PyPI;</li>
-<li>успешные тесты и сборку stable-кандидата в workflow <strong>Release</strong>;</li>
+<li>успешный CI релизного PR, сборку в workflow <strong>Release</strong> и отдельный CI для <code>master</code>;</li>
 <li>тег и release или prerelease в GitHub;</li>
 <li>наличие одинаковых <code>sdist</code> и <code>wheel</code> в PyPI и GitHub;</li>
 <li>для stable - алиас документации <code>latest</code> и доступность старых версий.</li>
@@ -1448,7 +1448,7 @@
 <p>Для beta и RC workflow вычисляет версию, обновляет <code>__version__</code> и <code>CHANGELOG.md</code> во временном рабочем дереве и собирает из него пакет. Эти изменения попадают в <code>sdist</code> и <code>wheel</code>, но не коммитятся в исходную ветку; тег указывает на выбранный commit разработчика.</p>
 <p>Подготовка metadata и сборка выполняются в одном job, поэтому между jobs передаются только готовые <code>sdist</code> и <code>wheel</code>.</p>
 <p>Поэтому автоматически созданный GitHub-архив <strong>Source code</strong> для prerelease содержит исходную версию файлов. Официальные артефакты - приложенные <code>sdist</code> и <code>wheel</code>, в которых уже записаны правильные версия и changelog.</p>
-<p>Для stable workflow <strong>Release</strong> сначала проверяет commit, попавший в <code>master</code>. После этого Python Semantic Release коммитит только версию и changelog, создаёт на этом release-коммите тег и запускает финальную сборку. Команда <code>hatch build --clean</code> очищает <code>dist/</code>, чтобы к новому релизу не примешались файлы предыдущей версии.</p>
+<p>Для stable проверки выполняются в PR до merge в <code>master</code>. Затем в workflow <strong>Release</strong> Python Semantic Release коммитит только версию и changelog, создаёт на этом release-коммите тег и запускает финальную сборку. Команда <code>hatch build --clean</code> очищает <code>dist/</code>, чтобы к новому релизу не примешались файлы предыдущей версии.</p>
 <h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
 <p>Документация публикуется через Mike:</p>
 <ul>
@@ -1543,7 +1543,7 @@
     <span class="md-icon" title="Последнее обновление">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="5 августа 2026 г. 15:37:23 MSK">5 августа 2026 г.</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="5 октября 2026 г. 18:35:35 MSK">5 октября 2026 г.</span>
   </span>
 
     

@@ -449,6 +449,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#upgrading-to-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Upgrading to 2.0
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#_4" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1174,6 +1185,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#upgrading-to-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Upgrading to 2.0
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#_4" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1282,8 +1304,7 @@
 <h2 id="_1">Установка<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>gocream-pycdek
 </code></pre></div>
-<p>Стабильной версии пока нет, поэтому команда выше поставит последний release
-candidate. После выхода 2.0.0 предварительные версии ставятся флагом <code>--pre</code>:</p>
+<p>Для установки предварительных версий используйте флаг <code>--pre</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span>--pre<span class="w"> </span>gocream-pycdek
 </code></pre></div>
 <p>Импорт в Python выполняется через пакет <code>gocream_pycdek</code>:</p>
@@ -1332,9 +1353,26 @@ candidate. После выхода 2.0.0 предварительные верс
 накопление дескрипторов легко пропустить — особенно если клиенты создаются на каждый
 запрос и оседают в кэше или контейнере зависимостей. После <code>close()</code> клиент остаётся
 рабочим: следующий запрос откроет соединение заново.</p>
+<h2 id="upgrading-to-20">Upgrading to 2.0<a class="headerlink" href="#upgrading-to-20" title="Permanent link">&para;</a></h2>
+<p>При обновлении с ранних beta и RC проверьте вызовы клиента:</p>
+<ul>
+<li>Вместо <code>CDEKApiClient(id, secret, is_shop, production=...)</code> используйте
+  <code>CdekClient(client_id, client_secret, base_url=...)</code>. Для тестового контура передавайте <code>TEST_API_URL</code>.</li>
+<li>В <code>registrate_order</code> и <code>calculator_tariff</code> передавайте обязательный именованный аргумент
+  <code>contract_type=ContractType.ONLINE_STORE</code> или <code>ContractType.DELIVERY</code>. Тип больше не задаётся в конструкторе клиента.
+  Все необязательные аргументы этих двух методов теперь также передаются по имени.</li>
+<li>В <code>get_deliverypoints</code> замените имена <code>postal_code1</code>, <code>city_code1</code>, <code>tipe</code> на <code>postal_code</code>, <code>city_code</code>, <code>type</code>.</li>
+<li>При прямом вызове <code>send</code> явно указывайте HTTP-метод; <code>data</code>, <code>params</code> и <code>raise_errors</code> передавайте по имени.
+  В <code>get_order</code> параметры <code>raise_errors</code> и <code>origin_response</code> также передавайте по имени.</li>
+<li>Закрывайте клиент через <code>close()</code> или используйте <code>with</code>, как в примерах выше.
+  Таймаут по умолчанию составляет 3 секунды на соединение и 7 секунд на чтение; переопределить его можно через <code>timeout</code>.</li>
+</ul>
+<p>Актуальные методы API v2 сохраняют явно переданные пустые строки и вложенные структуры;
+автоматическая очистка таких значений больше не выполняется. Ограничения обработки ошибок и
+устаревшие параметры перечислены в <a href="https://gocream-labs.github.io/pycdek/latest/known-issues/">известных проблемах</a>.</p>
 <h2 id="_4">Статус проекта<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
-<p>Библиотека находится в процессе актуализации. До выхода стабильной версии 2.0.0
-публичный API бета-версий может изменяться.</p>
+<p>Стабильная ветка 2.x поддерживает Python 3.10 и новее. Устаревшие методы и параметры,
+планируемые к удалению в 3.0.0, описаны в справочнике API и разделе известных проблем.</p>
 <h2 id="_5">Дополнительные материалы<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="https://gocream-labs.github.io/pycdek/latest/reference/">Справочник публичного API</a></li>
