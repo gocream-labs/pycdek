@@ -16,14 +16,14 @@
       
       
       
-        <link rel="next" href="api/">
+        <link rel="next" href="reference/">
       
       
         
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
     
     
       
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#_1" class="md-skip">
+        <a href="#installation" class="md-skip">
           Перейти к содержанию
         </a>
       
@@ -96,9 +96,7 @@
     
       
 
-  
-
-<header class="md-header md-header--shadow" data-md-component="header">
+<header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Верхний колонтитул">
     <a href="." title="Gocream / PyCDEK" class="md-header__button md-logo" aria-label="Gocream / PyCDEK" data-md-component="logo">
       
@@ -120,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Главная
+              Home
             
           </span>
         </div>
@@ -222,6 +220,96 @@
       
         
           
+            
+<nav class="md-tabs" aria-label="Вкладки" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="reference/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="known-issues/" class="md-tabs__link">
+          
+  
+  
+  Project
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="contributing/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
         
       
       <main class="md-main" data-md-component="main">
@@ -231,14 +319,16 @@
               
                 
               
-              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" hidden>
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
 
 
+  
 
-<nav class="md-nav md-nav--primary" aria-label="Навигация" data-md-level="0">
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Навигация" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href="." title="Gocream / PyCDEK" class="md-nav__button md-logo" aria-label="Gocream / PyCDEK" data-md-component="logo">
       
@@ -284,7 +374,7 @@
   <span class="md-ellipsis">
     
   
-    Главная
+    Home
   
 
     
@@ -302,7 +392,7 @@
   <span class="md-ellipsis">
     
   
-    Главная
+    Home
   
 
     
@@ -326,10 +416,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
+  <a href="#installation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Установка
+        Installation
       
     </span>
   </a>
@@ -337,10 +427,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
+  <a href="#quick-start" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Быстрый старт
+        Quick Start
       
     </span>
   </a>
@@ -348,10 +438,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
+  <a href="#client-lifecycle" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Статус проекта
+        Client Lifecycle
       
     </span>
   </a>
@@ -359,10 +449,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
+  <a href="#upgrading-to-20" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Дополнительные материалы
+        Upgrading to 2.0
       
     </span>
   </a>
@@ -370,10 +460,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_5" class="md-nav__link">
+  <a href="#project-status" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Лицензия
+        Project Status
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Resources
       
     </span>
   </a>
@@ -394,15 +495,67 @@
   
   
   
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href="api/" class="md-nav__link">
+      <a href="reference/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Справочник API
+    Client
   
 
     
@@ -414,9 +567,349 @@
     </li>
   
 
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="reference/orders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Orders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="reference/intakes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pickup Requests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="reference/location/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regions and Cities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="reference/documents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Printed Forms
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="reference/calculator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Calculator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="reference/webhooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Webhooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="reference/deliverypoints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Delivery Points
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="reference/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="reference/utils/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Utility Functions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="reference/coverage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Coverage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
     
       
       
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Project
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
   
   
   
@@ -429,7 +922,7 @@
   <span class="md-ellipsis">
     
   
-    Известные проблемы
+    Known Issues
   
 
     
@@ -441,9 +934,10 @@
     </li>
   
 
-    
-      
-      
+              
+            
+              
+                
   
   
   
@@ -456,7 +950,7 @@
   <span class="md-ellipsis">
     
   
-    План развития
+    Roadmap
   
 
     
@@ -468,63 +962,10 @@
     </li>
   
 
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="contributing/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Участие в разработке
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="releasing/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Процесс релиза и версионирования
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
+              
+            
+              
+                
   
   
   
@@ -537,7 +978,7 @@
   <span class="md-ellipsis">
     
   
-    История изменений
+    Changelog
   
 
     
@@ -546,6 +987,129 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="releasing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Releasing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -577,10 +1141,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
+  <a href="#installation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Установка
+        Installation
       
     </span>
   </a>
@@ -588,10 +1152,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
+  <a href="#quick-start" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Быстрый старт
+        Quick Start
       
     </span>
   </a>
@@ -599,10 +1163,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
+  <a href="#client-lifecycle" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Статус проекта
+        Client Lifecycle
       
     </span>
   </a>
@@ -610,10 +1174,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
+  <a href="#upgrading-to-20" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Дополнительные материалы
+        Upgrading to 2.0
       
     </span>
   </a>
@@ -621,10 +1185,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_5" class="md-nav__link">
+  <a href="#project-status" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Лицензия
+        Project Status
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Resources
       
     </span>
   </a>
@@ -677,9 +1252,6 @@
     <a href="https://github.com/gocream-labs/pycdek/actions/workflows/ci.yml" >
         <img src="https://img.shields.io/github/actions/workflow/status/gocream-labs/pycdek/ci.yml?branch=master&logo=github&label=tests" alt="Tests - Running" />
     </a>
-    <a href="https://github.com/gocream-labs/pycdek/actions/workflows/release.yml" >
-        <img src="https://img.shields.io/github/actions/workflow/status/gocream-labs/pycdek/release.yml?logo=github&label=release" alt="Release - Running" />
-    </a>
     <a href="https://codecov.io/gh/gocream-labs/pycdek" >
         <img src="https://img.shields.io/codecov/c/github/gocream-labs/pycdek?logo=codecov&logoColor=white&label=coverage" alt="Coverage" />
     </a>
@@ -707,35 +1279,82 @@
 </p>
 
 <p><code>gocream-pycdek</code> — Python-библиотека для работы с <a href="https://apidoc.cdek.ru/">CDEK API v2.0</a>.</p>
-<h2 id="_1">Установка<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>gocream-pycdek
 </code></pre></div>
-<p>Стабильной версии пока нет, поэтому команда выше поставит последний release
-candidate. После выхода 2.0.0 предварительные версии ставятся флагом <code>--pre</code>:</p>
+<p>Для установки предварительных версий используйте флаг <code>--pre</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span>--pre<span class="w"> </span>gocream-pycdek
 </code></pre></div>
 <p>Импорт в Python выполняется через пакет <code>gocream_pycdek</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gocream_pycdek.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">CDEKApiClient</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gocream_pycdek</span><span class="w"> </span><span class="kn">import</span> <span class="n">CdekClient</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">CdekClient</span><span class="p">(</span><span class="s2">"client-id"</span><span class="p">,</span> <span class="s2">"client-secret"</span><span class="p">)</span>
 </code></pre></div>
-<h2 id="_2">Быстрый старт<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gocream_pycdek.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">CDEKApiClient</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gocream_pycdek</span><span class="w"> </span><span class="kn">import</span> <span class="n">CdekClient</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">gocream_pycdek</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContractType</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">client</span> <span class="o">=</span> <span class="n">CDEKApiClient</span><span class="p">(</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;client-id&quot;</span><span class="p">,</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">secret</span><span class="o">=</span><span class="s2">&quot;client-secret&quot;</span><span class="p">,</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="n">is_shop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="p">)</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="n">regions</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_regions</span><span class="p">()</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">client</span> <span class="o">=</span> <span class="n">CdekClient</span><span class="p">(</span><span class="s2">"client-id"</span><span class="p">,</span> <span class="s2">"client-secret"</span><span class="p">)</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">regions</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_regions</span><span class="p">()</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="n">order</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">registrate_order</span><span class="p">(</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    <span class="mi">136</span><span class="p">,</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Иван Иванов"</span><span class="p">,</span> <span class="s2">"phones"</span><span class="p">:</span> <span class="p">[{</span><span class="s2">"number"</span><span class="p">:</span> <span class="s2">"+79000000000"</span><span class="p">}]},</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    <span class="p">[{</span><span class="s2">"number"</span><span class="p">:</span> <span class="s2">"1"</span><span class="p">,</span> <span class="s2">"weight"</span><span class="p">:</span> <span class="mi">1000</span><span class="p">}],</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    <span class="n">contract_type</span><span class="o">=</span><span class="n">ContractType</span><span class="o">.</span><span class="n">ONLINE_STORE</span><span class="p">,</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>    <span class="n">to_location</span><span class="o">=</span><span class="p">{</span><span class="s2">"code"</span><span class="p">:</span> <span class="mi">270</span><span class="p">},</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="p">)</span>
 </code></pre></div>
-<p>Параметр <code>production=False</code> переключает клиент на тестовый контур СДЭК.</p>
-<h2 id="_3">Статус проекта<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
-<p>Библиотека находится в процессе актуализации. Версия 2.0.0 сохраняет публичное
-API текущей беты <code>2.0.0b9</code>, а версия 3.0.0 будет содержать ломающие изменения.</p>
-<h2 id="_4">Дополнительные материалы<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<p>Тип заказа указывается в каждом заказе, а не в клиенте: <code>ContractType.DELIVERY</code>
+доступен любому договору, <code>ContractType.ONLINE_STORE</code> — только договору
+с интернет-магазином, поэтому одна учётная запись может отправлять оба типа.</p>
+<p>Параметр <code>base_url=TEST_API_URL</code> переключает клиент на тестовый контур СДЭК.</p>
+<h2 id="client-lifecycle">Client Lifecycle<a class="headerlink" href="#client-lifecycle" title="Permanent link">&para;</a></h2>
+<p>Клиент держит открытую HTTP-сессию и переиспользует соединение между запросами.
+Поэтому один долгоживущий клиент на приложение выгоднее, чем новый клиент на
+каждый запрос, — и поэтому же его нужно закрывать.</p>
+<p>Для короткоживущего клиента достаточно блока <code>with</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">with</span> <span class="n">CdekClient</span><span class="p">(</span><span class="s2">"client-id"</span><span class="p">,</span> <span class="s2">"client-secret"</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">regions</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_regions</span><span class="p">()</span>
+</code></pre></div>
+<p>Клиент, живущий всё время работы приложения, закрывается явно при завершении:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">client</span> <span class="o">=</span> <span class="n">CdekClient</span><span class="p">(</span><span class="s2">"client-id"</span><span class="p">,</span> <span class="s2">"client-secret"</span><span class="p">)</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">regions</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_regions</span><span class="p">()</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="k">finally</span><span class="p">:</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div>
+<p>Если не закрыть, сокеты остаются открытыми, пока на клиента есть хоть одна ссылка.
+Сборщик мусора их в итоге освободит, но предупреждения при этом не будет, так что
+накопление дескрипторов легко пропустить — особенно если клиенты создаются на каждый
+запрос и оседают в кэше или контейнере зависимостей. После <code>close()</code> клиент остаётся
+рабочим: следующий запрос откроет соединение заново.</p>
+<h2 id="upgrading-to-20">Upgrading to 2.0<a class="headerlink" href="#upgrading-to-20" title="Permanent link">&para;</a></h2>
+<p>При обновлении с ранних beta и RC проверьте вызовы клиента:</p>
 <ul>
-<li><a href="https://gocream-labs.github.io/pycdek/latest/api/">Справочник публичного API</a></li>
+<li>Вместо <code>CDEKApiClient(id, secret, is_shop, production=...)</code> используйте
+  <code>CdekClient(client_id, client_secret, base_url=...)</code>. Для тестового контура передавайте <code>TEST_API_URL</code>.</li>
+<li>В <code>registrate_order</code> и <code>calculator_tariff</code> передавайте обязательный именованный аргумент
+  <code>contract_type=ContractType.ONLINE_STORE</code> или <code>ContractType.DELIVERY</code>. Тип больше не задаётся в конструкторе клиента.
+  Все необязательные аргументы этих двух методов теперь также передаются по имени.</li>
+<li>В <code>get_deliverypoints</code> замените имена <code>postal_code1</code>, <code>city_code1</code>, <code>tipe</code> на <code>postal_code</code>, <code>city_code</code>, <code>type</code>.</li>
+<li>При прямом вызове <code>send</code> явно указывайте HTTP-метод; <code>data</code>, <code>params</code> и <code>raise_errors</code> передавайте по имени.
+  В <code>get_order</code> параметры <code>raise_errors</code> и <code>origin_response</code> также передавайте по имени.</li>
+<li>Закрывайте клиент через <code>close()</code> или используйте <code>with</code>, как в примерах выше.
+  Таймаут по умолчанию составляет 3 секунды на соединение и 7 секунд на чтение; переопределить его можно через <code>timeout</code>.</li>
+</ul>
+<p>Актуальные методы API v2 сохраняют явно переданные пустые строки и вложенные структуры;
+автоматическая очистка таких значений больше не выполняется. Ограничения обработки ошибок и
+устаревшие параметры перечислены в <a href="https://gocream-labs.github.io/pycdek/latest/known-issues/">известных проблемах</a>.</p>
+<h2 id="project-status">Project Status<a class="headerlink" href="#project-status" title="Permanent link">&para;</a></h2>
+<p>Стабильная ветка 2.x поддерживает Python 3.10 и новее. Устаревшие методы и параметры,
+планируемые к удалению в 3.0.0, описаны в справочнике API и разделе известных проблем.</p>
+<h2 id="additional-resources">Additional Resources<a class="headerlink" href="#additional-resources" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://gocream-labs.github.io/pycdek/latest/reference/">Справочник публичного API</a></li>
+<li><a href="https://gocream-labs.github.io/pycdek/latest/reference/coverage/">Покрытие эндпоинтов API v2</a></li>
 <li><a href="https://gocream-labs.github.io/pycdek/latest/known-issues/">Известные проблемы</a></li>
 <li><a href="https://gocream-labs.github.io/pycdek/latest/roadmap/">План развития</a></li>
 <li><a href="https://gocream-labs.github.io/pycdek/latest/contributing/">Участие в разработке</a></li>
@@ -743,8 +1362,6 @@ API текущей беты <code>2.0.0b9</code>, а версия 3.0.0 буде
 <li><a href="https://gocream-labs.github.io/pycdek/latest/changelog/">История изменений</a></li>
 <li><a href="https://apidoc.cdek.ru/">Официальная документация CDEK API</a></li>
 </ul>
-<h2 id="_5">Лицензия<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
-<p>Проект распространяется по <a href="https://www.mozilla.org/MPL/2.0/">лицензии MPL-2.0</a>.</p>
 
 
 
@@ -788,13 +1405,13 @@ API текущей беты <code>2.0.0b9</code>, а версия 3.0.0 буде
         
         
           
-          <a href="api/" class="md-footer__link md-footer__link--next" aria-label="Вперед: Справочник API">
+          <a href="reference/" class="md-footer__link md-footer__link--next" aria-label="Вперед: Client">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Вперед
               </span>
               <div class="md-ellipsis">
-                Справочник API
+                Client
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -856,7 +1473,7 @@ API текущей беты <code>2.0.0b9</code>, а версия 3.0.0 буде
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["content.code.copy", "content.code.annotate", "navigation.footer", "navigation.sections", "navigation.tracking", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u0421\u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u043d\u043e \u0432 \u0431\u0443\u0444\u0435\u0440", "clipboard.copy": "\u041a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u0432 \u0431\u0443\u0444\u0435\u0440", "search.result.more.one": "\u0415\u0449\u0451 1 \u043d\u0430 \u044d\u0442\u043e\u0439 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0435", "search.result.more.other": "\u0415\u0449\u0451 # \u043d\u0430 \u044d\u0442\u043e\u0439 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0435", "search.result.none": "\u0421\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0439 \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e", "search.result.one": "\u041d\u0430\u0439\u0434\u0435\u043d\u043e 1 \u0441\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0435", "search.result.other": "\u041d\u0430\u0439\u0434\u0435\u043d\u043e \u0441\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0439: #", "search.result.placeholder": "\u041d\u0430\u0447\u043d\u0438\u0442\u0435 \u043f\u0435\u0447\u0430\u0442\u0430\u0442\u044c \u0434\u043b\u044f \u043f\u043e\u0438\u0441\u043a\u0430", "search.result.term.missing": "\u041e\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0443\u0435\u0442", "select.version": "\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0432\u0435\u0440\u0441\u0438\u044e"}, "version": {"alias": true, "default": ["latest", "next"], "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["content.code.copy", "content.code.annotate", "navigation.footer", "navigation.sections", "navigation.tabs", "navigation.tracking", "navigation.top", "search.highlight", "search.suggest", "toc.follow"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u0421\u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u043d\u043e \u0432 \u0431\u0443\u0444\u0435\u0440", "clipboard.copy": "\u041a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u0432 \u0431\u0443\u0444\u0435\u0440", "search.result.more.one": "\u0415\u0449\u0451 1 \u043d\u0430 \u044d\u0442\u043e\u0439 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0435", "search.result.more.other": "\u0415\u0449\u0451 # \u043d\u0430 \u044d\u0442\u043e\u0439 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0435", "search.result.none": "\u0421\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0439 \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e", "search.result.one": "\u041d\u0430\u0439\u0434\u0435\u043d\u043e 1 \u0441\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0435", "search.result.other": "\u041d\u0430\u0439\u0434\u0435\u043d\u043e \u0441\u043e\u0432\u043f\u0430\u0434\u0435\u043d\u0438\u0439: #", "search.result.placeholder": "\u041d\u0430\u0447\u043d\u0438\u0442\u0435 \u043f\u0435\u0447\u0430\u0442\u0430\u0442\u044c \u0434\u043b\u044f \u043f\u043e\u0438\u0441\u043a\u0430", "search.result.term.missing": "\u041e\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0443\u0435\u0442", "select.version": "\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0432\u0435\u0440\u0441\u0438\u044e"}, "version": {"alias": true, "default": ["latest", "next"], "provider": "mike"}}</script>
     
     
       <script src="assets/javascripts/bundle.d7400e89.min.js"></script>

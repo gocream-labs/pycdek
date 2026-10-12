@@ -2,30 +2,70 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://gocream-labs.github.io/pycdek/next/</loc>
-         <lastmod>2026-08-05</lastmod>
-    </url>
-    <url>
-         <loc>https://gocream-labs.github.io/pycdek/next/api/</loc>
-         <lastmod>2026-08-05</lastmod>
+         <lastmod>2026-10-12</lastmod>
     </url>
     <url>
          <loc>https://gocream-labs.github.io/pycdek/next/changelog/</loc>
-         <lastmod>2026-08-05</lastmod>
+         <lastmod>2026-10-12</lastmod>
     </url>
     <url>
          <loc>https://gocream-labs.github.io/pycdek/next/contributing/</loc>
-         <lastmod>2026-08-05</lastmod>
+         <lastmod>2026-10-12</lastmod>
     </url>
     <url>
          <loc>https://gocream-labs.github.io/pycdek/next/known-issues/</loc>
-         <lastmod>2026-08-05</lastmod>
+         <lastmod>2026-10-12</lastmod>
     </url>
     <url>
          <loc>https://gocream-labs.github.io/pycdek/next/releasing/</loc>
-         <lastmod>2026-08-05</lastmod>
+         <lastmod>2026-10-12</lastmod>
     </url>
     <url>
          <loc>https://gocream-labs.github.io/pycdek/next/roadmap/</loc>
-         <lastmod>2026-08-05</lastmod>
+         <lastmod>2026-10-12</lastmod>
+    </url>
+    <url>
+         <loc>https://gocream-labs.github.io/pycdek/next/reference/</loc>
+         <lastmod>2026-10-12</lastmod>
+    </url>
+    <url>
+         <loc>https://gocream-labs.github.io/pycdek/next/reference/calculator/</loc>
+         <lastmod>2026-10-12</lastmod>
+    </url>
+    <url>
+         <loc>https://gocream-labs.github.io/pycdek/next/reference/coverage/</loc>
+         <lastmod>2026-10-12</lastmod>
+    </url>
+    <url>
+         <loc>https://gocream-labs.github.io/pycdek/next/reference/deliverypoints/</loc>
+         <lastmod>2026-10-12</lastmod>
+    </url>
+    <url>
+         <loc>https://gocream-labs.github.io/pycdek/next/reference/documents/</loc>
+         <lastmod>2026-10-12</lastmod>
+    </url>
+    <url>
+         <loc>https://gocream-labs.github.io/pycdek/next/reference/exceptions/</loc>
+         <lastmod>2026-10-12</lastmod>
+    </url>
+    <url>
+         <loc>https://gocream-labs.github.io/pycdek/next/reference/intakes/</loc>
+         <lastmod>2026-10-12</lastmod>
+    </url>
+    <url>
+         <loc>https://gocream-labs.github.io/pycdek/next/reference/location/</loc>
+         <lastmod>2026-10-12</lastmod>
+    </url>
+    <url>
+         <loc>https://gocream-labs.github.io/pycdek/next/reference/orders/</loc>
+         <lastmod>2026-10-12</lastmod>
+    </url>
+    <url>
+         <loc>https://gocream-labs.github.io/pycdek/next/reference/utils/</loc>
+         <lastmod>2026-10-12</lastmod>
+    </url>
+    <url>
+         <loc>https://gocream-labs.github.io/pycdek/next/reference/webhooks/</loc>
+         <lastmod>2026-10-12</lastmod>
     </url>
 </urlset>
