@@ -1,3 +1,3 @@
-# Вспомогательные функции
+# Utility Functions
 
 ::: gocream_pycdek.utils

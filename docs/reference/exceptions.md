@@ -1,4 +1,4 @@
-# Исключения
+# Exceptions
 
 Все исключения библиотеки наследуют `BaseCdekException`. Ошибки HTTP-запросов
 дополнительно совместимы с `requests.RequestException`.

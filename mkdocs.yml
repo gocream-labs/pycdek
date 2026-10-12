@@ -60,8 +60,6 @@ plugins:
       enabled: !ENV [GC_PYCDEK_MKDOCS_ENABLED_GIT_REVISION_DATE, true]
       exclude:
         - index.md
-        - roadmap.md
-        - contributing.md
   - git-authors:
       show_contribution: true
       show_line_count: false
@@ -74,8 +72,6 @@ plugins:
       enabled_on_serve: false
       exclude:
         - index.md
-        - roadmap.md
-        - contributing.md
   - mkdocstrings:
       handlers:
         python:

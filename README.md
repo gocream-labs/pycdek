@@ -51,7 +51,7 @@
 `gocream-pycdek` — Python-библиотека для работы с [CDEK API v2.0](https://apidoc.cdek.ru/).
 
 
-## Установка
+## Installation
 
 ```sh
 pip install gocream-pycdek
@@ -72,7 +72,7 @@ client = CdekClient("client-id", "client-secret")
 ```
 
 
-## Быстрый старт
+## Quick Start
 
 ```python
 from gocream_pycdek import CdekClient
@@ -99,7 +99,7 @@ order = client.registrate_order(
 Параметр `base_url=TEST_API_URL` переключает клиент на тестовый контур СДЭК.
 
 
-## Жизненный цикл клиента
+## Client Lifecycle
 
 Клиент держит открытую HTTP-сессию и переиспользует соединение между запросами.
 Поэтому один долгоживущий клиент на приложение выгоднее, чем новый клиент на
@@ -149,13 +149,13 @@ finally:
 устаревшие параметры перечислены в [известных проблемах](https://gocream-labs.github.io/pycdek/latest/known-issues/).
 
 
-## Статус проекта
+## Project Status
 
 Стабильная ветка 2.x поддерживает Python 3.10 и новее. Устаревшие методы и параметры,
 планируемые к удалению в 3.0.0, описаны в справочнике API и разделе известных проблем.
 
 
-## Дополнительные материалы
+## Additional Resources
 
 - [Справочник публичного API](https://gocream-labs.github.io/pycdek/latest/reference/)
 - [Покрытие эндпоинтов API v2](https://gocream-labs.github.io/pycdek/latest/reference/coverage/)
@@ -165,8 +165,3 @@ finally:
 - [Процесс релиза и версионирования](https://gocream-labs.github.io/pycdek/latest/releasing/)
 - [История изменений](https://gocream-labs.github.io/pycdek/latest/changelog/)
 - [Официальная документация CDEK API](https://apidoc.cdek.ru/)
-
-
-## Лицензия
-
-Проект распространяется по [лицензии MPL-2.0](https://www.mozilla.org/MPL/2.0/).

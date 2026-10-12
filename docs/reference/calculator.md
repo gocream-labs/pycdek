@@ -1,4 +1,4 @@
-# Калькулятор
+# Calculator
 
 Расчёт стоимости доставки. `calculator_tariff` - актуальный метод API v2,
 [`get_shipping_cost`][gocream_pycdek.client.CdekClient.get_shipping_cost] использует калькулятор v1.5 и собственную схему авторизации через `authLogin` и `secure`.

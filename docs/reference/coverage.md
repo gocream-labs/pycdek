@@ -1,4 +1,4 @@
-# Покрытие API
+# API Coverage
 
 Соответствие эндпоинтов API v2 методам клиента. Список эндпоинтов сверен 26 сентября 2026 года с [официальной OpenAPI-спецификацией СДЭК](https://gateway.cdek.ru/api-cdek-docs/web/docs/merged?sectionId=api_v2_integration).
 
@@ -9,14 +9,14 @@ response = client.send("v2/calculator/tarifflist", method="post", data=payload)
 ```
 
 
-## Авторизация
+## Authorization
 
 | Метод | Эндпоинт | Описание | Клиент |
 |---|---|---|---|
 | `POST` | `/v2/oauth/token` | Получение токена авторизации | [`authorization`][gocream_pycdek.client.CdekClient.authorization] |
 
 
-## Локации
+## Locations
 
 | Метод | Эндпоинт | Описание | Клиент |
 |---|---|---|---|
@@ -27,7 +27,7 @@ response = client.send("v2/calculator/tarifflist", method="post", data=payload)
 | `GET` | `/v2/location/coordinates` | Получение локации по координатам | — |
 
 
-## Офисы
+## Delivery Points
 
 | Метод | Эндпоинт | Описание | Клиент |
 |---|---|---|---|
@@ -35,7 +35,7 @@ response = client.send("v2/calculator/tarifflist", method="post", data=payload)
 | `GET` | `/v2/deliverypoints/byPolygons` | Получение списка офисов внутри прямоугольника координат | — |
 
 
-## Калькулятор
+## Calculator
 
 | Метод | Эндпоинт | Описание | Клиент |
 |---|---|---|---|
@@ -47,7 +47,7 @@ response = client.send("v2/calculator/tarifflist", method="post", data=payload)
 Устаревший [`get_shipping_cost`][gocream_pycdek.client.CdekClient.get_shipping_cost] обращается к legacy-калькулятору `calculator/calculate_price_by_json.php`, которого нет в спецификации API v2.
 
 
-## Заказы
+## Orders
 
 | Метод | Эндпоинт | Описание | Клиент |
 |---|---|---|---|
@@ -61,7 +61,7 @@ response = client.send("v2/calculator/tarifflist", method="post", data=payload)
 | `POST` | `/v2/orders/{uuid}/clientReturn` | Регистрация клиентского возврата | — |
 
 
-## Заявки на вызов курьера
+## Pickup Requests
 
 | Метод | Эндпоинт | Описание | Клиент |
 |---|---|---|---|
@@ -72,7 +72,7 @@ response = client.send("v2/calculator/tarifflist", method="post", data=payload)
 | `POST` | `/v2/intakes/availableDays` | Получение дат вызова курьера для населённого пункта | — |
 
 
-## Печатные формы
+## Printed Forms
 
 | Метод | Эндпоинт | Описание | Клиент |
 |---|---|---|---|
@@ -86,7 +86,7 @@ response = client.send("v2/calculator/tarifflist", method="post", data=payload)
 `download` принимает готовую ссылку `url` из ответа `get_receipt` или `get_barcode`, а не UUID.
 
 
-## Вебхуки
+## Webhooks
 
 | Метод | Эндпоинт | Описание | Клиент |
 |---|---|---|---|
@@ -96,7 +96,7 @@ response = client.send("v2/calculator/tarifflist", method="post", data=payload)
 | `DELETE` | `/v2/webhooks/{uuid}` | Удаление подписки по UUID | [`subscribe_delete`][gocream_pycdek.client.CdekClient.subscribe_delete] |
 
 
-## Не покрытые разделы
+## Unsupported Endpoints
 
 Для этих разделов API в клиенте нет ни одного метода.
 
